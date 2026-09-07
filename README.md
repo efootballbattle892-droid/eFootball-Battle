@@ -4,7 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Victory eFootball Battle Mini App</title>
+    <!-- Telegram Web App Script -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Supabase Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
     <style>
         body {
             background-color: #0f172a;
@@ -104,13 +108,6 @@
         .page-section.active {
             display: block;
         }
-        .id-card-item {
-            background: #0f172a;
-            border: 1px solid #475569;
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-        }
     </style>
 </head>
 <body>
@@ -152,8 +149,8 @@
                     <h2>🔐 Login</h2>
                     <form id="login-form" onsubmit="handleLogin(event)">
                         <div class="form-group">
-                            <label>Phone Number or Email</label>
-                            <input type="text" id="li-user" placeholder="Enter phone or email" required>
+                            <label>Email Address</label>
+                            <input type="email" id="li-email" placeholder="Enter your email" required>
                         </div>
                         <div class="form-group">
                             <label>Password</label>
@@ -168,7 +165,7 @@
             </div>
         </div>
 
-        <!-- মূল অ্যাপ ইন্টারফেস (লগইন হওয়ার পর দেখাবে) -->
+        <!-- মূল অ্যাপ ইন্টারফেস -->
         <div id="main-app-section" style="display: none;">
 
             <!-- হোম পেজ -->
@@ -182,51 +179,40 @@
                 </div>
             </div>
 
-            <!-- টুর্নামেন্ট পেজ (Paid & Free) -->
+            <!-- টুর্নামেন্ট পেজ -->
             <div id="page-tournaments" class="page-section">
                 <div class="card">
                     <h3>🏆 Tournaments</h3>
-                    
-                    <!-- পেইড টুর্নামেন্ট সেকশন -->
                     <div style="background: #0f172a; padding: 10px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #eab308;">
                         <h4 style="color: #eab308; margin: 0 0 5px 0;">🔥 Paid Tournament (Entry: 20 TK)</h4>
-                        <p style="font-size: 11px; color: #94a3b8;">Send 20 TK via bKash/Nagad and apply with Transaction ID.</p>
-                        <button onclick="alert('Paid Tournament Registration Form Open!')" style="padding: 8px; font-size: 12px;">Apply Paid Tournament</button>
+                        <button onclick="notifyAction('Paid Tournament Applied')" style="padding: 8px; font-size: 12px;">Apply Paid Tournament</button>
                     </div>
-
-                    <!-- ফ্রি টুর্নামেন্ট সেকশন -->
                     <div style="background: #0f172a; padding: 10px; border-radius: 8px; border: 1px solid #25d366;">
-                        <h4 style="color: #25d366; margin: 0 0 5px 0;">🎁 Free Tournament (10 Ads & 3 Shares)</h4>
-                        <p style="font-size: 11px; color: #94a3b8;">Complete tasks to join for free.</p>
-                        <button onclick="alert('Free Tournament Task Open!')" style="background: #25d366; padding: 8px; font-size: 12px;">Start Free Tasks</button>
+                        <h4 style="color: #25d366; margin: 0 0 5px 0;">🎁 Free Tournament</h4>
+                        <button onclick="notifyAction('Free Tournament Joined')" style="background: #25d366; padding: 8px; font-size: 12px;">Start Free Tasks</button>
                     </div>
                 </div>
             </div>
 
-            <!-- শপ পেজ (ID Sell & Coin Sell) -->
+            <!-- শপ পেজ -->
             <div id="page-shop" class="page-section">
                 <div class="card">
                     <h3>🛒 Marketplace</h3>
-                    
-                    <!-- আইডি সেল আপলোড ফর্ম -->
                     <div style="background: #0f172a; padding: 10px; border-radius: 8px; margin-bottom: 15px;">
                         <h4 style="color: #38bdf8; margin: 0 0 8px 0;">📤 Sell Your eFootball ID</h4>
-                        <input type="text" placeholder="ID Title / Details (Public)" style="margin-bottom: 8px; font-size: 12px;">
-                        <input type="text" placeholder="Asking Price (TK)" style="margin-bottom: 8px; font-size: 12px;">
-                        <input type="text" placeholder="Secret Password / Login Details (Admin Only)" style="margin-bottom: 8px; font-size: 12px;">
-                        <button onclick="alert('ID Uploaded Successfully! Admin will review secret info.')" style="padding: 8px; font-size: 12px;">Publish ID</button>
+                        <input type="text" id="sell-title" placeholder="ID Title / Details" style="margin-bottom: 8px; font-size: 12px;">
+                        <input type="text" id="sell-price" placeholder="Asking Price (TK)" style="margin-bottom: 8px; font-size: 12px;">
+                        <input type="password" id="sell-secret" placeholder="Secret Password / Login Details" style="margin-bottom: 8px; font-size: 12px;">
+                        <button onclick="handleSellID()" style="padding: 8px; font-size: 12px;">Publish ID</button>
                     </div>
-
-                    <!-- কয়েন বাই সেকশন -->
                     <div style="background: #0f172a; padding: 10px; border-radius: 8px;">
                         <h4 style="color: #eab308; margin: 0 0 5px 0;">🪙 Buy eFootball Coins</h4>
-                        <p style="font-size: 11px; color: #94a3b8;">Select your coin package and pay via bKash/Nagad.</p>
-                        <button onclick="alert('Coin Buy Request Sent!')" style="background: #eab308; color: #000; padding: 8px; font-size: 12px; font-weight: bold;">Buy Coins Now</button>
+                        <button onclick="notifyAction('Coin Buy Request')" style="background: #eab308; color: #000; padding: 8px; font-size: 12px; font-weight: bold;">Buy Coins Now</button>
                     </div>
                 </div>
             </div>
 
-            <!-- প্রফেশনাল প্রোফাইল পেজ -->
+            <!-- প্রোফাইল পেজ -->
             <div id="page-profile" class="page-section">
                 <div class="card">
                     <h3>👤 My Profile</h3>
@@ -237,7 +223,7 @@
                 </div>
             </div>
 
-            <!-- টেলিগ্রাম স্টাইল ফিক্সড নেভিগেশন বার -->
+            <!-- নেভিগেশন বার -->
             <div class="nav-bar">
                 <button class="nav-btn active" onclick="switchTab('home')" id="nav-home">
                     <div style="font-size: 16px;">🏠</div>Home
@@ -258,6 +244,30 @@
     </div>
 
     <script>
+        // --- SUPABASE & WEB3FORMS CONFIGURATION ---
+        const SUPABASE_URL = 'https://bwzssqsprqghgddorbww.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_2vbFPPss487_l5ED7mf0wg_LHk2nMQZ'; 
+        
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Web3Forms Access Key সংযুক্ত করা হলো
+        const WEB3FORMS_KEY = '6a869c60-f73c-457b-a9c2-e3c9b018e6a5'; 
+
+        // জিমেইলে নোটিফিকেশন পাঠানোর ফাংশন
+        function sendEmailAlert(actionName, details) {
+            fetch('https://api.web3forms.com/submit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                body: JSON.stringify({
+                    access_key: WEB3FORMS_KEY,
+                    subject: "New Alert: " + actionName,
+                    from_name: "Victory eFootball App",
+                    message: details,
+                    email: "efootballbattle892@gmail.com"
+                })
+            }).catch(err => console.error("Email error:", err));
+        }
+
         // লগইন ও সাইনআপ সুইচিং
         window.toggleAuth = function(type) {
             if(type === 'login') {
@@ -269,32 +279,61 @@
             }
         }
 
-        // সাইন আপ হ্যান্ডেল
-        window.handleSignup = function(e) {
+        // সাইন আপ হ্যান্ডেল (Supabase Auth)
+        window.handleSignup = async function(e) {
             e.preventDefault();
             const name = document.getElementById('su-name').value;
             const phone = document.getElementById('su-phone').value;
             const email = document.getElementById('su-email').value;
+            const password = document.getElementById('su-pass').value;
+
+            const { data, error } = await supabaseClient.auth.signUp({
+                email: email,
+                password: password,
+                options: { data: { full_name: name, phone: phone } }
+            });
+
+            if (error) {
+                alert("Error: " + error.message);
+                return;
+            }
 
             localStorage.setItem('userName', name);
             localStorage.setItem('userPhone', phone);
             localStorage.setItem('userEmail', email);
 
+            sendEmailAlert("New Account Signup", `Name: ${name}\nEmail: ${email}\nPhone: ${phone}`);
             alert('Account Created Successfully!');
             openMainApp(name, phone, email);
         }
 
-        // লগইন হ্যান্ডেল
-        window.handleLogin = function(e) {
+        // লগইন হ্যান্ডেল (Supabase Auth)
+        window.handleLogin = async function(e) {
             e.preventDefault();
-            const user = document.getElementById('li-user').value;
-            
-            localStorage.setItem('userName', "User");
-            localStorage.setItem('userPhone', user);
-            localStorage.setItem('userEmail', user);
+            const email = document.getElementById('li-email').value;
+            const password = document.getElementById('li-pass').value;
 
+            const { data, error } = await supabaseClient.auth.signInWithPassword({
+                email: email,
+                password: password
+            });
+
+            if (error) {
+                alert("Login Failed: Wrong Password or Email!");
+                return;
+            }
+
+            const user = data.user;
+            const name = user.user_metadata.full_name || "User";
+            const phone = user.user_metadata.phone || "N/A";
+
+            localStorage.setItem('userName', name);
+            localStorage.setItem('userPhone', phone);
+            localStorage.setItem('userEmail', email);
+
+            sendEmailAlert("User Login", `Email: ${email}`);
             alert('Login Successful!');
-            openMainApp("User", user, user);
+            openMainApp(name, phone, email);
         }
 
         function openMainApp(name, phone, email) {
@@ -304,6 +343,28 @@
 
             document.getElementById('auth-section').style.display = 'none';
             document.getElementById('main-app-section').style.display = 'block';
+        }
+
+        // আইডি সেল আপলোড ও নোটিফিকেশন
+        window.handleSellID = function() {
+            const title = document.getElementById('sell-title').value;
+            const price = document.getElementById('sell-price').value;
+            const secret = document.getElementById('sell-secret').value;
+            const email = localStorage.getItem('userEmail');
+
+            if(!title || !price || !secret) {
+                alert("Please fill all fields including secret details!");
+                return;
+            }
+
+            sendEmailAlert("ID Sell Request", `User: ${email}\nTitle: ${title}\nPrice: ${price} TK\nSecret Pass/Details: ${secret}`);
+            alert('ID Uploaded Successfully! Admin received secret info via Gmail.');
+        }
+
+        window.notifyAction = function(actionName) {
+            const email = localStorage.getItem('userEmail');
+            sendEmailAlert(actionName, `User Email: ${email}`);
+            alert(actionName + ' request submitted!');
         }
 
         // ট্যাব পরিবর্তন ফাংশন
@@ -326,16 +387,17 @@
             }
         }
 
-        window.handleLogout = function() {
+        window.handleLogout = async function() {
+            await supabaseClient.auth.signOut();
             localStorage.clear();
             location.reload();
         }
 
-        // চেক করা ইউজার আগে থেকে লগইন করা কি না
-        window.onload = function() {
-            const savedPhone = localStorage.getItem('userPhone');
-            if(savedPhone) {
-                openMainApp(localStorage.getItem('userName'), savedPhone, localStorage.getItem('userEmail'));
+        // অটো লগইন চেক
+        window.onload = function(e) {
+            const savedEmail = localStorage.getItem('userEmail');
+            if(savedEmail) {
+                openMainApp(localStorage.getItem('userName'), localStorage.getItem('userPhone'), savedEmail);
             }
         }
     </script>
