@@ -808,14 +808,16 @@
                                 <div class='form-group'><label>ইন-গেম আইডি (In-game ID)</label><input id='free-ingame-id' required type='text'/></div>
                                 <div class='form-group'><label>যে দেশ নিয়ে খেলবেন</label><select id='free-country-select' required><option value=''>দেশ নির্বাচন করুন</option></select></div>
                                 <div class='form-group'><label>WhatsApp নম্বর</label><input id='free-whatsapp' placeholder='হোয়াটসঅ্যাপ নম্বর' required type='tel'/></div>
+                                
                                 <div class='form-group'>
                                     <label>স্ক্রিনশট আপলোড</label>
-                                    <div style='display: flex; gap: 8px;'>
-                                        <input id='free-img-url' placeholder='ছবির লিংক' required type='text' style='width:100%;'/>
+                                    <div style='display: flex; gap: 10px; align-items: center;'>
+                                        <input id='free-img-url' placeholder='ছবির লিংক এখানে আসবে' required type='text' style='flex: 1; padding: 12px 15px; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: #fff; font-size: 13px;'/>
                                         <input accept='image/*' id='free-file-input' onchange='uploadFreeScreenshot()' style='display: none;' type='file'/>
-                                        <button onclick='document.getElementById("free-file-input").click()' style='background: #334155; color: #fff; border: none; padding: 0 12px; border-radius: 6px; cursor: pointer;' type='button'>📷</button>
+                                        <button onclick='document.getElementById("free-file-input").click()' style='background: #25d366; color: #fff; border: none; padding: 12px 18px; border-radius: 8px; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center;' type='button' title='ছবি সিলেক্ট করুন'>📷</button>
                                     </div>
                                 </div>
+
                                 <button class='btn-submit' id='free-submit-btn' type='submit'>আবেদন করুন (মাত্র ১ বার)</button>
                             </form>
                         </div>
@@ -825,27 +827,42 @@
 
                 <!-- ID Sell Tab -->
                 <div id='tab-content-market' style='display: none;'>
-                    <div style='background: #1e293b; padding: 15px; border-radius: 12px; margin-bottom: 15px;'>
+                    <div style='background: #1e293b; padding: 20px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #334155;'>
+                        <h3 style='color: #facc15; margin-bottom: 15px; font-size: 16px;'>🛒 ইফুটেবল আইডি বিক্রির বিজ্ঞাপন পোস্ট করুন</h3>
                         <form onsubmit='handleSellPostSubmit(event)'>
-                            <div class='form-group'><label>বিবরণ</label><input id='market-title' required type='text'/></div>
-                            <div class='form-group'><label>দাম (Tk)</label><input id='market-price' required type='number'/></div>
-                            <div class='form-group'><label>কোনামি জিমেইল</label><input id='market-konami-gmail' required type='email'/></div>
-                            <div class='form-group'><label>পাসওয়ার্ড</label><input id='market-konami-pass' required type='text'/></div>
                             <div class='form-group'>
-                                <label>স্ক্রিনশট</label>
-                                <div style='display: flex; gap: 8px;'>
-                                    <input id='market-img-url' required type='text' style='width:100%;'/>
+                                <label>বিবরণ (টাইটেল)</label>
+                                <input id='market-title' placeholder='যেমন: 105 rated Messi ID' required type='text'/>
+                            </div>
+                            <div class='form-group'>
+                                <label>দাম (Tk)</label>
+                                <input id='market-price' placeholder='যেমন: 500' required type='number'/>
+                            </div>
+                            <div class='form-group'>
+                                <label>কোনামি জিমেইল</label>
+                                <input id='market-konami-gmail' placeholder='আপনার কোনামি জিমেইল দিন' required type='email'/>
+                            </div>
+                            <div class='form-group'>
+                                <label>পাসওয়ার্ড</label>
+                                <input id='market-konami-pass' placeholder='কোনামি পাসওয়ার্ড দিন' required type='text'/>
+                            </div>
+                            
+                            <div class='form-group'>
+                                <label>স্ক্রিনশট ছবি</label>
+                                <div style='display: flex; gap: 10px; align-items: center;'>
+                                    <input id='market-img-url' placeholder='ছবি আপলোড করলে লিংক এখানে আসবে' required type='text' style='flex: 1; padding: 12px 15px; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: #fff; font-size: 13px;'/>
                                     <input accept='image/*' id='market-file-input' onchange='uploadMarketScreenshot()' style='display: none;' type='file'/>
-                                    <button onclick='document.getElementById("market-file-input").click()' style='background: #334155; color: #fff; border: none; padding: 0 12px; border-radius: 6px; cursor: pointer;' type='button'>📷</button>
+                                    <button onclick='document.getElementById("market-file-input").click()' style='background: #25d366; color: #fff; border: none; padding: 12px 18px; border-radius: 8px; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.2);' type='button' title='গ্যালারি থেকে ছবি সিলেক্ট করুন'>📷</button>
                                 </div>
                             </div>
-                            <button class='btn-submit' type='submit'>পাবলিশ করুন</button>
+
+                            <button class='btn-submit' type='submit' style='margin-top: 10px;'>পাবলিশ করুন</button>
                         </form>
                     </div>
                     <div id='marketplace-items-container'></div>
                 </div>
 
-                <!-- Coin Buy Tab (Added Konami Gmail & Password) -->
+                <!-- Coin Buy Tab -->
                 <div id='tab-content-coin' style='display: none;'>
                     <div style='background: #1e293b; padding: 15px; border-radius: 12px;'>
                         <form onsubmit='handleCoinBuy(event)'>
