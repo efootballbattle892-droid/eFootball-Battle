@@ -98,7 +98,6 @@
             "https://www.profitableratecpmnetwork.com/pbhd6bygib?key=be86751f2bf6b99a3c4543625ec5cb50"
         ];
 
-        let freeAdIndex = 0;
         let watchedAdsCount = 0;
         let completedSharesCount = 0;
 
@@ -252,14 +251,12 @@
             .catch(() => { alert("ইন্টারনেট সমস্যা।"); inputField.value = ""; });
         }
 
-        // --- কয়েন বাই/সেল হিসাব সিস্টেম ---
         function calculateCoinPrice() {
             let coinInput = document.getElementById("coin-amount-input");
             let priceDisplay = document.getElementById("coin-price-display");
             if(!coinInput || !priceDisplay) return;
 
             let coins = parseInt(coinInput.value) || 0;
-            // হিসাব: ১০০ কয়েন = ৯০ টাকা (অর্থাৎ প্রতি কয়েনের দাম ০.৯০ টাকা বা ১০ কয়েন = ৯ টাকা)
             let price = (coins * 0.90).toFixed(2);
             priceDisplay.innerText = price + " Tk";
         }
@@ -270,7 +267,7 @@
             let gameId = document.getElementById("coin-game-id").value.trim();
             let user = JSON.parse(localStorage.getItem("registeredUser")) || {};
 
-            if (coins <= 10) {
+            if (coins < 10) {
                 alert("⚠️ সর্বনিম্ন ১০ কয়েন সিলেক্ট করতে হবে।");
                 return;
             }
@@ -293,12 +290,11 @@
             loadUserData();
 
             let msg = "🪙 নতুন কয়েন ক্রয় রিকোয়েস্ট!\n👤 ক্রেতা: " + user.name + " (" + user.phone + ")\n🎮 গেম আইডি: " + gameId + "\n🪙 কয়েন পরিমাণ: " + coins + "\n💵 কাটা হয়েছে: " + totalPrice + " Tk";
-            sendTelegramMessage(msg, "সفলভাবে কয়েন ক্রয়ের রিকোয়েস্ট অ্যাডমিনের কাছে পাঠানো হয়েছে!");
+            sendTelegramMessage(msg, "সফলভাবে কয়েন ক্রয়ের রিকোয়েস্ট অ্যাডমিনের কাছে পাঠানো হয়েছে!");
             event.target.reset();
             document.getElementById("coin-amount-input").value = "100";
             calculateCoinPrice();
         }
-        // ------------------------------------
 
         function uploadMarketScreenshot() {
             let fileInput = document.getElementById("market-file-input");
@@ -375,11 +371,12 @@
                     div.style.cssText = "background:#1e293b; border:1px solid #334155; padding:12px; border-radius:8px; margin-bottom:12px;";
                     
                     let avatarInitial = (d.sellerName || "U").charAt(0).toUpperCase();
-                    let avatarStyle = d.sellerImg ? "background-image:url('" + d.sellerImg + "'); background-size:cover;" : "background:#25d366;";
+                    let avatarStyle = d.sellerImg ? "background-image:url(\"" + d.sellerImg + "\"); background-size:cover; background-position:center;" : "background:#25d366;";
+                    let displayImg = (d.imgUrl && d.imgUrl.startsWith("http")) ? d.imgUrl : "https://via.placeholder.com/300x180?text=No+Image";
 
                     div.innerHTML = `
                         <div style='display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;'>
-                            <b style='color:#facc15; font-size:14px;'>🎮 ${d.itemType}</b>
+                            <b style='color:#facc15; font-size:14px;'>🎮 ${d.itemType || 'eFootball ID'}</b>
                             <span style='background:#25d366; color:#fff; padding:2px 8px; border-radius:4px; font-size:12px; font-weight:bold;'>দাম: ${d.price} Tk</span>
                         </div>
                         <p style='font-size:13px; color:#cbd5e1; margin-bottom:8px;'>বিবরণ: ${d.title}</p>
@@ -390,8 +387,8 @@
                         </div>
 
                         <div style='margin-bottom:8px;'>
-                            <a href='${d.imgUrl}' target='_blank'>
-                                <img src='${d.imgUrl}' style='width:100%; max-height:180px; object-fit:cover; border-radius:6px; border:1px solid #334155;'/>
+                            <a href='${displayImg}' target='_blank'>
+                                <img src='${displayImg}' style='width:100%; max-height:180px; object-fit:cover; border-radius:6px; border:1px solid #334155;' onerror="this.src='https://via.placeholder.com/300x180?text=Invalid+Image'"/>
                             </a>
                         </div>
                         <button onclick='buyIdAccount("${docId}", ${d.price}, "${d.konamiGmail}", "${d.konamiPass}", "${d.title}")' style='display:block; text-align:center; width:100%; background:#25d366; color:#fff; padding:10px; border-radius:6px; font-size:13px; font-weight:bold; border:none; cursor:pointer;'>
@@ -428,7 +425,7 @@
             let successHtml = `
                 <div id='bought-modal' style='position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; display:flex; justify-content:center; align-items:center; padding:15px;'>
                     <div style='background:#1f2937; padding:20px; border-radius:12px; width:100%; max-width:380px; border:2px solid #25d366; text-align:center; position:relative;'>
-                        <h3 style='color:#25d366; margin-bottom:10px;'>🎉 সফলভাবে আইডি কেনা হয়েছে!</h3>
+                        <h3 style='color:#25d366; margin-bottom:10px;'>🎉 সফলভাবে আইডি কেনا হয়েছে!</h3>
                         <p style='font-size:12px; color:#cbd5e1; margin-bottom:15px;'>নিচে আপনার কোনামি জিমেইল ও পাসওয়ার্ড দেওয়া হলো:</p>
                         <div style='background:#0f172a; padding:12px; border-radius:8px; text-align:left; font-size:13px; margin-bottom:15px; border:1px solid #334155;'>
                             <p style='color:#fff; margin-bottom:6px;'><b>কোনামি জিমেইল:</b> <span style='color:#38bdf8;'>${gmail}</span></p>
@@ -1122,7 +1119,7 @@
                     </div>
                 </div>
 
-                <!-- 5. Coin Buy / Sell Tab (নতুন যোগ করা হয়েছে) -->
+                <!-- 5. Coin Buy / Sell Tab -->
                 <div id='tab-content-coin' style='display: none;'>
                     <div style='background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155; margin-bottom: 15px;'>
                         <h4 style='color: #facc15; margin-bottom: 8px; font-size: 14px;'>🪙 কয়েন কিনুন (Coin Buy & Sell)</h4>
@@ -1195,7 +1192,7 @@
                 </div>
 
                 <div id='profile-withdraw-view' style='display: none; background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155; margin-bottom: 20px;'>
-                    <div style='display: sleek; justify-content: space-between; align-items: center; margin-bottom: 10px;'>
+                    <div style='display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;'>
                         <h4 style='color: #ef4444; font-size: 15px;'>🪙 টাকা উইথড্র করুন</h4>
                         <button onclick='switchProfileSubTab("main")' style='background: #334155; color: #fff; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;'>⬅️ ব্যাক</button>
                     </div>
