@@ -372,7 +372,7 @@
                     
                     let avatarInitial = (d.sellerName || "U").charAt(0).toUpperCase();
                     let avatarStyle = d.sellerImg ? "background-image:url(\"" + d.sellerImg + "\"); background-size:cover; background-position:center;" : "background:#25d366;";
-                    let displayImg = (d.imgUrl && d.imgUrl.startsWith("http")) ? d.imgUrl : "https://via.placeholder.com/300x180?text=No+Image";
+                    let displayImg = (d.imgUrl && d.imgUrl.startsWith("http")) ? d.imgUrl : "https://i.imgur.com/6X1omNE.png";
 
                     div.innerHTML = `
                         <div style='display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;'>
@@ -388,7 +388,7 @@
 
                         <div style='margin-bottom:8px;'>
                             <a href='${displayImg}' target='_blank'>
-                                <img src='${displayImg}' style='width:100%; max-height:180px; object-fit:cover; border-radius:6px; border:1px solid #334155;' onerror="this.src='https://via.placeholder.com/300x180?text=Invalid+Image'"/>
+                                <img src='${displayImg}' style='width:100%; max-height:180px; object-fit:cover; border-radius:6px; border:1px solid #334155;' onerror="this.onerror=null; this.src='https://i.imgur.com/6X1omNE.png';"/>
                             </a>
                         </div>
                         <button onclick='buyIdAccount("${docId}", ${d.price}, "${d.konamiGmail}", "${d.konamiPass}", "${d.title}")' style='display:block; text-align:center; width:100%; background:#25d366; color:#fff; padding:10px; border-radius:6px; font-size:13px; font-weight:bold; border:none; cursor:pointer;'>
@@ -425,7 +425,7 @@
             let successHtml = `
                 <div id='bought-modal' style='position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; display:flex; justify-content:center; align-items:center; padding:15px;'>
                     <div style='background:#1f2937; padding:20px; border-radius:12px; width:100%; max-width:380px; border:2px solid #25d366; text-align:center; position:relative;'>
-                        <h3 style='color:#25d366; margin-bottom:10px;'>🎉 সফলভাবে আইডি কেনا হয়েছে!</h3>
+                        <h3 style='color:#25d366; margin-bottom:10px;'>🎉 সফলভাবে আইডি কেনা হয়েছে!</h3>
                         <p style='font-size:12px; color:#cbd5e1; margin-bottom:15px;'>নিচে আপনার কোনামি জিমেইল ও পাসওয়ার্ড দেওয়া হলো:</p>
                         <div style='background:#0f172a; padding:12px; border-radius:8px; text-align:left; font-size:13px; margin-bottom:15px; border:1px solid #334155;'>
                             <p style='color:#fff; margin-bottom:6px;'><b>কোনামি জিমেইল:</b> <span style='color:#38bdf8;'>${gmail}</span></p>
