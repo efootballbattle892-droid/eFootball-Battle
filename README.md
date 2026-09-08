@@ -44,8 +44,8 @@
         .notice-board { background: linear-gradient(135deg, #7f1d1d, #450a0a); border: 1px solid #ef4444; padding: 12px 15px; border-radius: 10px; margin-bottom: 15px; font-size: 13px; color: #fecaca; }
         .notice-board b { color: #f87171; }
 
-        .tabs { display: flex; gap: 10px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
-        .tab-btn { background: #374151; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; white-space: nowrap; }
+        .tabs { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
+        .tab-btn { background: #374151; color: #fff; border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-weight: bold; white-space: nowrap; font-size: 12px; }
         .tab-btn.active { background: #25d366; color: #fff; }
 
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #1f2937; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #374151; z-index: 1000; }
@@ -85,7 +85,6 @@
         const IMGBB_API_KEY = "6d207e02198a847aa98d0a2a901485a2";
         const SITE_URL = "https://efootballbattle892-droid.github.io/eFootball-Battle/";
 
-        // ফ্রি টুর্নামেন্টের ১০টি অ্যাড লিংক লিস্ট
         const freeAdsList = [
             "https://www.profitableratecpmnetwork.com/us3wvb14?key=09cb11cc21ce1aa36a64d3dfc28b454c",
             "https://www.profitableratecpmnetwork.com/j21pmfmj54?key=83c92a4be2b8df1b736c7207e4471498",
@@ -115,6 +114,7 @@
             loadAdminNotice();
             loadMarketplaceList();
             updateFreeTaskUI();
+            calculateCoinPrice();
         });
 
         function populateCountriesDropdown(takenCountries = []) {
@@ -251,6 +251,54 @@
             })
             .catch(() => { alert("ইন্টারনেট সমস্যা।"); inputField.value = ""; });
         }
+
+        // --- কয়েন বাই/সেল হিসাব সিস্টেম ---
+        function calculateCoinPrice() {
+            let coinInput = document.getElementById("coin-amount-input");
+            let priceDisplay = document.getElementById("coin-price-display");
+            if(!coinInput || !priceDisplay) return;
+
+            let coins = parseInt(coinInput.value) || 0;
+            // হিসাব: ১০০ কয়েন = ৯০ টাকা (অর্থাৎ প্রতি কয়েনের দাম ০.৯০ টাকা বা ১০ কয়েন = ৯ টাকা)
+            let price = (coins * 0.90).toFixed(2);
+            priceDisplay.innerText = price + " Tk";
+        }
+
+        function handleCoinBuy(event) {
+            event.preventDefault();
+            let coins = parseInt(document.getElementById("coin-amount-input").value) || 0;
+            let gameId = document.getElementById("coin-game-id").value.trim();
+            let user = JSON.parse(localStorage.getItem("registeredUser")) || {};
+
+            if (coins <= 10) {
+                alert("⚠️ সর্বনিম্ন ১০ কয়েন সিলেক্ট করতে হবে।");
+                return;
+            }
+
+            let totalPrice = (coins * 0.90).toFixed(2);
+
+            if ((user.balance || 0) < parseFloat(totalPrice)) {
+                alert("⚠️ আপনার একাউন্টে পর্যাপ্ত টাকা ব্যালেন্স নেই! (প্রয়োজনীয়: " + totalPrice + " Tk)");
+                return;
+            }
+
+            let confirmBuy = confirm("আপনি কি " + totalPrice + " টাকা দিয়ে " + coins + " কয়েন কিনতে চান?");
+            if(!confirmBuy) return;
+
+            user.balance = (user.balance || 0) - parseFloat(totalPrice);
+            localStorage.setItem("registeredUser", JSON.stringify(user));
+            if(user.phone) {
+                db.collection("users").doc(user.phone).update({ balance: user.balance });
+            }
+            loadUserData();
+
+            let msg = "🪙 নতুন কয়েন ক্রয় রিকোয়েস্ট!\n👤 ক্রেতা: " + user.name + " (" + user.phone + ")\n🎮 গেম আইডি: " + gameId + "\n🪙 কয়েন পরিমাণ: " + coins + "\n💵 কাটা হয়েছে: " + totalPrice + " Tk";
+            sendTelegramMessage(msg, "সفলভাবে কয়েন ক্রয়ের রিকোয়েস্ট অ্যাডমিনের কাছে পাঠানো হয়েছে!");
+            event.target.reset();
+            document.getElementById("coin-amount-input").value = "100";
+            calculateCoinPrice();
+        }
+        // ------------------------------------
 
         function uploadMarketScreenshot() {
             let fileInput = document.getElementById("market-file-input");
@@ -420,7 +468,6 @@
             });
         }
 
-        // --- ফ্রি টুর্নামেন্ট অ্যাড এবং শেয়ার সিস্টেম লজিক ---
         function watchFreeAd() {
             if (watchedAdsCount >= 10) {
                 alert("✅ আপনার ১০টি অ্যাড দেখা সম্পন্ন হয়েছে!");
@@ -499,7 +546,6 @@
             completedSharesCount = 0;
             updateFreeTaskUI();
         }
-        // ----------------------------------------------------
 
         function loadAdminNotice() {
             db.collection("settings").doc("notice").get().then((doc) => {
@@ -612,11 +658,13 @@
             document.getElementById("tab-content-slot").style.display = (tabName === 'slot') ? 'block' : 'none';
             document.getElementById("tab-content-free").style.display = (tabName === 'free') ? 'block' : 'none';
             document.getElementById("tab-content-market").style.display = (tabName === 'market') ? 'block' : 'none';
+            document.getElementById("tab-content-coin").style.display = (tabName === 'coin') ? 'block' : 'none';
             
             document.getElementById("main-tab-paid").className = (tabName === 'paid') ? 'tab-btn active' : 'tab-btn';
             document.getElementById("main-tab-slot").className = (tabName === 'slot') ? 'tab-btn active' : 'tab-btn';
             document.getElementById("main-tab-free").className = (tabName === 'free') ? 'tab-btn active' : 'tab-btn';
             document.getElementById("main-tab-market").className = (tabName === 'market') ? 'tab-btn active' : 'tab-btn';
+            document.getElementById("main-tab-coin").className = (tabName === 'coin') ? 'tab-btn active' : 'tab-btn';
 
             if(tabName === 'market') loadMarketplaceList();
         }
@@ -957,10 +1005,11 @@
             <!-- হোম সেকশন মেনু ট্যাব -->
             <div class='box' id='home-section'>
                 <div class='tabs' style='margin-bottom: 15px;'>
-                    <button class='tab-btn active' id='main-tab-paid' onclick='switchMainTab("paid")'>🏆 Paid Tournaments</button>
-                    <button class='tab-btn' id='main-tab-slot' onclick='switchMainTab("slot")'>🎮 Instant PvP</button>
-                    <button class='tab-btn' id='main-tab-free' onclick='switchMainTab("free")'>🎁 Free Tournament</button>
-                    <button class='tab-btn' id='main-tab-market' onclick='switchMainTab("market")'>🛒 eFootball ID Sell</button>
+                    <button class='tab-btn active' id='main-tab-paid' onclick='switchMainTab("paid")'>🏆 Paid</button>
+                    <button class='tab-btn' id='main-tab-slot' onclick='switchMainTab("slot")'>🎮 PvP</button>
+                    <button class='tab-btn' id='main-tab-free' onclick='switchMainTab("free")'>🎁 Free</button>
+                    <button class='tab-btn' id='main-tab-market' onclick='switchMainTab("market")'>🛒 ID Sell</button>
+                    <button class='tab-btn' id='main-tab-coin' onclick='switchMainTab("coin")'>🪙 Coin Buy</button>
                 </div>
 
                 <!-- 1. Paid Tournament Tab -->
@@ -1015,7 +1064,7 @@
                     </div>
                 </div>
 
-                <!-- 3. Free Tournament Tab (অ্যাড দেখা ও শেয়ার করার শর্তযুক্ত) -->
+                <!-- 3. Free Tournament Tab -->
                 <div id='tab-content-free' style='display: none;'>
                     <div style='background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155;'>
                         <h4 style='color: #facc15; margin-bottom: 8px; font-size: 14px;'>🎁 ফ্রি টুর্নামেন্ট আবেদন</h4>
@@ -1036,7 +1085,6 @@
                             </div>
                         </div>
 
-                        <!-- ফর্মটি শর্ত পূরণ হওয়ার আগে লক (hidden) থাকবে -->
                         <div id='free-form-fields' style='display: none;'>
                             <form onsubmit='applyFreeTournament(event)'>
                                 <div class='form-group'><label style='font-size: 11px;'>ইন-গেম নাম</label><input id='free-p-name' placeholder='নাম' required type='text'/></div>
@@ -1073,6 +1121,31 @@
                         <div id='marketplace-items-container'>লোড হচ্ছে...</div>
                     </div>
                 </div>
+
+                <!-- 5. Coin Buy / Sell Tab (নতুন যোগ করা হয়েছে) -->
+                <div id='tab-content-coin' style='display: none;'>
+                    <div style='background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155; margin-bottom: 15px;'>
+                        <h4 style='color: #facc15; margin-bottom: 8px; font-size: 14px;'>🪙 কয়েন কিনুন (Coin Buy & Sell)</h4>
+                        <p style='font-size: 12px; color: #94a3b8; margin-bottom: 15px;'>রেট: ১০০ কয়েন = ৯০ টাকা (১০ কয়েন = ৯ টাকা)। আপনি কত কয়েন নিতে চান তা সিলেক্ট করুন:</p>
+                        
+                        <form onsubmit='handleCoinBuy(event)'>
+                            <div class='form-group'>
+                                <label style='font-size: 11px;'>কয়েন পরিমাণ সিলেক্ট করুন বা লিখুন</label>
+                                <input id='coin-amount-input' type='number' min='10' step='10' value='100' oninput='calculateCoinPrice()' required />
+                            </div>
+                            
+                            <div style='background: #0f172a; padding: 12px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #334155; display: flex; justify-content: space-between; align-items: center;'>
+                                <span style='font-size: 13px; color: #cbd5e1;'>মোট মূল্য:</span>
+                                <b id='coin-price-display' style='font-size: 16px; color: #25d366;'>90.00 Tk</b>
+                            </div>
+
+                            <div class='form-group'><label style='font-size: 11px;'>আপনার গেম আইডি / ইউজার নেম</label><input id='coin-game-id' placeholder='গেম আইডি লিখুন' required type='text'/></div>
+
+                            <button class='btn-submit' type='submit'>কয়েন অর্ডার করুন</button>
+                        </form>
+                    </div>
+                </div>
+
             </div>
 
             <!-- প্রোফাইল সেকশন -->
@@ -1122,7 +1195,7 @@
                 </div>
 
                 <div id='profile-withdraw-view' style='display: none; background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155; margin-bottom: 20px;'>
-                    <div style='display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;'>
+                    <div style='display: sleek; justify-content: space-between; align-items: center; margin-bottom: 10px;'>
                         <h4 style='color: #ef4444; font-size: 15px;'>🪙 টাকা উইথড্র করুন</h4>
                         <button onclick='switchProfileSubTab("main")' style='background: #334155; color: #fff; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;'>⬅️ ব্যাক</button>
                     </div>
