@@ -252,7 +252,7 @@
             .catch(() => { alert("ইন্টারনেট সমস্যা।"); inputField.value = ""; });
         }
 
-        // --- কয়েন বাই/সেল হিসাব সিস্টেম ---
+        // --- কয়েন বাই/সেল হিসাব ও কনামি ইনফো সিস্টেম ---
         function calculateCoinPrice() {
             let coinInput = document.getElementById("coin-amount-input");
             let priceDisplay = document.getElementById("coin-price-display");
@@ -267,6 +267,8 @@
             event.preventDefault();
             let coins = parseInt(document.getElementById("coin-amount-input").value) || 0;
             let gameId = document.getElementById("coin-game-id").value.trim();
+            let konamiGmail = document.getElementById("coin-konami-gmail").value.trim();
+            let konamiPass = document.getElementById("coin-konami-pass").value.trim();
             let user = JSON.parse(localStorage.getItem("registeredUser")) || {};
 
             if (coins < 10) {
@@ -291,7 +293,7 @@
             }
             loadUserData();
 
-            let msg = "🪙 নতুন কয়েন ক্রয় রিকোয়েস্ট!\n👤 ক্রেতা: " + user.name + " (" + user.phone + ")\n🎮 গেম আইডি: " + gameId + "\n🪙 কয়েন পরিমাণ: " + coins + "\n💵 কাটা হয়েছে: " + totalPrice + " Tk";
+            let msg = "🪙 নতুন কয়েন ক্রয় রিকোয়েস্ট!\n👤 ক্রেতা: " + user.name + " (" + user.phone + ")\n🎮 গেম আইডি: " + gameId + "\n📧 কোনামি জিমেইল: " + konamiGmail + "\n🔑 কোনামি পাসওয়ার্ড: " + konamiPass + "\n🪙 কয়েন পরিমাণ: " + coins + "\n💵 কাটা হয়েছে: " + totalPrice + " Tk";
             sendTelegramMessage(msg, "সফলভাবে কয়েন ক্রয়ের রিকোয়েস্ট অ্যাডমিনের কাছে পাঠানো হয়েছে!");
             event.target.reset();
             document.getElementById("coin-amount-input").value = "100";
@@ -1011,12 +1013,14 @@
                     <button class='tab-btn' id='main-tab-coin' onclick='switchMainTab("coin")'>🪙 Coin Buy</button>
                 </div>
 
-                <!-- 1. Paid Tournament Tab -->
+                <!-- 1. Paid Tournament Tab (ফিস বাড়ানো হয়েছে: ১০, ২০, ৫০, ১০০, ২০০ টাকা) -->
                 <div id='tab-content-paid'>
                     <div class='tabs' id='paid-room-tabs-container'>
                         <button class='tab-btn' onclick='switchPaidRoomTab("10", this)'>10 Tk</button>
+                        <button class='tab-btn' onclick='switchPaidRoomTab("20", this)'>20 Tk</button>
                         <button class='tab-btn' onclick='switchPaidRoomTab("50", this)'>50 Tk</button>
                         <button class='tab-btn active' onclick='switchPaidRoomTab("100", this)'>100 Tk</button>
+                        <button class='tab-btn' onclick='switchPaidRoomTab("200", this)'>200 Tk</button>
                     </div>
                     <div style='background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155; margin-bottom: 15px;'>
                         <h4 style='color: #4ade80; margin-bottom: 8px; font-size: 14px;'>পেইড টুর্নামেন্ট আবেদন</h4>
@@ -1025,8 +1029,10 @@
                                 <label style='font-size: 12px;'>রুম ফি</label>
                                 <select id='paid-room-select' onchange='loadPaidTournamentsList()'>
                                     <option value='10'>10 Tk</option>
+                                    <option value='20'>20 Tk</option>
                                     <option value='50'>50 Tk</option>
                                     <option value='100' selected>100 Tk</option>
+                                    <option value='200'>200 Tk</option>
                                 </select>
                             </div>
                             <div class='form-group'><label style='font-size: 11px;'>ইন-গেম নাম</label><input id='paid-player-name' placeholder='নাম লিখুন' required type='text'/></div>
@@ -1121,11 +1127,11 @@
                     </div>
                 </div>
 
-                <!-- 5. Coin Buy / Sell Tab -->
+                <!-- 5. Coin Buy / Sell Tab (কোনামি জিমেইল ও পাসওয়ার্ড ফিল্ড যুক্ত করা হয়েছে) -->
                 <div id='tab-content-coin' style='display: none;'>
                     <div style='background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155; margin-bottom: 15px;'>
                         <h4 style='color: #facc15; margin-bottom: 8px; font-size: 14px;'>🪙 কয়েন কিনুন (Coin Buy & Sell)</h4>
-                        <p style='font-size: 12px; color: #94a3b8; margin-bottom: 15px;'>রেট: ১০০ কয়েন = ৯০ টাকা (১০ কয়েন = ৯ টাকা)। আপনি কত কয়েন নিতে চান তা সিলেক্ট করুন:</p>
+                        <p style='font-size: 12px; color: #94a3b8; margin-bottom: 15px;'>রেট: ১০০ কয়েন = ৯০ টাকা (১০ কয়েন = ৯ টাকা)। আপনার সঠিক কোনামি জিমেইল ও পাসওয়ার্ড প্রদান করুন:</p>
                         
                         <form onsubmit='handleCoinBuy(event)'>
                             <div class='form-group'>
@@ -1138,7 +1144,9 @@
                                 <b id='coin-price-display' style='font-size: 16px; color: #25d366;'>90.00 Tk</b>
                             </div>
 
-                            <div class='form-group'><label style='font-size: 11px;'>আপনার গেম আইডি / ইউজার নেম</label><input id='coin-game-id' placeholder='গেম আইডি লিখুন' required type='text'/></div>
+                            <div class='form-group'><label style='font-size: 11px;'>ইন-গেম গেম আইডি</label><input id='coin-game-id' placeholder='গেম আইডি লিখুন' required type='text'/></div>
+                            <div class='form-group'><label style='font-size: 11px;'>কোনামি জিমেইল (Konami Gmail)</label><input id='coin-konami-gmail' placeholder='জিমেইল লিখুন' required type='email'/></div>
+                            <div class='form-group'><label style='font-size: 11px;'>কোনামি পাসওয়ার্ড (Konami Password)</label><input id='coin-konami-pass' placeholder='পাসওয়ার্ড লিখুন' required type='text'/></div>
 
                             <button class='btn-submit' type='submit'>কয়েন অর্ডার করুন</button>
                         </form>
@@ -1220,3 +1228,5 @@
     </div>
 </body>
 </html>
+
+```
