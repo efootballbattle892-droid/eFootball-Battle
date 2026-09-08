@@ -98,7 +98,6 @@
             "https://www.profitableratecpmnetwork.com/pbhd6bygib?key=be86751f2bf6b99a3c4543625ec5cb50"
         ];
 
-        let freeAdIndex = 0;
         let watchedAdsCount = 0;
         let completedSharesCount = 0;
 
@@ -252,7 +251,6 @@
             .catch(() => { alert("ইন্টারনেট সমস্যা।"); inputField.value = ""; });
         }
 
-        // --- কয়েন বাই/সেল হিসাব ও কনামি ইনফো সিস্টেম ---
         function calculateCoinPrice() {
             let coinInput = document.getElementById("coin-amount-input");
             let priceDisplay = document.getElementById("coin-price-display");
@@ -299,7 +297,6 @@
             document.getElementById("coin-amount-input").value = "100";
             calculateCoinPrice();
         }
-        // ------------------------------------
 
         function uploadMarketScreenshot() {
             let fileInput = document.getElementById("market-file-input");
@@ -1013,7 +1010,7 @@
                     <button class='tab-btn' id='main-tab-coin' onclick='switchMainTab("coin")'>🪙 Coin Buy</button>
                 </div>
 
-                <!-- 1. Paid Tournament Tab (ফিস বাড়ানো হয়েছে: ১০, ২০, ৫০, ১০০, ২০০ টাকা) -->
+                <!-- 1. Paid Tournament Tab -->
                 <div id='tab-content-paid'>
                     <div class='tabs' id='paid-room-tabs-container'>
                         <button class='tab-btn' onclick='switchPaidRoomTab("10", this)'>10 Tk</button>
@@ -1073,10 +1070,10 @@
                 <div id='tab-content-free' style='display: none;'>
                     <div style='background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155;'>
                         <h4 style='color: #facc15; margin-bottom: 8px; font-size: 14px;'>🎁 ফ্রি টুর্নামেন্ট আবেদন</h4>
-                        <p style='font-size: 12px; color: #94a3b8; margin-bottom: 15px;'>আবেদন করতে হলে নিচের **১০টি অ্যাড দেখতে হবে** এবং **৩টি শেয়ার করতে হবে**।</p>
+                        <p style='font-size: 12px; color: #94a3b8; margin-bottom: 15px;'>আবেদন করতে হলে নিচের <b>১০টি অ্যাড দেখতে হবে</b> এবং <b>৩টি শেয়ার করতে হবে</b>।</p>
                         
                         <div style='background: #0f172a; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 13px; border: 1px solid #334155;'>
-                            <div style='display:flex; justify-content:space-between; margin-bottom:10px;'>
+                            <div style='display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;'>
                                 <span>অ্যাড দেখা সম্পন্ন: <b id='free-ad-status' style='color:#ef4444;'>0/10</b></span>
                                 <button type='button' onclick='watchFreeAd()' style='background:#3b82f6; color:#fff; border:none; padding:5px 12px; border-radius:6px; cursor:pointer; font-weight:bold;'>📺 অ্যাড দেখুন</button>
                             </div>
@@ -1127,7 +1124,7 @@
                     </div>
                 </div>
 
-                <!-- 5. Coin Buy / Sell Tab (কোনামি জিমেইল ও পাসওয়ার্ড ফিল্ড যুক্ত করা হয়েছে) -->
+                <!-- 5. Coin Buy Tab -->
                 <div id='tab-content-coin' style='display: none;'>
                     <div style='background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155; margin-bottom: 15px;'>
                         <h4 style='color: #facc15; margin-bottom: 8px; font-size: 14px;'>🪙 কয়েন কিনুন (Coin Buy & Sell)</h4>
@@ -1228,5 +1225,3 @@
     </div>
 </body>
 </html>
-
-```
