@@ -353,9 +353,31 @@
             }).catch(err => alert("ত্রুটি: " + err.message));
         }
 
+        // নতুন পোস্ট ডিলিট ফাংশন (যে পোস্ট করেছে শুধু সেই ডিলিট করতে পারবে)
+        function deleteMarketPost(postId, sellerPhone) {
+            let user = JSON.parse(localStorage.getItem("registeredUser")) || {};
+            
+            if (user.phone !== sellerPhone) {
+                alert("⚠️ এই পোস্টটি ডিলিট করার অনুমতি আপনার নেই!");
+                return;
+            }
+
+            let confirmDelete = confirm("আপনি কি নিশ্চিতভাবে এই পোস্টটি ডিলিট করতে চান?");
+            if (!confirmDelete) return;
+
+            db.collection("marketplace").doc(postId).delete().then(() => {
+                alert("✅ পোস্টটি সফলভাবে ডিলিট করা হয়েছে!");
+                loadMarketplaceList();
+            }).catch(err => {
+                alert("ত্রুটি: " + err.message);
+            });
+        }
+
         function loadMarketplaceList() {
             let container = document.getElementById("marketplace-items-container");
             if (!container) return;
+
+            let user = JSON.parse(localStorage.getItem("registeredUser")) || {};
 
             db.collection("marketplace").orderBy("timestamp", "desc").get().then(snapshot => {
                 container.innerHTML = "";
@@ -374,6 +396,16 @@
                     let avatarStyle = d.sellerImg ? "background-image:url(\"" + d.sellerImg + "\"); background-size:cover; background-position:center;" : "background:#25d366;";
                     let displayImg = (d.imgUrl && d.imgUrl.startsWith("http")) ? d.imgUrl : "https://i.imgur.com/6X1omNE.png";
 
+                    // যদি বর্তমান ইউজার এই পোস্টের মালিক হয়, তবেই ডিলিট বাটন দেখাবে
+                    let deleteButtonHtml = "";
+                    if (user.phone && user.phone === d.sellerPhone) {
+                        deleteButtonHtml = `
+                            <button onclick='deleteMarketPost("${docId}", "${d.sellerPhone}")' style='margin-top:8px; display:block; text-align:center; width:100%; background:#ef4444; color:#fff; padding:8px; border-radius:6px; font-size:12px; font-weight:bold; border:none; cursor:pointer;'>
+                                🗑️ পোস্ট ডিলিট করুন (Delete)
+                            </button>
+                        `;
+                    }
+
                     div.innerHTML = `
                         <div style='display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;'>
                             <b style='color:#facc15; font-size:14px;'>🎮 ${d.itemType || 'eFootball ID'}</b>
@@ -391,9 +423,10 @@
                                 <img src='${displayImg}' style='width:100%; max-height:180px; object-fit:cover; border-radius:6px; border:1px solid #334155;' onerror="this.onerror=null; this.src='https://i.imgur.com/6X1omNE.png';"/>
                             </a>
                         </div>
-                        <button onclick='buyIdAccount("${docId}", ${d.price}, "${d.konamiGmail}", "${d.konamiPass}", "${d.title}")' style='display:block; text-align:center; width:100%; background:#25d366; color:#fff; padding:10px; border-radius:6px; font-size:13px; font-weight:bold; border:none; cursor:pointer;'>
+                        <button onclick='buyIdAccount("${docId}", ${d.price}, "${d.konamiGmail}", "${d.konamiPass}", "${d.title}")' style='display:block; text-align:center; width:100%; background:#25d366; color:#fff; padding:10px; border-radius:6px; font-size:13px; font-weight:bold; border:none; cursor:pointer; margin-bottom: 6px;'>
                             🛒 আইডি কিনুন (Buy Now)
                         </button>
+                        ${deleteButtonHtml}
                     `;
                     container.appendChild(div);
                 });
