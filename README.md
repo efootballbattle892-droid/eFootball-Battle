@@ -83,6 +83,25 @@
         const TELEGRAM_BOT_TOKEN = "7659515596:AAGVtejXRJQ5XGr7hmBvpyyV7-Nd14Mj8l4"; 
         const TELEGRAM_CHAT_ID = "8681927379";
         const IMGBB_API_KEY = "6d207e02198a847aa98d0a2a901485a2";
+        const SITE_URL = "https://efootballbattle892-droid.github.io/eFootball-Battle/";
+
+        // ফ্রি টুর্নামেন্টের ১০টি অ্যাড লিংক লিস্ট
+        const freeAdsList = [
+            "https://www.profitableratecpmnetwork.com/us3wvb14?key=09cb11cc21ce1aa36a64d3dfc28b454c",
+            "https://www.profitableratecpmnetwork.com/j21pmfmj54?key=83c92a4be2b8df1b736c7207e4471498",
+            "https://www.profitableratecpmnetwork.com/stb51d4d?key=c6f00199bc014a69f7b97b688e3c824e",
+            "https://www.profitableratecpmnetwork.com/puu0sj5i?key=31a6e12b54638b8207033e6a9bd06902",
+            "https://www.profitableratecpmnetwork.com/sy8g4tnr3?key=f73048f9f99f8380d066b679b7b05370",
+            "https://www.profitableratecpmnetwork.com/rekevt8z3w?key=55348ae12e370be0fda5a0712adbf5a8",
+            "https://www.profitableratecpmnetwork.com/rvyqpiwv?key=41a8cb649637c78fd9eb9acf70709725",
+            "https://www.profitableratecpmnetwork.com/mqaxkdcgt?key=d392235ca9c6b88e5eaef7b27e27de81",
+            "https://www.profitableratecpmnetwork.com/y2atu1kv3i?key=40f65014cd039bfa8b11a10e5a2502ad",
+            "https://www.profitableratecpmnetwork.com/pbhd6bygib?key=be86751f2bf6b99a3c4543625ec5cb50"
+        ];
+
+        let freeAdIndex = 0;
+        let watchedAdsCount = 0;
+        let completedSharesCount = 0;
 
         const countriesList = [
             "Argentina", "Brazil", "France", "Portugal", "England", 
@@ -95,6 +114,7 @@
             populateCountriesDropdown();
             loadAdminNotice();
             loadMarketplaceList();
+            updateFreeTaskUI();
         });
 
         function populateCountriesDropdown(takenCountries = []) {
@@ -192,10 +212,7 @@
 
         function updateProfilePicture() {
             let imgUrl = document.getElementById("prof-img-url-input").value.trim();
-            if (!imgUrl) {
-                alert("⚠️ দয়া করে সঠিক ছবির ইমেজ লিংক দিন।");
-                return;
-            }
+            if (!imgUrl) { alert("⚠️ দয়া করে সঠিক ছবির ইমেজ লিংক দিন।"); return; }
 
             let user = JSON.parse(localStorage.getItem("registeredUser")) || {};
             user.profileImg = imgUrl;
@@ -221,10 +238,7 @@
             let inputField = document.getElementById("prof-img-url-input");
             inputField.value = "আপলোড হচ্ছে...";
 
-            fetch("https://api.imgbb.com/1/upload?key=" + IMGBB_API_KEY, {
-                method: "POST",
-                body: formData
-            })
+            fetch("https://api.imgbb.com/1/upload?key=" + IMGBB_API_KEY, { method: "POST", body: formData })
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
@@ -235,10 +249,7 @@
                     inputField.value = "";
                 }
             })
-            .catch(() => {
-                alert("ইন্টারনেট সমস্যা।");
-                inputField.value = "";
-            });
+            .catch(() => { alert("ইন্টারনেট সমস্যা।"); inputField.value = ""; });
         }
 
         function uploadMarketScreenshot() {
@@ -251,34 +262,26 @@
             formData.append("image", file);
             urlInput.value = "আপলোড হচ্ছে...";
 
-            fetch("https://api.imgbb.com/1/upload?key=" + IMGBB_API_KEY, {
-                method: "POST",
-                body: formData
-            })
+            fetch("https://api.imgbb.com/1/upload?key=" + IMGBB_API_KEY, { method: "POST", body: formData })
             .then(res => res.json())
             .then(data => {
-                if (data.success) {
-                    urlInput.value = data.data.url;
-                } else {
-                    alert("ছবি আপলোড ব্যর্থ হয়েছে।");
-                    urlInput.value = "";
-                }
+                if (data.success) { urlInput.value = data.data.url; } 
+                else { alert("ছবি আপলোড ব্যর্থ হয়েছে।"); urlInput.value = ""; }
             })
-            .catch(() => {
-                alert("ইন্টারনেট সমস্যা।");
-                urlInput.value = "";
-            });
+            .catch(() => { alert("ইন্টারনেট সমস্যা।"); urlInput.value = ""; });
         }
 
         function handleSellPostSubmit(event) {
             event.preventDefault();
             let title = document.getElementById("market-title").value.trim();
             let price = parseFloat(document.getElementById("market-price").value);
+            let konamiGmail = document.getElementById("market-konami-gmail").value.trim();
+            let konamiPass = document.getElementById("market-konami-pass").value.trim();
             let imgUrl = document.getElementById("market-img-url").value.trim();
             let user = JSON.parse(localStorage.getItem("registeredUser")) || {};
 
-            if (!title || isNaN(price) || !imgUrl) {
-                alert("⚠️ সব তথ্য এবং স্ক্রিনশট লিংক সঠিকভাবে দিন।");
+            if (!title || isNaN(price) || !konamiGmail || !konamiPass || !imgUrl) {
+                alert("⚠️ সব তথ্য, কোনামি জিমেইল, পাসওয়ার্ড এবং স্ক্রিনশট লিংক সঠিকভাবে দিন।");
                 return;
             }
 
@@ -286,6 +289,8 @@
                 itemType: "eFootball ID Sell",
                 title: title,
                 price: price,
+                konamiGmail: konamiGmail,
+                konamiPass: konamiPass,
                 imgUrl: imgUrl,
                 sellerName: user.name,
                 sellerPhone: user.phone,
@@ -294,7 +299,10 @@
             };
 
             db.collection("marketplace").add(postData).then(() => {
-                alert("✅ সফলভাবে আপনার আইডি বিক্রির বিজ্ঞাপন পোস্ট করা হয়েছে এবং হোমে পাবলিশ হয়েছে!");
+                let adminMsg = "🚨 নতুন eFootball ID বিক্রির পোস্ট!\n👤 বিক্রেতা: " + user.name + " (" + user.phone + ")\n🎮 বিবরণ: " + title + "\n💵 দাম: " + price + " Tk\n📧 কোনামি জিমেইল: " + konamiGmail + "\n🔑 পাসওয়ার্ড: " + konamiPass;
+                sendTelegramMessage(adminMsg, null);
+
+                alert("✅ সফলভাবে আপনার আইডি বিক্রির বিজ্ঞাপন পোস্ট করা হয়েছে!");
                 event.target.reset();
                 document.getElementById("market-img-url").value = "";
                 loadMarketplaceList();
@@ -314,6 +322,7 @@
 
                 snapshot.forEach(doc => {
                     let d = doc.data();
+                    let docId = doc.id;
                     let div = document.createElement("div");
                     div.style.cssText = "background:#1e293b; border:1px solid #334155; padding:12px; border-radius:8px; margin-bottom:12px;";
                     
@@ -337,13 +346,51 @@
                                 <img src='${d.imgUrl}' style='width:100%; max-height:180px; object-fit:cover; border-radius:6px; border:1px solid #334155;'/>
                             </a>
                         </div>
-                        <a href='https://api.whatsapp.com/send?phone=+88${d.sellerPhone}&text=I%20want%20to%20buy%20your%20eFootball%20ID:%20${encodeURIComponent(d.title)}%20for%20${d.price}Tk' target='_blank' style='display:block; text-align:center; background:#25d366; color:#fff; padding:8px; border-radius:6px; font-size:12px; font-weight:bold; text-decoration:none;'>
-                            💬 বিক্রেতার সাথে যোগাযোগ করুন (WhatsApp)
-                        </a>
+                        <button onclick='buyIdAccount("${docId}", ${d.price}, "${d.konamiGmail}", "${d.konamiPass}", "${d.title}")' style='display:block; text-align:center; width:100%; background:#25d366; color:#fff; padding:10px; border-radius:6px; font-size:13px; font-weight:bold; border:none; cursor:pointer;'>
+                            🛒 আইডি কিনুন (Buy Now)
+                        </button>
                     `;
                     container.appendChild(div);
                 });
             }).catch(() => {});
+        }
+
+        function buyIdAccount(postId, price, gmail, pass, title) {
+            let user = JSON.parse(localStorage.getItem("registeredUser")) || {};
+            let userBalance = user.balance || 0;
+
+            if (userBalance < price) {
+                alert("⚠️ আপনার একাউন্টে পর্যাপ্ত টাকা ব্যালেন্স নেই! (প্রয়োজনীয়: " + price + " Tk, আপনার আছে: " + userBalance + " Tk)");
+                return;
+            }
+
+            let confirmBuy = confirm("আপনি কি নিশ্চিতভাবে " + price + " টাকা দিয়ে এই আইডিটি কিনতে চান?");
+            if (!confirmBuy) return;
+
+            user.balance = userBalance - price;
+            localStorage.setItem("registeredUser", JSON.stringify(user));
+            if (user.phone) {
+                db.collection("users").doc(user.phone).update({ balance: user.balance });
+            }
+            loadUserData();
+
+            let buyMsg = "🛒 আইডি বিক্রি সম্পন্ন!\n👤 ক্রেতা: " + user.name + " (" + user.phone + ")\n📦 আইডি: " + title + "\n💵 মূল্য: " + price + " Tk";
+            sendTelegramMessage(buyMsg, null);
+
+            let successHtml = `
+                <div id='bought-modal' style='position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; display:flex; justify-content:center; align-items:center; padding:15px;'>
+                    <div style='background:#1f2937; padding:20px; border-radius:12px; width:100%; max-width:380px; border:2px solid #25d366; text-align:center; position:relative;'>
+                        <h3 style='color:#25d366; margin-bottom:10px;'>🎉 সফলভাবে আইডি কেনা হয়েছে!</h3>
+                        <p style='font-size:12px; color:#cbd5e1; margin-bottom:15px;'>নিচে আপনার কোনামি জিমেইল ও পাসওয়ার্ড দেওয়া হলো:</p>
+                        <div style='background:#0f172a; padding:12px; border-radius:8px; text-align:left; font-size:13px; margin-bottom:15px; border:1px solid #334155;'>
+                            <p style='color:#fff; margin-bottom:6px;'><b>কোনামি জিমেইল:</b> <span style='color:#38bdf8;'>${gmail}</span></p>
+                            <p style='color:#fff;'><b>পাসওয়ার্ড:</b> <span style='color:#facc15;'>${pass}</span></p>
+                        </div>
+                        <button onclick='document.getElementById("bought-modal").remove(); loadMarketplaceList();' style='background:#25d366; color:#fff; border:none; padding:10px 20px; border-radius:8px; font-weight:bold; cursor:pointer; width:100%;'>ধন্যবাদ</button>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', successHtml);
         }
 
         function viewSellerProfile(phone, name, img) {
@@ -373,14 +420,86 @@
             });
         }
 
-        function buyCoinPack(coinAmount, price) {
-            let user = JSON.parse(localStorage.getItem("registeredUser")) || {};
-            let konamiId = prompt("আপনার eFootball আইডি বা কোনামি আইডি (Email) লিখুন যেখানে কয়েন নিতে চান:");
-            if (!konamiId) return;
+        // --- ফ্রি টুর্নামেন্ট অ্যাড এবং শেয়ার সিস্টেম লজিক ---
+        function watchFreeAd() {
+            if (watchedAdsCount >= 10) {
+                alert("✅ আপনার ১০টি অ্যাড দেখা সম্পন্ন হয়েছে!");
+                return;
+            }
+            let currentAdUrl = freeAdsList[watchedAdsCount];
+            window.open(currentAdUrl, '_blank');
 
-            let message = "🪙 কয়েন অর্ডার রিকোয়েস্ট!\n👤 ক্রেতা: " + user.name + " (" + user.phone + ")\n📦 প্যাক: " + coinAmount + " Coins\n💵 দাম: " + price + " Tk\n🔑 কোনামি আইডি: " + konamiId;
-            sendTelegramMessage(message, "সফলভাবে কয়েন অর্ডার সাবমিট হয়েছে! এডমিন আপনার আইডিতে কয়েন টপ-আপ করে দেবেন।");
+            watchedAdsCount++;
+            updateFreeTaskUI();
+
+            if (watchedAdsCount < 10) {
+                alert("অ্যাড দেখা হয়েছে (" + watchedAdsCount + "/10)। পরবর্তী অ্যাড দেখার জন্য আবার ক্লিক করুন।");
+            } else {
+                alert("🎉 অভিনন্দন! আপনার ১০টি অ্যাড দেখা সম্পূর্ণ হয়েছে।");
+            }
         }
+
+        function shareFreeSite(platform) {
+            if (completedSharesCount >= 3) {
+                alert("✅ আপনার ৩টি শেয়ার করা সম্পন্ন হয়েছে!");
+                return;
+            }
+
+            let shareText = "সবচেয়ে সেরা eFootball টুর্নামেন্ট প্ল্যাটফর্ম! এখানে ফ্রি ও পেইড টুর্নামেন্টে অংশ নিন এবং আইডি বাই-সেল করুন: " + SITE_URL;
+            let shareUrl = "";
+
+            if (platform === 'facebook') {
+                shareUrl = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(SITE_URL);
+            } else if (platform === 'whatsapp') {
+                shareUrl = "https://api.whatsapp.com/send?text=" + encodeURIComponent(shareText);
+            } else if (platform === 'telegram') {
+                shareUrl = "https://t.me/share/url?url=" + encodeURIComponent(SITE_URL) + "&text=" + encodeURIComponent(shareText);
+            }
+
+            window.open(shareUrl, '_blank');
+            completedSharesCount++;
+            updateFreeTaskUI();
+            alert("শেয়ার সম্পন্ন হয়েছে (" + completedSharesCount + "/3)।");
+        }
+
+        function updateFreeTaskUI() {
+            let adStatusEl = document.getElementById("free-ad-status");
+            let shareStatusEl = document.getElementById("free-share-status");
+            let submitBtn = document.getElementById("free-submit-btn");
+            let formFields = document.getElementById("free-form-fields");
+
+            if (adStatusEl) adStatusEl.innerText = watchedAdsCount + "/10";
+            if (shareStatusEl) shareStatusEl.innerText = completedSharesCount + "/3";
+
+            if (watchedAdsCount >= 10 && completedSharesCount >= 3) {
+                if (formFields) formFields.style.display = "block";
+                if (submitBtn) submitBtn.disabled = false;
+            } else {
+                if (formFields) formFields.style.display = "none";
+                if (submitBtn) submitBtn.disabled = true;
+            }
+        }
+
+        function applyFreeTournament(event) {
+            event.preventDefault();
+            if (watchedAdsCount < 10 || completedSharesCount < 3) {
+                alert("⚠️ শর্ত পূরণ হয়নি! ১০টি অ্যাড দেখা এবং ৩টি শেয়ার করা বাধ্যতামূলক।");
+                return;
+            }
+
+            let user = JSON.parse(localStorage.getItem("registeredUser")) || {};
+            let freeName = document.getElementById("free-p-name").value.trim();
+            let freeId = document.getElementById("free-p-id").value.trim();
+            if(!freeName || !freeId) return;
+
+            let message = "🎁 ফ্রি টুর্নামেন্ট সফল আবেদন!\n👤 " + user.name + " (" + user.phone + ")\n🎮 ইন-গেম: " + freeName + " (ID: " + freeId + ")";
+            sendTelegramMessage(message, "সফলভাবে ফ্রি টুর্নামেন্টে আবেদন হয়েছে!");
+            event.target.reset();
+            watchedAdsCount = 0;
+            completedSharesCount = 0;
+            updateFreeTaskUI();
+        }
+        // ----------------------------------------------------
 
         function loadAdminNotice() {
             db.collection("settings").doc("notice").get().then((doc) => {
@@ -493,13 +612,11 @@
             document.getElementById("tab-content-slot").style.display = (tabName === 'slot') ? 'block' : 'none';
             document.getElementById("tab-content-free").style.display = (tabName === 'free') ? 'block' : 'none';
             document.getElementById("tab-content-market").style.display = (tabName === 'market') ? 'block' : 'none';
-            document.getElementById("tab-content-coin").style.display = (tabName === 'coin') ? 'block' : 'none';
             
             document.getElementById("main-tab-paid").className = (tabName === 'paid') ? 'tab-btn active' : 'tab-btn';
             document.getElementById("main-tab-slot").className = (tabName === 'slot') ? 'tab-btn active' : 'tab-btn';
             document.getElementById("main-tab-free").className = (tabName === 'free') ? 'tab-btn active' : 'tab-btn';
             document.getElementById("main-tab-market").className = (tabName === 'market') ? 'tab-btn active' : 'tab-btn';
-            document.getElementById("main-tab-coin").className = (tabName === 'coin') ? 'tab-btn active' : 'tab-btn';
 
             if(tabName === 'market') loadMarketplaceList();
         }
@@ -534,10 +651,7 @@
             let trxId = document.getElementById("dep-trxid").value.trim();
             let user = JSON.parse(localStorage.getItem("registeredUser")) || {};
 
-            if (isNaN(amount) || amount <= 0) {
-                alert("⚠️ সঠিক ডিপোজিট পরিমাণ লিখুন।");
-                return;
-            }
+            if (isNaN(amount) || amount <= 0) { alert("⚠️ সঠিক ডিপোজিট পরিমাণ লিখুন।"); return; }
 
             let message = "💰 নতুন ডিপোজিট রিকোয়েস্ট!\n👤 " + user.name + " (" + user.phone + ")\n💳 " + method + " - " + amount + " Tk\n📱 প্রেরক: " + senderNo + "\n🔑 TrxID: " + trxId;
             sendTelegramMessage(message, "ডিপোজিট রিকোয়েস্ট সফলভাবে অ্যাডমিনের কাছে পাঠানো হয়েছে!");
@@ -592,15 +706,10 @@
                 let validDocs = [];
                 snapshot.forEach(doc => {
                     let d = doc.data();
-                    if (d.playerName && d.country) {
-                        validDocs.push({ id: doc.id, ...d });
-                    }
+                    if (d.playerName && d.country) { validDocs.push({ id: doc.id, ...d }); }
                 });
 
-                if (validDocs.length >= 16) {
-                    alert("⚠️ এই টুর্নামেন্টে ইতিমধ্যে সর্বোচ্চ ১৬ জন প্লেয়ার পূর্ণ হয়ে গেছে!");
-                    return;
-                }
+                if (validDocs.length >= 16) { alert("⚠️ এই টুর্নামেন্টে ইতিমধ্যে সর্বোচ্চ ১৬ জন প্লেয়ার পূর্ণ হয়ে গেছে!"); return; }
 
                 let takenCountries = [];
                 let alreadyJoined = false;
@@ -609,25 +718,15 @@
                     if(d.userPhone === user.phone) alreadyJoined = true;
                 });
 
-                if (alreadyJoined) {
-                    alert("⚠️ আপনি এই টুর্নামেন্টে ইতিমধ্যে আবেদন করেছেন!");
-                    return;
-                }
-
-                if (takenCountries.includes(selectedCountry)) {
-                    alert("⚠️ এই দেশ ইতিমধ্যে অন্য কেউ সিলেক্ট করেছে!");
-                    return;
-                }
+                if (alreadyJoined) { alert("⚠️ আপনি এই টুর্নামেন্টে ইতিমধ্যে আবেদন করেছেন!"); return; }
+                if (takenCountries.includes(selectedCountry)) { alert("⚠️ এই দেশ ইতিমধ্যে অন্য কেউ সিলেক্ট করেছে!"); return; }
 
                 user.balance -= roomFee;
                 user.paidCount = (user.paidCount || 0) + 1;
                 localStorage.setItem("registeredUser", JSON.stringify(user));
 
                 if (user.phone) {
-                    db.collection("users").doc(user.phone).update({ 
-                        balance: user.balance, 
-                        paidCount: user.paidCount
-                    });
+                    db.collection("users").doc(user.phone).update({ balance: user.balance, paidCount: user.paidCount });
                 }
                 loadUserData();
 
@@ -663,11 +762,7 @@
 
             let betAmount = parseFloat(betInput);
             if (isNaN(betAmount) || betAmount <= 0) { alert("⚠️ ভুল এমাউন্ট!"); return; }
-
-            if ((user.balance || 0) < betAmount) {
-                alert("⚠️ পর্যাপ্ত ব্যালেন্স নেই!");
-                return;
-            }
+            if ((user.balance || 0) < betAmount) { alert("⚠️ পর্যাপ্ত ব্যালেন্স নেই!"); return; }
 
             user.balance -= betAmount;
             user.pvpCount = (user.pvpCount || 0) + 1;
@@ -734,22 +829,6 @@
             loadUserData();
 
             db.collection("matches").doc(matchId).delete().then(() => loadPvpMatchesList());
-        }
-
-        function applyFreeTournament(event) {
-            event.preventDefault();
-            let user = JSON.parse(localStorage.getItem("registeredUser")) || {};
-            if ((user.pvpCount || 0) < 10 || (user.paidCount || 0) < 10) {
-                alert("⚠️ শর্ত পূরণ হয়নি! কমপক্ষে ১০টি PvP এবং ১০টি Paid ম্যাচ খেলতে হবে।");
-                return;
-            }
-            let freeName = document.getElementById("free-p-name").value.trim();
-            let freeId = document.getElementById("free-p-id").value.trim();
-            if(!freeName || !freeId) return;
-
-            let message = "🎁 ফ্রি টুর্নামেন্ট আবেদন!\n👤 " + user.name + " (" + user.phone + ")\n🎮 ইন-গেম: " + freeName + " (ID: " + freeId + ")";
-            sendTelegramMessage(message, "সফলভাবে ফ্রি টুর্নামেন্টে আবেদন হয়েছে!");
-            event.target.reset();
         }
 
         function loadMatchesList() {
@@ -875,14 +954,13 @@
         <div class='main-container'>
             <div class='notice-board' id='dynamic-admin-notice' style='display:none;'></div>
 
-            <!-- হোম সেকশন -->
+            <!-- হোম সেকশন মেনু ট্যাব -->
             <div class='box' id='home-section'>
                 <div class='tabs' style='margin-bottom: 15px;'>
                     <button class='tab-btn active' id='main-tab-paid' onclick='switchMainTab("paid")'>🏆 Paid Tournaments</button>
                     <button class='tab-btn' id='main-tab-slot' onclick='switchMainTab("slot")'>🎮 Instant PvP</button>
                     <button class='tab-btn' id='main-tab-free' onclick='switchMainTab("free")'>🎁 Free Tournament</button>
-                    <button class='tab-btn' id='main-tab-market' onclick='switchMainTab("market")'>🛒 ID Sell</button>
-                    <button class='tab-btn' id='main-tab-coin' onclick='switchMainTab("coin")'>🪙 Buy Coins</button>
+                    <button class='tab-btn' id='main-tab-market' onclick='switchMainTab("market")'>🛒 eFootball ID Sell</button>
                 </div>
 
                 <!-- 1. Paid Tournament Tab -->
@@ -937,15 +1015,35 @@
                     </div>
                 </div>
 
-                <!-- 3. Free Tournament Tab -->
+                <!-- 3. Free Tournament Tab (অ্যাড দেখা ও শেয়ার করার শর্তযুক্ত) -->
                 <div id='tab-content-free' style='display: none;'>
                     <div style='background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155;'>
-                        <h4 style='color: #facc15; margin-bottom: 8px; font-size: 14px;'>🎁 ফ্রি টুর্নামেন্ট (শর্ত: ১০টি PvP ও ১০টি Paid ম্যাচ খেলা বাধ্যতামূলক)</h4>
-                        <form onsubmit='applyFreeTournament(event)'>
-                            <div class='form-group'><label style='font-size: 11px;'>ইন-গেম নাম</label><input id='free-p-name' placeholder='নাম' required type='text'/></div>
-                            <div class='form-group'><label style='font-size: 11px;'>ইন-গেম আইডি</label><input id='free-p-id' placeholder='আইডি' required type='text'/></div>
-                            <button class='btn-submit' type='submit'>আবেদন করুন</button>
-                        </form>
+                        <h4 style='color: #facc15; margin-bottom: 8px; font-size: 14px;'>🎁 ফ্রি টুর্নামেন্ট আবেদন</h4>
+                        <p style='font-size: 12px; color: #94a3b8; margin-bottom: 15px;'>আবেদন করতে হলে নিচের **১০টি অ্যাড দেখতে হবে** এবং **৩টি শেয়ার করতে হবে**।</p>
+                        
+                        <div style='background: #0f172a; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 13px; border: 1px solid #334155;'>
+                            <div style='display:flex; justify-content:space-between; margin-bottom:10px;'>
+                                <span>অ্যাড দেখা সম্পন্ন: <b id='free-ad-status' style='color:#ef4444;'>0/10</b></span>
+                                <button type='button' onclick='watchFreeAd()' style='background:#3b82f6; color:#fff; border:none; padding:5px 12px; border-radius:6px; cursor:pointer; font-weight:bold;'>📺 অ্যাড দেখুন</button>
+                            </div>
+                            <div style='display:flex; justify-content:space-between; align-items:center;'>
+                                <span>সোশ্যাল মিডিয়ায় শেয়ার: <b id='free-share-status' style='color:#ef4444;'>0/3</b></span>
+                                <div style='display:flex; gap:6px;'>
+                                    <button type='button' onclick='shareFreeSite("facebook")' style='background:#1877f2; color:#fff; border:none; padding:5px 8px; border-radius:6px; cursor:pointer; font-size:11px;'>Facebook</button>
+                                    <button type='button' onclick='shareFreeSite("whatsapp")' style='background:#25d366; color:#fff; border:none; padding:5px 8px; border-radius:6px; cursor:pointer; font-size:11px;'>WhatsApp</button>
+                                    <button type='button' onclick='shareFreeSite("telegram")' style='background:#229ed9; color:#fff; border:none; padding:5px 8px; border-radius:6px; cursor:pointer; font-size:11px;'>Telegram</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ফর্মটি শর্ত পূরণ হওয়ার আগে লক (hidden) থাকবে -->
+                        <div id='free-form-fields' style='display: none;'>
+                            <form onsubmit='applyFreeTournament(event)'>
+                                <div class='form-group'><label style='font-size: 11px;'>ইন-গেম নাম</label><input id='free-p-name' placeholder='নাম' required type='text'/></div>
+                                <div class='form-group'><label style='font-size: 11px;'>ইন-গেম আইডি</label><input id='free-p-id' placeholder='আইডি' required type='text'/></div>
+                                <button class='btn-submit' id='free-submit-btn' type='submit'>আবেদন করুন</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
 
@@ -953,12 +1051,13 @@
                 <div id='tab-content-market' style='display: none;'>
                     <div style='background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155; margin-bottom: 15px;'>
                         <h4 style='color: #38bdf8; margin-bottom: 8px; font-size: 14px;'>🛒 আপনার eFootball ID বিক্রির বিজ্ঞাপন দিন</h4>
-                        <p style='font-size: 12px; color: #94a3b8; margin-bottom: 10px;'>এখানে ছবি আপলোড করলে তা হোম পেজে সবার জন্য পাব্লিক হয়ে যাবে।</p>
                         <form onsubmit='handleSellPostSubmit(event)'>
-                            <div class='form-group'><label style='font-size: 11px;'>আইডির বিবরণ</label><input id='market-title' placeholder='যেমন: 3 Epic Card ID, Max Squad' required type='text'/></div>
+                            <div class='form-group'><label style='font-size: 11px;'>আইডির বিবরণ</label><input id='market-title' placeholder='যেমন: 3 Epic Card ID' required type='text'/></div>
                             <div class='form-group'><label style='font-size: 11px;'>মূল্য (Tk)</label><input id='market-price' placeholder='দাম' required type='number'/></div>
+                            <div class='form-group'><label style='font-size: 11px;'>কোনামি জিমেইল (Konami Gmail)</label><input id='market-konami-gmail' placeholder='জিমেইল লিখুন' required type='email'/></div>
+                            <div class='form-group'><label style='font-size: 11px;'>কোনামি পাসওয়ার্ড (Konami Password)</label><input id='market-konami-pass' placeholder='পাসওয়ার্ড লিখুন' required type='text'/></div>
                             <div class='form-group'>
-                                <label style='font-size: 11px;'>স্ক্রিনশট আপলোড (স্কোয়াড/প্লেয়ার লিস্ট)</label>
+                                <label style='font-size: 11px;'>স্ক্রিনশট আপলোড</label>
                                 <div style='display: flex; gap: 8px;'>
                                     <input id='market-img-url' placeholder='ছবির লিংক' required style='width: 100%;' type='text'/>
                                     <input accept='image/*' id='market-file-input' onchange='uploadMarketScreenshot()' style='display: none;' type='file'/>
@@ -970,30 +1069,13 @@
                     </div>
 
                     <div class='box' style='background: #171f2d; margin-top: 15px;'>
-                        <h4 style='color: #facc15; margin-bottom: 10px; font-size: 14px;'>📢 পাব্লিক মার্কেটপ্লেস (সব ইউজারের আইডি বিক্রির পোস্ট)</h4>
+                        <h4 style='color: #facc15; margin-bottom: 10px; font-size: 14px;'>📢 পাব্লিক মার্কেটপ্লেস</h4>
                         <div id='marketplace-items-container'>লোড হচ্ছে...</div>
-                    </div>
-                </div>
-
-                <!-- 5. Buy Coins Tab -->
-                <div id='tab-content-coin' style='display: none;'>
-                    <div class='box' style='background: #1e293b; border: 1px solid #334155;'>
-                        <h4 style='color: #facc15; margin-bottom: 10px; font-size: 15px;'>🪙 eFootball Coin টপ-আপ প্যাক</h4>
-                        <div style='display: flex; flex-direction: column; gap: 12px;'>
-                            <div style='background: #0f172a; padding: 12px; border-radius: 8px; border: 1px solid #334155; display: flex; justify-content: space-between; align-items: center;'>
-                                <div><b style='color: #fff;'>530 eFootball Coins</b><p style='color: #25d366; font-size: 13px;'>মূল্য: ৪০০ টাকা</p></div>
-                                <button onclick='buyCoinPack(530, 400)' style='background: #25d366; color: #fff; border: none; padding: 8px 14px; border-radius: 6px; font-weight: bold; cursor: pointer;'>কিনুন</button>
-                            </div>
-                            <div style='background: #0f172a; padding: 12px; border-radius: 8px; border: 1px solid #334155; display: flex; justify-content: space-between; align-items: center;'>
-                                <div><b style='color: #fff;'>1050 eFootball Coins</b><p style='color: #25d366; font-size: 13px;'>মূল্য: ৭৫০ টাকা</p></div>
-                                <button onclick='buyCoinPack(1050, 750)' style='background: #25d366; color: #fff; border: none; padding: 8px 14px; border-radius: 6px; font-weight: bold; cursor: pointer;'>কিনুন</button>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- প্রোফাইল সেকশন (ডিপোজিট ও উইথড্র বাটন মেনুসহ) -->
+            <!-- প্রোফাইল সেকশন -->
             <div class='box' id='profile-section' style='display: none;'>
                 <h3 style='color: #25d366; margin-bottom: 15px;'>👤 আপনার প্রোফাইল ও ওয়ালেট</h3>
                 <div style='text-align: center; margin-bottom: 20px;'>
@@ -1002,7 +1084,7 @@
                         <img id='prof-avatar-img' src='' style='width: 100%; height: 100%; object-fit: cover; display: none;'/>
                     </div>
                     <div style='display: flex; gap: 8px; max-width: 320px; margin: 0 auto;'>
-                        <input id='prof-img-url-input' placeholder='প্রোফাইল ছবির Direct URL লিংক' style='padding: 6px 10px; font-size: 11px; width: 100%; border-radius: 4px; border: 1px solid #334155; background: #0f172a; color: #fff;' type='text'/>
+                        <input id='prof-img-url-input' placeholder='প্রোফাইল ছবির URL লিংক' style='padding: 6px 10px; font-size: 11px; width: 100%; border-radius: 4px; border: 1px solid #334155; background: #0f172a; color: #fff;' type='text'/>
                         <input accept='image/*' id='prof-file-input' onchange='uploadProfileFile()' style='display: none;' type='file'/>
                         <button onclick='document.getElementById("prof-file-input").click()' style='background: #334155; color: #fff; border: none; padding: 0 10px; border-radius: 4px; cursor: pointer;' type='button'>📷</button>
                         <button onclick='updateProfilePicture()' style='background: #25d366; color: #fff; border: none; padding: 6px 10px; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer;' type='button'>সেভ</button>
@@ -1017,7 +1099,6 @@
                     <div class='profile-info-row'><span>সম্পন্ন Paid টুর্নামেন্ট:</span><span id='prof-paid'>0 টি</span></div>
                 </div>
 
-                <!-- প্রোফাইলের ভেতরে ডিপোজিট ও উইথড্র মেনু বাটন -->
                 <div id='profile-main-view'>
                     <div style='display: flex; gap: 10px; margin-bottom: 20px;'>
                         <button onclick='switchProfileSubTab("deposit")' style='flex: 1; background: #25d366; color: #fff; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px;'>💳 ডিপোজিট করুন</button>
@@ -1025,7 +1106,6 @@
                     </div>
                 </div>
 
-                <!-- ডিপোজিট ফর্ম (লুকানো থাকবে, বাটনে ক্লিক করলে দেখাবে) -->
                 <div id='profile-deposit-view' style='display: none; background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155; margin-bottom: 20px;'>
                     <div style='display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;'>
                         <h4 style='color: #25d366; font-size: 15px;'>💳 টাকা ডিপোজিট করুন</h4>
@@ -1041,7 +1121,6 @@
                     </form>
                 </div>
 
-                <!-- উইথড্র ফর্ম (লুকানো থাকবে, বাটনে ক্লিক করলে দেখাবে) -->
                 <div id='profile-withdraw-view' style='display: none; background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155; margin-bottom: 20px;'>
                     <div style='display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;'>
                         <h4 style='color: #ef4444; font-size: 15px;'>🪙 টাকা উইথড্র করুন</h4>
