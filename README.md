@@ -38,10 +38,6 @@
         .balance-badge { background: #374151; padding: 5px 10px; border-radius: 20px; font-size: 11px; color: #25d366; font-weight: bold; border: 1px solid #4b5563; }
         .profile-icon { width: 32px; height: 32px; background: #25d366; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; position: relative; font-size: 14px; overflow: hidden; background-size: cover; background-position: center; }
         
-        .profile-menu { display: none; position: absolute; top: 45px; right: 0; background: #1f2937; border: 1px solid #374151; border-radius: 8px; width: 180px; box-shadow: 0 4px 12px rgba(0,0,0,0.4); z-index: 1000; }
-        .profile-menu a, .profile-menu div { padding: 10px 15px; font-size: 14px; color: #f3f4f6; cursor: pointer; display: block; border-bottom: 1px solid #374151; text-decoration: none; }
-        .profile-menu div:hover { background: #374151; }
-
         .main-container { max-width: 900px; margin: 20px auto; padding: 15px; }
         .box { background: #1f2937; border-radius: 10px; padding: 20px; margin-bottom: 20px; border: 1px solid #374151; }
         
@@ -53,7 +49,7 @@
         .tab-btn.active { background: #25d366; color: #fff; }
 
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #1f2937; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #374151; z-index: 1000; }
-        .bottom-nav-item { text-align: center; color: #94a3b8; font-size: 11px; font-weight: bold; cursor: pointer; }
+        .bottom-nav-item { text-align: center; color: #94a3b8; font-size: 12px; font-weight: bold; cursor: pointer; flex: 1; }
         .bottom-nav-item.active { color: #25d366; }
 
         .profile-card { background: #1e293b; padding: 20px; border-radius: 12px; border: 1px solid #334155; }
@@ -482,23 +478,14 @@
             checkAuth();
         }
 
-        function toggleProfileMenu() {
-            let menu = document.getElementById("profileMenu");
-            menu.style.display = (menu.style.display === "block") ? "none" : "block";
-        }
-
         function switchSection(sectionName) {
             document.getElementById("home-section").style.display = (sectionName === 'home') ? 'block' : 'none';
-            document.getElementById("deposit-section").style.display = (sectionName === 'deposit') ? 'block' : 'none';
-            document.getElementById("withdraw-section").style.display = (sectionName === 'withdraw') ? 'block' : 'none';
             document.getElementById("profile-section").style.display = (sectionName === 'profile') ? 'block' : 'none';
             
             let navItems = document.querySelectorAll('.bottom-nav-item');
             navItems.forEach(item => item.classList.remove('active'));
             if(sectionName === 'home') navItems[0].classList.add('active');
-            else if(sectionName === 'deposit') navItems[1].classList.add('active');
-            else if(sectionName === 'withdraw') navItems[2].classList.add('active');
-            else if(sectionName === 'profile') navItems[3].classList.add('active');
+            else if(sectionName === 'profile') navItems[1].classList.add('active');
         }
 
         function switchMainTab(tabName) {
@@ -515,6 +502,12 @@
             document.getElementById("main-tab-coin").className = (tabName === 'coin') ? 'tab-btn active' : 'tab-btn';
 
             if(tabName === 'market') loadMarketplaceList();
+        }
+
+        function switchProfileSubTab(tabName) {
+            document.getElementById("profile-main-view").style.display = (tabName === 'main') ? 'block' : 'none';
+            document.getElementById("profile-deposit-view").style.display = (tabName === 'deposit') ? 'block' : 'none';
+            document.getElementById("profile-withdraw-view").style.display = (tabName === 'withdraw') ? 'block' : 'none';
         }
 
         function switchPaidRoomTab(amount, btnElement) {
@@ -549,6 +542,7 @@
             let message = "💰 নতুন ডিপোজিট রিকোয়েস্ট!\n👤 " + user.name + " (" + user.phone + ")\n💳 " + method + " - " + amount + " Tk\n📱 প্রেরক: " + senderNo + "\n🔑 TrxID: " + trxId;
             sendTelegramMessage(message, "ডিপোজিট রিকোয়েস্ট সফলভাবে অ্যাডমিনের কাছে পাঠানো হয়েছে!");
             event.target.reset();
+            switchProfileSubTab('main');
         }
 
         function handleWithdraw(event) {
@@ -573,6 +567,7 @@
             let message = "💳 নতুন টাকা উইথড্র রিকোয়েস্ট!\n👤 " + user.name + " (" + user.phone + ")\n💳 " + method + " - " + amount + " Tk\n📱 নম্বর: " + targetPhone + "\n🔑 নোট: " + note;
             sendTelegramMessage(message, "উইথড্র রিকোয়েস্ট সফলভাবে সাবমিট হয়েছে!");
             event.target.reset();
+            switchProfileSubTab('main');
         }
 
         function applyPaidTournament(event) {
@@ -873,11 +868,7 @@
             </div>
             <div class='nav-right'>
                 <div class='balance-badge' id='user-balance-badge'>0 Tk</div>
-                <div class='profile-icon' id='profile-avatar-letter' onclick='toggleProfileMenu()'>S</div>
-                <div class='profile-menu' id='profileMenu'>
-                    <div onclick='switchSection("profile"); toggleProfileMenu();'>👤 প্রোফাইল দেখুন</div>
-                    <div onclick='handleLogout()' style='color: #ef4444;'>🚪 লগআউট</div>
-                </div>
+                <div class='profile-icon' id='profile-avatar-letter' onclick='switchSection("profile")'>S</div>
             </div>
         </nav>
 
@@ -1002,38 +993,9 @@
                 </div>
             </div>
 
-            <!-- ডিপোজিট সেকশন -->
-            <div class='box' id='deposit-section' style='display: none;'>
-                <h3 style='color: #25d366; margin-bottom: 10px;'>💳 টাকা ডিপোজিট করুন</h3>
-                <div style='background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155;'>
-                    <p style='font-size: 13px; color: #facc15; margin-bottom: 10px; font-weight: bold;'>নম্বর: 01622842102 (Send Money)</p>
-                    <form onsubmit='handleDeposit(event)'>
-                        <div class='form-group'><label style='font-size: 11px;'>মাধ্যম</label><select id='dep-method'><option value='Bkash'>Bkash</option><option value='Nagad'>Nagad</option></select></div>
-                        <div class='form-group'><label style='font-size: 11px;'>টাকা পরিমাণ</label><input id='dep-amount' placeholder='যেমন: 100' required type='number'/></div>
-                        <div class='form-group'><label style='font-size: 11px;'>প্রেরক নম্বর</label><input id='dep-sender-no' placeholder='০১xxxxxxxx' required type='tel'/></div>
-                        <div class='form-group'><label style='font-size: 11px;'>TrxID</label><input id='dep-trxid' placeholder='TrxID লিখুন' required type='text'/></div>
-                        <button class='btn-submit' type='submit'>ডিপোজিট সাবমিট করুন</button>
-                    </form>
-                </div>
-            </div>
-
-            <!-- উইথড্র সেকশন -->
-            <div class='box' id='withdraw-section' style='display: none;'>
-                <h3 style='color: #25d366; margin-bottom: 10px;'>🪙 টাকা উইথড্র করুন</h3>
-                <div style='background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155;'>
-                    <form onsubmit='handleWithdraw(event)'>
-                        <div class='form-group'><label style='font-size: 11px;'>মাধ্যম</label><select id='wd-method'><option value='Bkash'>Bkash</option><option value='Nagad'>Nagad</option></select></div>
-                        <div class='form-group'><label style='font-size: 11px;'>টাকা পরিমাণ</label><input id='wd-amount' placeholder='যেমন: 100' required type='number'/></div>
-                        <div class='form-group'><label style='font-size: 11px;'>নম্বর</label><input id='wd-target-phone' placeholder='০১xxxxxxxx' required type='tel'/></div>
-                        <div class='form-group'><label style='font-size: 11px;'>নোট / ID</label><input id='wd-trxid' placeholder='নোট দিন' required type='text'/></div>
-                        <button class='btn-submit' type='submit'>উইথড্র পাঠান</button>
-                    </form>
-                </div>
-            </div>
-
-            <!-- প্রোফাইল সেকশন -->
+            <!-- প্রোফাইল সেকশন (ডিপোজিট ও উইথড্র বাটন মেনুসহ) -->
             <div class='box' id='profile-section' style='display: none;'>
-                <h3 style='color: #25d366; margin-bottom: 15px;'>👤 আপনার প্রোফাইল</h3>
+                <h3 style='color: #25d366; margin-bottom: 15px;'>👤 আপনার প্রোফাইল ও ওয়ালেট</h3>
                 <div style='text-align: center; margin-bottom: 20px;'>
                     <div style='width: 80px; height: 80px; margin: 0 auto 10px auto; border-radius: 50%; background: #25d366; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: bold; overflow: hidden; border: 2px solid #334155;'>
                         <span id='prof-avatar-letter'>S</span>
@@ -1046,21 +1008,63 @@
                         <button onclick='updateProfilePicture()' style='background: #25d366; color: #fff; border: none; padding: 6px 10px; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer;' type='button'>সেভ</button>
                     </div>
                 </div>
-                <div class='profile-card'>
+                
+                <div class='profile-card' style='margin-bottom: 15px;'>
                     <div class='profile-info-row'><span>নাম:</span><span id='prof-name'>-</span></div>
                     <div class='profile-info-row'><span>নম্বর:</span><span id='prof-phone'>-</span></div>
                     <div class='profile-info-row'><span>টাকা ব্যালেন্স:</span><span id='prof-balance'>0 Tk</span></div>
                     <div class='profile-info-row'><span>সম্পন্ন PvP ম্যাচ:</span><span id='prof-pvp'>0 টি</span></div>
                     <div class='profile-info-row'><span>সম্পন্ন Paid টুর্নামেন্ট:</span><span id='prof-paid'>0 টি</span></div>
                 </div>
+
+                <!-- প্রোফাইলের ভেতরে ডিপোজিট ও উইথড্র মেনু বাটন -->
+                <div id='profile-main-view'>
+                    <div style='display: flex; gap: 10px; margin-bottom: 20px;'>
+                        <button onclick='switchProfileSubTab("deposit")' style='flex: 1; background: #25d366; color: #fff; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px;'>💳 ডিপোজিট করুন</button>
+                        <button onclick='switchProfileSubTab("withdraw")' style='flex: 1; background: #ef4444; color: #fff; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px;'>🪙 উইথড্র করুন</button>
+                    </div>
+                </div>
+
+                <!-- ডিপোজিট ফর্ম (লুকানো থাকবে, বাটনে ক্লিক করলে দেখাবে) -->
+                <div id='profile-deposit-view' style='display: none; background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155; margin-bottom: 20px;'>
+                    <div style='display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;'>
+                        <h4 style='color: #25d366; font-size: 15px;'>💳 টাকা ডিপোজিট করুন</h4>
+                        <button onclick='switchProfileSubTab("main")' style='background: #334155; color: #fff; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;'>⬅️ ব্যাক</button>
+                    </div>
+                    <p style='font-size: 12px; color: #facc15; margin-bottom: 10px; font-weight: bold;'>ডিপোজিট নম্বর: 01622842102 (Send Money)</p>
+                    <form onsubmit='handleDeposit(event)'>
+                        <div class='form-group'><label style='font-size: 11px;'>মাধ্যম</label><select id='dep-method'><option value='Bkash'>Bkash</option><option value='Nagad'>Nagad</option></select></div>
+                        <div class='form-group'><label style='font-size: 11px;'>টাকা পরিমাণ</label><input id='dep-amount' placeholder='যেমন: 100' required type='number'/></div>
+                        <div class='form-group'><label style='font-size: 11px;'>প্রেরক নম্বর</label><input id='dep-sender-no' placeholder='০১xxxxxxxx' required type='tel'/></div>
+                        <div class='form-group'><label style='font-size: 11px;'>TrxID</label><input id='dep-trxid' placeholder='TrxID লিখুন' required type='text'/></div>
+                        <button class='btn-submit' type='submit'>ডিপোজিট সাবমিট করুন</button>
+                    </form>
+                </div>
+
+                <!-- উইথড্র ফর্ম (লুকানো থাকবে, বাটনে ক্লিক করলে দেখাবে) -->
+                <div id='profile-withdraw-view' style='display: none; background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155; margin-bottom: 20px;'>
+                    <div style='display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;'>
+                        <h4 style='color: #ef4444; font-size: 15px;'>🪙 টাকা উইথড্র করুন</h4>
+                        <button onclick='switchProfileSubTab("main")' style='background: #334155; color: #fff; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;'>⬅️ ব্যাক</button>
+                    </div>
+                    <form onsubmit='handleWithdraw(event)'>
+                        <div class='form-group'><label style='font-size: 11px;'>মাধ্যম</label><select id='wd-method'><option value='Bkash'>Bkash</option><option value='Nagad'>Nagad</option></select></div>
+                        <div class='form-group'><label style='font-size: 11px;'>টাকা পরিমাণ (সর্বনিম্ন ১০০)</label><input id='wd-amount' placeholder='যেমন: 100' required type='number'/></div>
+                        <div class='form-group'><label style='font-size: 11px;'>নম্বর</label><input id='wd-target-phone' placeholder='০১xxxxxxxx' required type='tel'/></div>
+                        <div class='form-group'><label style='font-size: 11px;'>নোট / ID</label><input id='wd-trxid' placeholder='নোট দিন' required type='text'/></div>
+                        <button class='btn-submit' type='submit' style='background: linear-gradient(135deg, #ef4444, #dc2626);'>উইথড্র পাঠান</button>
+                    </form>
+                </div>
+
+                <div style='text-align: center; margin-top: 20px;'>
+                    <button onclick='handleLogout()' style='background: #ef4444; color: #fff; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer;'>🚪 লগআউট করুন</button>
+                </div>
             </div>
         </div>
 
         <div class='bottom-nav'>
             <div class='bottom-nav-item active' onclick='switchSection("home")'>🏠 হোম</div>
-            <div class='bottom-nav-item' onclick='switchSection("deposit")'>💳 ডিপোজিট</div>
-            <div class='bottom-nav-item' onclick='switchSection("withdraw")'>🪙 উইথড্র</div>
-            <div class='bottom-nav-item' onclick='switchSection("profile")'>👤 প্রোফাইল</div>
+            <div class='bottom-nav-item' onclick='switchSection("profile")'>👤 প্রোফাইল ও ওয়ালেট</div>
         </div>
     </div>
 </body>
