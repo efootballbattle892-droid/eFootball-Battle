@@ -77,7 +77,6 @@
 
         const TELEGRAM_BOT_TOKEN = "7659515596:AAGVtejXRJQ5XGr7hmBvpyyV7-Nd14Mj8l4"; 
         const TELEGRAM_CHAT_ID = "8681927379";
-        const IMGBB_API_KEY = "6d207e02198a847aa98d0a2a901485a2";
         const SITE_URL = "https://efootballbattle892-droid.github.io/eFootball-Battle/";
 
         const freeAdsList = [
@@ -228,44 +227,6 @@
             calculateCoinPrice();
         }
 
-        function uploadMarketScreenshot() {
-            let fileInput = document.getElementById("market-file-input");
-            let urlInput = document.getElementById("market-img-url");
-            if (fileInput.files.length === 0) return;
-
-            let file = fileInput.files[0];
-            let formData = new FormData();
-            formData.append("image", file);
-            urlInput.value = "আপলোড হচ্ছে...";
-
-            fetch("https://api.imgbb.com/1/upload?key=" + IMGBB_API_KEY, { method: "POST", body: formData })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) { urlInput.value = data.data.url; } 
-                else { alert("ছবি আপলোড ব্যর্থ হয়েছে।"); urlInput.value = ""; }
-            })
-            .catch(() => { alert("ইন্টারনেট সমস্যা।"); urlInput.value = ""; });
-        }
-
-        function uploadFreeScreenshot() {
-            let fileInput = document.getElementById("free-file-input");
-            let urlInput = document.getElementById("free-img-url");
-            if (fileInput.files.length === 0) return;
-
-            let file = fileInput.files[0];
-            let formData = new FormData();
-            formData.append("image", file);
-            urlInput.value = "আপলোড হচ্ছে...";
-
-            fetch("https://api.imgbb.com/1/upload?key=" + IMGBB_API_KEY, { method: "POST", body: formData })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) { urlInput.value = data.data.url; } 
-                else { alert("ছবি আপলোড ব্যর্থ হয়েছে।"); urlInput.value = ""; }
-            })
-            .catch(() => { alert("ইন্টারনেট সমস্যা।"); urlInput.value = ""; });
-        }
-
         function handleSellPostSubmit(event) {
             event.preventDefault();
             let title = document.getElementById("market-title").value.trim();
@@ -290,7 +251,6 @@
             db.collection("marketplace").add(postData).then(() => {
                 alert("✅ সফলভাবে আপনার আইডি বিক্রির বিজ্ঞাপন পোস্ট করা হয়েছে!");
                 event.target.reset();
-                document.getElementById("market-img-url").value = "";
                 loadMarketplaceList();
             }).catch(err => alert("ত্রুটি: " + err.message));
         }
@@ -414,9 +374,8 @@
                 };
 
                 db.collection("free_tournaments").add(freeData).then(() => {
-                    alert("✅ সফলভাবে ফ্রি টুর্নামেন্টে আবেদন হয়েছে! (প্রতি ৭ দিন পর পর নতুন টুর্নামেন্ট ওপেন হয়)");
+                    alert("✅ সফলভাবে ফ্রি টুর্নামেন্টে আবেদন হয়েছে!");
                     event.target.reset();
-                    document.getElementById("free-img-url").value = "";
                     watchedAdsCount = 0;
                     completedSharesCount = 0;
                     updateFreeTaskUI();
@@ -788,8 +747,8 @@
                 <!-- Free Tournament Tab -->
                 <div id='tab-content-free' style='display: none;'>
                     <div style='background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155;'>
-                        <h4 style='color: #facc15; margin-bottom: 8px; font-size: 14px;'>🎁 ফ্রি টুর্নামেন্ট (প্রতি ৭ দিন পর পর ওপেন, আনলিমিটেড স্লট)</h4>
-                        <p style='font-size: 12px; color: #94a3b8; margin-bottom: 10px;'>১০টি অ্যাড দেখুন ও ৩টি শেয়ার করুন। প্রতি টুর্নামেন্টে মাত্র ১ বার আবেদন করা যাবে।</p>
+                        <h4 style='color: #facc15; margin-bottom: 8px; font-size: 14px;'>🎁 ফ্রি টুর্নামেন্ট</h4>
+                        <p style='font-size: 12px; color: #94a3b8; margin-bottom: 10px;'>১০টি অ্যাড দেখুন ও ৩টি শেয়ার করুন।</p>
                         
                         <div style='background: #0f172a; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 12px;'>
                             <div style='display:flex; justify-content:space-between; margin-bottom:8px;'>
@@ -804,21 +763,19 @@
 
                         <div id='free-form-fields' style='display: none;'>
                             <form onsubmit='applyFreeTournament(event)'>
-                                <div class='form-group'><label>ইন-গেম নাম (In-game Name)</label><input id='free-ingame-name' required type='text'/></div>
-                                <div class='form-group'><label>ইন-গেম আইডি (In-game ID)</label><input id='free-ingame-id' required type='text'/></div>
-                                <div class='form-group'><label>যে দেশ নিয়ে খেলবেন</label><select id='free-country-select' required><option value=''>দেশ নির্বাচন করুন</option></select></div>
+                                <div class='form-group'><label>ইন-গেম নাম</label><input id='free-ingame-name' required type='text'/></div>
+                                <div class='form-group'><label>ইন-গেম আইডি</label><input id='free-ingame-id' required type='text'/></div>
+                                <div class='form-group'><label>দেশ</label><select id='free-country-select' required><option value=''>দেশ নির্বাচন করুন</option></select></div>
                                 <div class='form-group'><label>WhatsApp নম্বর</label><input id='free-whatsapp' placeholder='হোয়াটসঅ্যাপ নম্বর' required type='tel'/></div>
                                 
+                                <!-- ডাইরেক্ট ইমেজ লিংক ইনপুট বক্স -->
                                 <div class='form-group'>
-                                    <label>স্ক্রিনশট আপলোড</label>
-                                    <div style='display: flex; gap: 10px; align-items: center;'>
-                                        <input id='free-img-url' placeholder='ছবির লিংক এখানে আসবে' required type='text' style='flex: 1; padding: 12px 15px; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: #fff; font-size: 13px;'/>
-                                        <input accept='image/*' id='free-file-input' onchange='uploadFreeScreenshot()' style='display: none;' type='file'/>
-                                        <button onclick='document.getElementById("free-file-input").click()' style='background: #25d366; color: #fff; border: none; padding: 12px 18px; border-radius: 8px; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center;' type='button' title='ছবি সিলেক্ট করুন'>📷</button>
-                                    </div>
+                                    <label>স্ক্রিনশট ডাইরেক্ট ইমেজ লিংক (Image Link)</label>
+                                    <input id='free-img-url' placeholder='যেমন: https://i.ibb.co.com/.../image.png' required type='text'/>
+                                    <small style='color: #94a3b8; font-size: 11px;'>ImgBB বা অন্য কোথাও ছবি আপলোড করে লিংকটি এখানে পেস্ট করুন।</small>
                                 </div>
 
-                                <button class='btn-submit' id='free-submit-btn' type='submit'>আবেদন করুন (মাত্র ১ বার)</button>
+                                <button class='btn-submit' id='free-submit-btn' type='submit'>আবেদন করুন</button>
                             </form>
                         </div>
                     </div>
@@ -847,13 +804,11 @@
                                 <input id='market-konami-pass' placeholder='কোনামি পাসওয়ার্ড দিন' required type='text'/>
                             </div>
                             
+                            <!-- ডাইরেক্ট ইমেজ লিংক ইনপুট বক্স -->
                             <div class='form-group'>
-                                <label>স্ক্রিনশট ছবি</label>
-                                <div style='display: flex; gap: 10px; align-items: center;'>
-                                    <input id='market-img-url' placeholder='ছবি আপলোড করলে লিংক এখানে আসবে' required type='text' style='flex: 1; padding: 12px 15px; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: #fff; font-size: 13px;'/>
-                                    <input accept='image/*' id='market-file-input' onchange='uploadMarketScreenshot()' style='display: none;' type='file'/>
-                                    <button onclick='document.getElementById("market-file-input").click()' style='background: #25d366; color: #fff; border: none; padding: 12px 18px; border-radius: 8px; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.2);' type='button' title='গ্যালারি থেকে ছবি সিলেক্ট করুন'>📷</button>
-                                </div>
+                                <label>স্ক্রিনশট ডাইরেক্ট ইমেজ লিংক (Image Link)</label>
+                                <input id='market-img-url' placeholder='যেমন: https://i.ibb.co.com/.../image.png' required type='text'/>
+                                <small style='color: #94a3b8; font-size: 11px;'>ImgBB থেকে ছবির Direct Link কপি করে এখানে পেস্ট করুন।</small>
                             </div>
 
                             <button class='btn-submit' type='submit' style='margin-top: 10px;'>পাবলিশ করুন</button>
@@ -869,8 +824,8 @@
                             <div class='form-group'><label>কয়েন পরিমাণ</label><input id='coin-amount-input' type='number' min='10' step='10' value='100' oninput='calculateCoinPrice()' required /></div>
                             <p style='margin-bottom:10px; font-size:13px;'>মূল্য: <b id='coin-price-display' style='color:#25d366;'>90.00 Tk</b></p>
                             <div class='form-group'><label>গেম আইডি</label><input id='coin-game-id' required type='text'/></div>
-                            <div class='form-group'><label>কোনামি জিমেইল (Konami Gmail)</label><input id='coin-konami-gmail' required type='email' placeholder='আপনার কোনামি জিমেইল দিন'/></div>
-                            <div class='form-group'><label>পাসওয়ার্ড (Konami Password)</label><input id='coin-konami-pass' required type='text' placeholder='আপনার কোনামি পাসওয়ার্ড দিন'/></div>
+                            <div class='form-group'><label>কোনামি জিমেইল</label><input id='coin-konami-gmail' required type='email' placeholder='আপনার কোনামি জিমেইল দিন'/></div>
+                            <div class='form-group'><label>পাসওয়ার্ড</label><input id='coin-konami-pass' required type='text' placeholder='আপনার কোনামি পাসওয়ার্ড দিন'/></div>
                             <button class='btn-submit' type='submit'>কয়েন অর্ডার</button>
                         </form>
                     </div>
