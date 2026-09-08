@@ -6,9 +6,9 @@
     <meta content='width=device-width, initial-scale=1.0' name='viewport'/>
     <title><data:blog.pageTitle/></title>
     
-    <script src='https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js'/>
-    <script src='https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js'/>
-    <script src='https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics-compat.js'/>
+    <script src='https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js'></script>
+    <script src='https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js'></script>
+    <script src='https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics-compat.js'></script>
 
     <b:skin><![CDATA[
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
@@ -249,7 +249,6 @@
             });
         }
 
-        // Marketplace ID Sell Screenshot Upload
         function uploadMarketScreenshot() {
             let fileInput = document.getElementById("market-file-input");
             let urlInput = document.getElementById("market-img-url");
@@ -310,7 +309,6 @@
             }).catch(err => alert("ত্রুটি: " + err.message));
         }
 
-        // পাব্লিক মার্কেটপ্লেস লোড (যেটি যেকোনো ইউজার হোমে দেখতে পাবে)
         function loadMarketplaceList() {
             let container = document.getElementById("marketplace-items-container");
             if (!container) return;
@@ -337,7 +335,6 @@
                         </div>
                         <p style='font-size:13px; color:#cbd5e1; margin-bottom:8px;'>বিবরণ: ${d.title}</p>
                         
-                        <!-- বিক্রেতার প্রোফাইল দেখার অপশন -->
                         <div style='display:flex; align-items:center; gap:8px; margin-bottom:8px; background:#0f172a; padding:6px 10px; border-radius:6px; cursor:pointer;' onclick='viewSellerProfile("${d.sellerPhone}", "${d.sellerName}", "${d.sellerImg || ""}")'>
                             <div style='width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-size:11px; font-weight:bold; ${avatarStyle}'>${d.sellerImg ? "" : avatarInitial}</div>
                             <span style='font-size:12px; color:#38bdf8; text-decoration:underline;'>বিক্রেতা: ${d.sellerName} (প্রোফাইল দেখুন)</span>
@@ -357,10 +354,9 @@
             }).catch(() => {});
         }
 
-        // অন্য ইউজারের প্রোফাইল পপআপ বা সেকশনে দেখার ফাংশন
         function viewSellerProfile(phone, name, img) {
             db.collection("users").doc(phone).get().then(doc => {
-                let pvp = 0, paid = 0, bal = "লুকানো";
+                let pvp = 0, paid = 0;
                 if(doc.exists) {
                     let data = doc.data();
                     pvp = data.pvpCount || 0;
@@ -375,8 +371,8 @@
                             <h3 style='color:#fff; font-size:16px; margin-bottom:5px;'>${name}</h3>
                             <p style='color:#94a3b8; font-size:12px; margin-bottom:15px;'>নম্বর: ${phone}</p>
                             <div style='text-align:left; background:#111827; padding:10px; border-radius:8px; font-size:13px;'>
-                                <div style='display:flex; justify-content:between; margin-bottom:6px;'><span>PvP ম্যাচ খেলা:</span><b>${pvp} টি</b></div>
-                                <div style='display:flex; justify-content:between;'><span>Paid টুর্নামেন্ট:</span><b>${paid} টি</b></div>
+                                <div style='display:flex; justify-content:space-between; margin-bottom:6px;'><span>PvP ম্যাচ খেলা:</span><b>${pvp} টি</b></div>
+                                <div style='display:flex; justify-content:space-between;'><span>Paid টুর্নামেন্ট:</span><b>${paid} টি</b></div>
                             </div>
                         </div>
                     </div>
@@ -761,7 +757,7 @@
             if(!freeName || !freeId) return;
 
             let message = "🎁 ফ্রি টুর্নামেন্ট আবেদন!\n👤 " + user.name + " (" + user.phone + ")\n🎮 ইন-গেম: " + freeName + " (ID: " + freeId + ")";
-            sendTelegramMessage(message, "სফলভাবে ফ্রি টুর্নামেন্টে আবেদন হয়েছে!");
+            sendTelegramMessage(message, "সফলভাবে ফ্রি টুর্নামেন্টে আবেদন হয়েছে!");
             event.target.reset();
         }
 
@@ -891,11 +887,10 @@
         </nav>
 
         <div class='main-container'>
-            <div class='notice-board' id='dynamic-admin-notice' style='display:none;'/>
+            <div class='notice-board' id='dynamic-admin-notice' style='display:none;'></div>
 
             <!-- হোম সেকশন -->
             <div class='box' id='home-section'>
-                <!-- আলাদা আলাদা ট্যাব সেকশন -->
                 <div class='tabs' style='margin-bottom: 15px;'>
                     <button class='tab-btn active' id='main-tab-paid' onclick='switchMainTab(&quot;paid&quot;)'>🏆 Paid Tournaments</button>
                     <button class='tab-btn' id='main-tab-slot' onclick='switchMainTab(&quot;slot&quot;)'>🎮 Instant PvP</button>
@@ -968,7 +963,7 @@
                     </div>
                 </div>
 
-                <!-- 4. eFootball ID Sell Tab (পাবলিক মার্কেটপ্লেস ও পোস্ট ফর্ম) -->
+                <!-- 4. eFootball ID Sell Tab -->
                 <div id='tab-content-market' style='display: none;'>
                     <div style='background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155; margin-bottom: 15px;'>
                         <h4 style='color: #38bdf8; margin-bottom: 8px; font-size: 14px;'>🛒 আপনার eFootball ID বিক্রির বিজ্ঞাপন দিন</h4>
