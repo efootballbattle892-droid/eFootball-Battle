@@ -57,8 +57,6 @@
     .match-card { background: #1e293b; border: 1px solid #334155; padding: 15px; border-radius: 10px; margin-bottom: 12px; font-size: 13px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
 </style>
 
-<!-- মনিট্যাগ অ্যাড স্ক্রিপ্ট (আপনার প্রোভাইড করা কোড অনুযায়ী এখানে যুক্ত করুন যদি আলাদা লিংক বা সোর্স থাকে) -->
-
 <script type='text/javascript'>
     const firebaseConfig = {
         apiKey: "AIzaSyBlYj9lohn53maKIp68pbbZEQJKDgsMgug",
@@ -80,9 +78,21 @@
     const IMGBB_API_KEY = "6d207e02198a847aa98d0a2a901485a2";
     const SITE_URL = "https://efootballbattle892-droid.github.io/eFootball-Battle/";
 
+    const freeAdsList = [
+        "https://www.profitableratecpmnetwork.com/us3wvb14?key=09cb11cc21ce1aa36a64d3dfc28b454c",
+        "https://www.profitableratecpmnetwork.com/j21pmfmj54?key=83c92a4be2b8df1b736c7207e4471498",
+        "https://www.profitableratecpmnetwork.com/stb51d4d?key=c6f00199bc014a69f7b97b688e3c824e",
+        "https://www.profitableratecpmnetwork.com/puu0sj5i?key=31a6e12b54638b8207033e6a9bd06902",
+        "https://www.profitableratecpmnetwork.com/sy8g4tnr3?key=f73048f9f99f8380d066b679b7b05370",
+        "https://www.profitableratecpmnetwork.com/rekevt8z3w?key=55348ae12e370be0fda5a0712adbf5a8",
+        "https://www.profitableratecpmnetwork.com/rvyqpiwv?key=41a8cb649637c78fd9eb9acf70709725",
+        "https://www.profitableratecpmnetwork.com/mqaxkdcgt?key=d392235ca9c6b88e5eaef7b27e27de81",
+        "https://www.profitableratecpmnetwork.com/y2atu1kv3i?key=40f65014cd039bfa8b11a10e5a2502ad",
+        "https://www.profitableratecpmnetwork.com/pbhd6bygib?key=be86751f2bf6b99a3c4543625ec5cb50"
+    ];
+
     let watchedAdsCount = 0;
     let completedSharesCount = 0;
-    let isAdTimerRunning = false;
 
     const countriesList = [
         "Argentina", "Brazil", "France", "Portugal", "England", 
@@ -451,58 +461,22 @@
         });
     }
 
-    // নতুন মনিট্যাগ অ্যাড ফাংশন (৩০ সেকেন্ড টাইমারসহ)
     function watchFreeAd() {
-        if (isAdTimerRunning) {
-            alert("⚠️ একটি অ্যাড ইতিমধ্যে চলছে! দয়া করে ৩০ সেকেন্ড অপেক্ষা করুন।");
-            return;
-        }
-
         if (watchedAdsCount >= 10) {
             alert("✅ আপনার ১০টি অ্যাড দেখা সম্পন্ন হয়েছে!");
             return;
         }
+        let currentAdUrl = freeAdsList[watchedAdsCount];
+        window.open(currentAdUrl, '_blank');
 
-        // মনিট্যাগ অ্যাড কল করা হচ্ছে
-        if (typeof show_11759038 === 'function') {
-            show_11759038('pop').then(() => {
-                console.log("Ad watched successfully");
-            }).catch(e => {
-                console.log("Ad error: ", e);
-            });
+        watchedAdsCount++;
+        updateFreeTaskUI();
+
+        if (watchedAdsCount < 10) {
+            alert("অ্যাড দেখা হয়েছে (" + watchedAdsCount + "/10)। পরবর্তী অ্যাড দেখার জন্য আবার ক্লিক করুন।");
+        } else {
+            alert("🎉 অভিনন্দন! আপনার ১০টি অ্যাড দেখা সম্পূর্ণ হয়েছে।");
         }
-
-        isAdTimerRunning = true;
-        let timeLeft = 30; // ৩০ সেকেন্ড টাইমার
-        let adBtn = document.getElementById("watch-ad-btn");
-        
-        if (adBtn) adBtn.disabled = true;
-
-        let timerInterval = setInterval(() => {
-            if (adBtn) {
-                adBtn.innerText = `⏳ অপেক্ষা করুন (${timeLeft}s)`;
-            }
-            timeLeft--;
-
-            if (timeLeft < 0) {
-                clearInterval(timerInterval);
-                isAdTimerRunning = false;
-                watchedAdsCount++;
-                
-                if (adBtn) {
-                    adBtn.disabled = false;
-                    adBtn.innerText = `📺 অ্যাড দেখুন`;
-                }
-
-                updateFreeTaskUI();
-
-                if (watchedAdsCount < 10) {
-                    alert(`✅ ১টি অ্যাড সফলভাবে দেখা সম্পন্ন হয়েছে! (${watchedAdsCount}/10)`);
-                } else {
-                    alert("🎉 অভিনন্দন! আপনার ১০টি অ্যাড দেখা সম্পন্ন হয়েছে।");
-                }
-            }
-        }, 1000);
     }
 
     function shareFreeSite(platform) {
@@ -597,6 +571,7 @@
 
         let user = JSON.parse(localStorage.getItem("registeredUser")) || {};
         
+        // ৭ দিন কুলডাউন চেক (৭ দিন = ৭ * ২৪ * ৬০ * ৬০ * ১০০০ মিলি সেকেন্ড)
         let currentTime = new Date().getTime();
         let lastApplyTime = user.lastFreeApplyTime || 0;
         let cooldownTime = 7 * 24 * 60 * 60 * 1000;
