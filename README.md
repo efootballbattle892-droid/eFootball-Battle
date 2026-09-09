@@ -10,6 +10,9 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics-compat.js"></script>
 
+    <!-- Rewarded Popup Ad Script -->
+    <script src="//lib.rmhktrrk.com/p.js?id=11759038" async></script>
+
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: #0b0f19; color: #f3f4f6; line-height: 1.6; padding-bottom: 70px; }
@@ -84,19 +87,6 @@
         const TELEGRAM_CHAT_ID = "8681927379";
         const IMGBB_API_KEY = "6d207e02198a847aa98d0a2a901485a2";
         const SITE_URL = "https://efootballbattle892-droid.github.io/eFootball-Battle/";
-
-        const freeAdsList = [
-            "https://www.profitableratecpmnetwork.com/us3wvb14?key=09cb11cc21ce1aa36a64d3dfc28b454c",
-            "https://www.profitableratecpmnetwork.com/j21pmfmj54?key=83c92a4be2b8df1b736c7207e4471498",
-            "https://www.profitableratecpmnetwork.com/stb51d4d?key=c6f00199bc014a69f7b97b688e3c824e",
-            "https://www.profitableratecpmnetwork.com/puu0sj5i?key=31a6e12b54638b8207033e6a9bd06902",
-            "https://www.profitableratecpmnetwork.com/sy8g4tnr3?key=f73048f9f99f8380d066b679b7b05370",
-            "https://www.profitableratecpmnetwork.com/rekevt8z3w?key=55348ae12e370be0fda5a0712adbf5a8",
-            "https://www.profitableratecpmnetwork.com/rvyqpiwv?key=41a8cb649637c78fd9eb9acf70709725",
-            "https://www.profitableratecpmnetwork.com/mqaxkdcgt?key=d392235ca9c6b88e5eaef7b27e27de81",
-            "https://www.profitableratecpmnetwork.com/y2atu1kv3i?key=40f65014cd039bfa8b11a10e5a2502ad",
-            "https://www.profitableratecpmnetwork.com/pbhd6bygib?key=be86751f2bf6b99a3c4543625ec5cb50"
-        ];
 
         let watchedAdsCount = 0;
         let completedSharesCount = 0;
@@ -468,22 +458,28 @@
             });
         }
 
+        // Updated Watch Free Ad Function using Rewarded Popup format
         function watchFreeAd() {
             if (watchedAdsCount >= 10) {
                 alert("✅ আপনার ১০টি অ্যাড দেখা সম্পন্ন হয়েছে!");
                 return;
             }
-            let currentAdUrl = freeAdsList[watchedAdsCount];
-            window.open(currentAdUrl, '_blank');
 
-            watchedAdsCount++;
-            updateFreeTaskUI();
+            show_11759038('pop').then(() => {
+                // user watch ad till the end or close it in interstitial format
+                watchedAdsCount++;
+                updateFreeTaskUI();
 
-            if (watchedAdsCount < 10) {
-                alert("অ্যাড দেখা হয়েছে (" + watchedAdsCount + "/10)। পরবর্তী অ্যাড দেখার জন্য আবার ক্লিক করুন।");
-            } else {
-                alert("🎉 অভিনন্দন! আপনার ১০টি অ্যাড দেখা সম্পূর্ণ হয়েছে।");
-            }
+                if (watchedAdsCount < 10) {
+                    alert("অ্যাড দেখা হয়েছে (" + watchedAdsCount + "/10)। পরবর্তী অ্যাড দেখার জন্য আবার ক্লিক করুন।");
+                } else {
+                    alert("🎉 অভিনন্দন! আপনার ১০টি অ্যাড দেখা সম্পূর্ণ হয়েছে।");
+                }
+            }).catch(e => {
+                // user get error during playing ad
+                // do nothing or whatever you want
+                console.log("Ad error: ", e);
+            });
         }
 
         function shareFreeSite(platform) {
@@ -578,7 +574,6 @@
 
             let user = JSON.parse(localStorage.getItem("registeredUser")) || {};
             
-            // ৭ দিন কুলডাউন চেক (৭ দিন = ৭ * ২৪ * ৬০ * ৬০ * ১০০০ মিলি সেকেন্ড)
             let currentTime = new Date().getTime();
             let lastApplyTime = user.lastFreeApplyTime || 0;
             let cooldownTime = 7 * 24 * 60 * 60 * 1000;
@@ -1181,7 +1176,7 @@
                     </div>
                 </div>
 
-                <!-- 3. Free Tournament Tab (Updated) -->
+                <!-- 3. Free Tournament Tab -->
                 <div id='tab-content-free' style='display: none;'>
                     <div style='background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155; margin-bottom: 15px;'>
                         <h4 style='color: #facc15; margin-bottom: 8px; font-size: 14px;'>🎁 ফ্রি টুর্নামেন্ট আবেদন</h4>
