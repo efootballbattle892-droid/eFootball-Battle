@@ -5,9 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>eFootball Pro Tournaments</title>
     
-    <!-- SDK Ads Script -->
-    <script src='//libtl.com/sdk.js' data-zone='11759038' data-sdk='show_11759038'></script>
-
     <!-- Firebase Scripts -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
@@ -88,8 +85,14 @@
         const IMGBB_API_KEY = "6d207e02198a847aa98d0a2a901485a2";
         const SITE_URL = "https://efootballbattle892-droid.github.io/eFootball-Battle/";
 
+        // আপনার দেওয়া নতুন অ্যাডস্টার্কা লিংক
+        const ADSTEF_DIRECT_LINK = "https://www.profitableratecpmnetwork.com/kfsrsns5y?key=bf1f95a669793e5bc8371562542126e8";
+
         let watchedAdsCount = 0;
         let completedSharesCount = 0;
+        let adTimerInterval = null;
+        let adSecondsLeft = 30;
+        let isWatchingAd = false;
 
         const countriesList = [
             "Argentina", "Brazil", "France", "Portugal", "England", 
@@ -139,7 +142,7 @@
         function loadUserData() {
             let user = JSON.parse(localStorage.getItem("registeredUser")) || { 
                 name: "Player", phone: "", balance: 0, 
-                pvpCount: 0, paidCount: 0, profileImg: "", lastFreeApplyTime: 0 
+                pvpCount: 0, paidCount: 0, profileImg: "" 
             };
             
             if (user.phone) {
@@ -150,7 +153,6 @@
                         user.pvpCount = data.pvpCount || 0;
                         user.paidCount = data.paidCount || 0;
                         user.profileImg = data.profileImg || "";
-                        user.lastFreeApplyTime = data.lastFreeApplyTime || 0;
                         localStorage.setItem("registeredUser", JSON.stringify(user));
                         updateUI(user);
                     } else {
@@ -198,33 +200,6 @@
             document.getElementById("prof-balance").innerText = (user.balance || 0) + " Tk";
             document.getElementById("prof-pvp").innerText = (user.pvpCount || 0) + " টি";
             document.getElementById("prof-paid").innerText = (user.paidCount || 0) + " টি";
-
-            checkFreeCooldownUI(user);
-        }
-
-        function checkFreeCooldownUI(user) {
-            let container = document.getElementById("free-tab-body");
-            let cooldownMsg = document.getElementById("free-cooldown-msg");
-            if (!container || !cooldownMsg) return;
-
-            let lastTime = user.lastFreeApplyTime || 0;
-            let currentTime = new Date().getTime();
-            let sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
-            let timeLeft = sevenDaysMs - (currentTime - lastTime);
-
-            if (timeLeft > 0) {
-                let daysLeft = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-                let hoursLeft = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                
-                container.style.opacity = "0.5";
-                container.style.pointerEvents = "none";
-                cooldownMsg.style.display = "block";
-                cooldownMsg.innerHTML = "⏳ আপনি ইতিমধ্যে ফ্রি টুর্নামেন্টে আবেদন করেছেন!<br>আরও প্রায় <b>" + daysLeft + " দিন " + hoursLeft + " ঘণ্টা</b> পর আবার নতুন করে অ্যাড দেখে আবেদন করতে পারবেন।";
-            } else {
-                container.style.opacity = "1";
-                container.style.pointerEvents = "auto";
-                cooldownMsg.style.display = "none";
-            }
         }
 
         function updateProfilePicture() {
@@ -482,26 +457,63 @@
             });
         }
 
+        // --- ৩০ সেকেন্ড টাইমার ও অ্যান্টি-চিট অ্যাড লজিক ---
         function watchFreeAd() {
+            if (isWatchingAd) {
+                alert("⚠️ ইতিমধ্যে একটি অ্যাড দেখা চলছে! দয়া করে ৩০ সেকেন্ড শেষ করুন।");
+                return;
+            }
+
             if (watchedAdsCount >= 10) {
                 alert("✅ আপনার ১০টি অ্যাড দেখা সম্পন্ন হয়েছে!");
                 return;
             }
-            
-            if (typeof show_11759038 === 'function') {
-                show_11759038();
-            } else {
-                alert("অ্যাড লোড হচ্ছে...");
-            }
 
-            watchedAdsCount++;
-            updateFreeTaskUI();
+            // নতুন ট্যাবে অ্যাড লিংক ওপেন করা
+            window.open(ADSTEF_DIRECT_LINK, '_blank');
 
-            if (watchedAdsCount < 10) {
-                alert("অ্যাড দেখা হয়েছে (" + watchedAdsCount + "/10)। পরবর্তী অ্যাড দেখার জন্য আবার ক্লিক করুন।");
-            } else {
-                alert("🎉 অভিনন্দন! আপনার ১০টি অ্যাড দেখা সম্পূর্ণ হয়েছে।");
-            }
+            isWatchingAd = true;
+            adSecondsLeft = 30;
+            let watchBtn = document.getElementById("watch-ad-btn");
+            if(watchBtn) watchBtn.disabled = true;
+
+            // ব্যাকগ্রাউন্ডে ট্যাব পাল্টানো বা ফোকাস লজিক ট্র্যাক করার জন্য
+            let visibilityChanged = false;
+            let visibilityHandler = () => {
+                if (document.hidden) {
+                    visibilityChanged = true;
+                }
+            };
+            document.addEventListener("visibilitychange", visibilityHandler);
+
+            adTimerInterval = setInterval(() => {
+                adSecondsLeft--;
+                let statusEl = document.getElementById("free-ad-timer-text");
+                if (statusEl) {
+                    statusEl.innerText = "⏳ অ্যাড দেখা চলছে... সময় বাকি: " + adSecondsLeft + " সেকেন্ড";
+                    statusEl.style.color = "#facc15";
+                }
+
+                if (adSecondsLeft <= 0) {
+                    clearInterval(adTimerInterval);
+                    document.removeEventListener("visibilitychange", visibilityHandler);
+                    isWatchingAd = false;
+                    if(watchBtn) watchBtn.disabled = false;
+
+                    watchedAdsCount++;
+                    updateFreeTaskUI();
+
+                    if (statusEl) {
+                        statusEl.innerText = "";
+                    }
+
+                    if (watchedAdsCount < 10) {
+                        alert("✅ ১টি অ্যাড সফলভাবে দেখা সম্পন্ন হয়েছে! (" + watchedAdsCount + "/10)");
+                    } else {
+                        alert("🎉 অভিনন্দন! আপনার ১০টি অ্যাড দেখা সম্পূর্ণ হয়েছে।");
+                    }
+                }
+            }, 1000);
         }
 
         function shareFreeSite(platform) {
@@ -557,24 +569,12 @@
             let freeId = document.getElementById("free-p-id").value.trim();
             if(!freeName || !freeId) return;
 
-            let currentTime = new Date().getTime();
-            user.lastFreeApplyTime = currentTime;
-            localStorage.setItem("registeredUser", JSON.stringify(user));
-
-            if (user.phone) {
-                db.collection("users").doc(user.phone).update({
-                    lastFreeApplyTime: currentTime
-                }).catch(() => {});
-            }
-
             let message = "🎁 ফ্রি টুর্নামেন্ট সফল আবেদন!\n👤 " + user.name + " (" + user.phone + ")\n🎮 ইন-গেম: " + freeName + " (ID: " + freeId + ")";
             sendTelegramMessage(message, "সফলভাবে ফ্রি টুর্নামেন্টে আবেদন হয়েছে!");
-            
             event.target.reset();
             watchedAdsCount = 0;
             completedSharesCount = 0;
             updateFreeTaskUI();
-            loadUserData();
         }
 
         function loadAdminNotice() {
@@ -622,7 +622,7 @@
                 } else {
                     let userData = { 
                         name: name, phone: phone, pass: pass, 
-                        balance: 0, pvpCount: 0, paidCount: 0, profileImg: "", lastFreeApplyTime: 0 
+                        balance: 0, pvpCount: 0, paidCount: 0, profileImg: "" 
                     };
                     db.collection("users").doc(phone).set(userData).then(() => {
                         localStorage.setItem("registeredUser", JSON.stringify(userData));
@@ -651,8 +651,7 @@
                             name: data.name, phone: data.phone, pass: data.pass,
                             balance: data.balance || 0,
                             pvpCount: data.pvpCount || 0, paidCount: data.paidCount || 0,
-                            profileImg: data.profileImg || "",
-                            lastFreeApplyTime: data.lastFreeApplyTime || 0
+                            profileImg: data.profileImg || ""
                         };
                         localStorage.setItem("registeredUser", JSON.stringify(userData));
                         localStorage.setItem("isLoggedIn", "true");
@@ -1099,35 +1098,31 @@
                 <div id='tab-content-free' style='display: none;'>
                     <div style='background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155;'>
                         <h4 style='color: #facc15; margin-bottom: 8px; font-size: 14px;'>🎁 ফ্রি টুর্নামেন্ট আবেদন</h4>
+                        <p style='font-size: 12px; color: #94a3b8; margin-bottom: 15px;'>আবেদন করতে হলে ৩০ সেকেন্ড লাইভ টাইমার মেনে **১০টি অ্যাড দেখতে হবে** এবং **৩টি শেয়ার করতে হবে**।</p>
                         
-                        <!-- 7 দিনের কুলডাউন মেসেজ দেখানোর জন্য -->
-                        <div id='free-cooldown-msg' style='background: #7f1d1d; border: 1px solid #ef4444; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 13px; color: #fecaca; display: none; text-align: center;'></div>
-
-                        <div id='free-tab-body'>
-                            <p style='font-size: 12px; color: #94a3b8; margin-bottom: 15px;'>আবেদন করতে হলে নিচের **১০টি অ্যাড দেখতে হবে** এবং **৩টি শেয়ার করতে হবে**।</p>
+                        <div style='background: #0f172a; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 13px; border: 1px solid #334155;'>
+                            <div style='display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;'>
+                                <span>অ্যাড দেখা সম্পন্ন: <b id='free-ad-status' style='color:#ef4444;'>0/10</b></span>
+                                <button type='button' id='watch-ad-btn' onclick='watchFreeAd()' style='background:#3b82f6; color:#fff; border:none; padding:5px 12px; border-radius:6px; cursor:pointer; font-weight:bold;'>📺 অ্যাড দেখুন</button>
+                            </div>
+                            <div id='free-ad-timer-text' style='font-size: 12px; font-weight: bold; margin-bottom: 10px; text-align: center;'></div>
                             
-                            <div style='background: #0f172a; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 13px; border: 1px solid #334155;'>
-                                <div style='display:flex; justify-content:space-between; margin-bottom:10px;'>
-                                    <span>অ্যাড দেখা সম্পন্ন: <b id='free-ad-status' style='color:#ef4444;'>0/10</b></span>
-                                    <button type='button' onclick='watchFreeAd()' style='background:#3b82f6; color:#fff; border:none; padding:5px 12px; border-radius:6px; cursor:pointer; font-weight:bold;'>📺 অ্যাড দেখুন</button>
-                                </div>
-                                <div style='display:flex; justify-content:space-between; align-items:center;'>
-                                    <span>সোশ্যাল মিডিয়ায় শেয়ার: <b id='free-share-status' style='color:#ef4444;'>0/3</b></span>
-                                    <div style='display:flex; gap:6px;'>
-                                        <button type='button' onclick='shareFreeSite("facebook")' style='background:#1877f2; color:#fff; border:none; padding:5px 8px; border-radius:6px; cursor:pointer; font-size:11px;'>Facebook</button>
-                                        <button type='button' onclick='shareFreeSite("whatsapp")' style='background:#25d366; color:#fff; border:none; padding:5px 8px; border-radius:6px; cursor:pointer; font-size:11px;'>WhatsApp</button>
-                                        <button type='button' onclick='shareFreeSite("telegram")' style='background:#229ed9; color:#fff; border:none; padding:5px 8px; border-radius:6px; cursor:pointer; font-size:11px;'>Telegram</button>
-                                    </div>
+                            <div style='display:flex; justify-content:space-between; align-items:center;'>
+                                <span>সোশ্যাল মিডিয়ায় শেয়ার: <b id='free-share-status' style='color:#ef4444;'>0/3</b></span>
+                                <div style='display:flex; gap:6px;'>
+                                    <button type='button' onclick='shareFreeSite("facebook")' style='background:#1877f2; color:#fff; border:none; padding:5px 8px; border-radius:6px; cursor:pointer; font-size:11px;'>Facebook</button>
+                                    <button type='button' onclick='shareFreeSite("whatsapp")' style='background:#25d366; color:#fff; border:none; padding:5px 8px; border-radius:6px; cursor:pointer; font-size:11px;'>WhatsApp</button>
+                                    <button type='button' onclick='shareFreeSite("telegram")' style='background:#229ed9; color:#fff; border:none; padding:5px 8px; border-radius:6px; cursor:pointer; font-size:11px;'>Telegram</button>
                                 </div>
                             </div>
+                        </div>
 
-                            <div id='free-form-fields' style='display: none;'>
-                                <form onsubmit='applyFreeTournament(event)'>
-                                    <div class='form-group'><label style='font-size: 11px;'>ইন-গেম নাম</label><input id='free-p-name' placeholder='নাম' required type='text'/></div>
-                                    <div class='form-group'><label style='font-size: 11px;'>ইন-গেম আইডি</label><input id='free-p-id' placeholder='আইডি' required type='text'/></div>
-                                    <button class='btn-submit' id='free-submit-btn' type='submit'>আবেদন করুন</button>
-                                </form>
-                            </div>
+                        <div id='free-form-fields' style='display: none;'>
+                            <form onsubmit='applyFreeTournament(event)'>
+                                <div class='form-group'><label style='font-size: 11px;'>ইন-গেম নাম</label><input id='free-p-name' placeholder='নাম' required type='text'/></div>
+                                <div class='form-group'><label style='font-size: 11px;'>ইন-গেম আইডি</label><input id='free-p-id' placeholder='আইডি' required type='text'/></div>
+                                <button class='btn-submit' id='free-submit-btn' type='submit'>আবেদন করুন</button>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -1253,7 +1248,7 @@
 
         <div class='bottom-nav'>
             <div class='bottom-nav-item active' onclick='switchSection("home")'>🏠 হোম</div>
-            <div class='bottom-nav-item' onclick='switchSection("profile")‌'>👤 প্রোফাইল ও ওয়ালেট</div>
+            <div class='bottom-nav-item' onclick='switchSection("profile")'>👤 প্রোফাইল ও ওয়ালেট</div>
         </div>
     </div>
 </body>
