@@ -57,6 +57,8 @@
     .match-card { background: #1e293b; border: 1px solid #334155; padding: 15px; border-radius: 10px; margin-bottom: 12px; font-size: 13px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
 </style>
 
+<!-- মনিট্যাগ অ্যাড স্ক্রিপ্ট (আপনার প্রোভাইড করা কোড অনুযায়ী এখানে যুক্ত করুন যদি আলাদা লিংক বা সোর্স থাকে) -->
+
 <script type='text/javascript'>
     const firebaseConfig = {
         apiKey: "AIzaSyBlYj9lohn53maKIp68pbbZEQJKDgsMgug",
@@ -78,11 +80,9 @@
     const IMGBB_API_KEY = "6d207e02198a847aa98d0a2a901485a2";
     const SITE_URL = "https://efootballbattle892-droid.github.io/eFootball-Battle/";
 
-    // সমস্ত অ্যাড লিংক ডিলিট করে খালি রাখা হলো। আপনার প্রয়োজনমতো নতুন লিংক এখানে দিতে পারেন।
-    const freeAdsList = [];
-
     let watchedAdsCount = 0;
     let completedSharesCount = 0;
+    let isAdTimerRunning = false;
 
     const countriesList = [
         "Argentina", "Brazil", "France", "Portugal", "England", 
@@ -451,26 +451,58 @@
         });
     }
 
+    // নতুন মনিট্যাগ অ্যাড ফাংশন (৩০ সেকেন্ড টাইমারসহ)
     function watchFreeAd() {
-        if (freeAdsList.length === 0) {
-            alert("⚠️ বর্তমানে কোনো বিজ্ঞাপনের লিংক যুক্ত নেই।");
+        if (isAdTimerRunning) {
+            alert("⚠️ একটি অ্যাড ইতিমধ্যে চলছে! দয়া করে ৩০ সেকেন্ড অপেক্ষা করুন।");
             return;
         }
-        if (watchedAdsCount >= freeAdsList.length) {
-            alert("✅ আপনার সব অ্যাড দেখা সম্পন্ন হয়েছে!");
+
+        if (watchedAdsCount >= 10) {
+            alert("✅ আপনার ১০টি অ্যাড দেখা সম্পন্ন হয়েছে!");
             return;
         }
-        let currentAdUrl = freeAdsList[watchedAdsCount];
-        window.open(currentAdUrl, '_blank');
 
-        watchedAdsCount++;
-        updateFreeTaskUI();
-
-        if (watchedAdsCount < freeAdsList.length) {
-            alert("অ্যাড দেখা হয়েছে (" + watchedAdsCount + "/" + freeAdsList.length + ")। পরবর্তী অ্যাড দেখার জন্য আবার ক্লিক করুন।");
-        } else {
-            alert("🎉 অভিনন্দন! আপনার সব অ্যাড দেখা সম্পূর্ণ হয়েছে।");
+        // মনিট্যাগ অ্যাড কল করা হচ্ছে
+        if (typeof show_11759038 === 'function') {
+            show_11759038('pop').then(() => {
+                console.log("Ad watched successfully");
+            }).catch(e => {
+                console.log("Ad error: ", e);
+            });
         }
+
+        isAdTimerRunning = true;
+        let timeLeft = 30; // ৩০ সেকেন্ড টাইমার
+        let adBtn = document.getElementById("watch-ad-btn");
+        
+        if (adBtn) adBtn.disabled = true;
+
+        let timerInterval = setInterval(() => {
+            if (adBtn) {
+                adBtn.innerText = `⏳ অপেক্ষা করুন (${timeLeft}s)`;
+            }
+            timeLeft--;
+
+            if (timeLeft < 0) {
+                clearInterval(timerInterval);
+                isAdTimerRunning = false;
+                watchedAdsCount++;
+                
+                if (adBtn) {
+                    adBtn.disabled = false;
+                    adBtn.innerText = `📺 অ্যাড দেখুন`;
+                }
+
+                updateFreeTaskUI();
+
+                if (watchedAdsCount < 10) {
+                    alert(`✅ ১টি অ্যাড সফলভাবে দেখা সম্পন্ন হয়েছে! (${watchedAdsCount}/10)`);
+                } else {
+                    alert("🎉 অভিনন্দন! আপনার ১০টি অ্যাড দেখা সম্পন্ন হয়েছে।");
+                }
+            }
+        }, 1000);
     }
 
     function shareFreeSite(platform) {
@@ -502,11 +534,10 @@
         let submitBtn = document.getElementById("free-submit-btn");
         let formFields = document.getElementById("free-form-fields");
 
-        let totalAdsNeeded = freeAdsList.length > 0 ? freeAdsList.length : 10;
-        if (adStatusEl) adStatusEl.innerText = watchedAdsCount + "/" + totalAdsNeeded;
+        if (adStatusEl) adStatusEl.innerText = watchedAdsCount + "/10";
         if (shareStatusEl) shareStatusEl.innerText = completedSharesCount + "/3";
 
-        if (watchedAdsCount >= totalAdsNeeded && completedSharesCount >= 3) {
+        if (watchedAdsCount >= 10 && completedSharesCount >= 3) {
             if (formFields) formFields.style.display = "block";
             if (submitBtn) submitBtn.disabled = false;
         } else {
@@ -559,9 +590,8 @@
 
     function applyFreeTournament(event) {
         event.preventDefault();
-        let totalAdsNeeded = freeAdsList.length > 0 ? freeAdsList.length : 10;
-        if (watchedAdsCount < totalAdsNeeded || completedSharesCount < 3) {
-            alert("⚠️ শর্ত পূরণ হয়নি! সব অ্যাড দেখা এবং ৩টি শেয়ার করা বাধ্যতামূলক।");
+        if (watchedAdsCount < 10 || completedSharesCount < 3) {
+            alert("⚠️ শর্ত পূরণ হয়নি! ১০টি অ্যাড দেখা এবং ৩টি শেয়ার করা বাধ্যতামূলক।");
             return;
         }
 
