@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>eFootball Pro Tournaments</title>
     
+    <!-- New SDK Ads Script -->
+    <script src='//libtl.com/sdk.js' data-zone='11759038' data-sdk='show_11759038'></script>
+
     <!-- Firebase Scripts -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics-compat.js"></script>
-
-    <!-- Rewarded Popup Ad Script -->
-    <script src="//lib.rmhktrrk.com/p.js?id=11759038" async></script>
 
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
@@ -99,16 +99,15 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             checkAuth();
-            populateCountriesDropdown("paid-country-select");
+            populateCountriesDropdown();
             loadAdminNotice();
             loadMarketplaceList();
             updateFreeTaskUI();
             calculateCoinPrice();
-            loadFreeTournamentList();
         });
 
-        function populateCountriesDropdown(elementId, takenCountries = []) {
-            let select = document.getElementById(elementId);
+        function populateCountriesDropdown(takenCountries = []) {
+            let select = document.getElementById("paid-country-select");
             if (!select) return;
             select.innerHTML = "<option value=''>দেশ নির্বাচন করুন</option>";
 
@@ -140,7 +139,7 @@
         function loadUserData() {
             let user = JSON.parse(localStorage.getItem("registeredUser")) || { 
                 name: "Player", phone: "", balance: 0, 
-                pvpCount: 0, paidCount: 0, profileImg: "", lastFreeApplyTime: 0 
+                pvpCount: 0, paidCount: 0, profileImg: "" 
             };
             
             if (user.phone) {
@@ -151,7 +150,6 @@
                         user.pvpCount = data.pvpCount || 0;
                         user.paidCount = data.paidCount || 0;
                         user.profileImg = data.profileImg || "";
-                        user.lastFreeApplyTime = data.lastFreeApplyTime || 0;
                         localStorage.setItem("registeredUser", JSON.stringify(user));
                         updateUI(user);
                     } else {
@@ -257,8 +255,6 @@
             event.preventDefault();
             let coins = parseInt(document.getElementById("coin-amount-input").value) || 0;
             let gameId = document.getElementById("coin-game-id").value.trim();
-            let konamiGmail = document.getElementById("coin-konami-gmail").value.trim();
-            let konamiPass = document.getElementById("coin-konami-pass").value.trim();
             let user = JSON.parse(localStorage.getItem("registeredUser")) || {};
 
             if (coins < 10) {
@@ -283,7 +279,7 @@
             }
             loadUserData();
 
-            let msg = "🪙 নতুন কয়েন ক্রয় রিকোয়েস্ট!\n👤 ক্রেতা: " + user.name + " (" + user.phone + ")\n🎮 গেম আইডি: " + gameId + "\n📧 কোনামি জিমেইল: " + konamiGmail + "\n🔑 কোনামি পাসওয়ার্ড: " + konamiPass + "\n🪙 কয়েন পরিমাণ: " + coins + "\n💵 কাটা হয়েছে: " + totalPrice + " Tk";
+            let msg = "🪙 নতুন কয়েন ক্রয় রিকোয়েস্ট!\n👤 ক্রেতা: " + user.name + " (" + user.phone + ")\n🎮 গেম আইডি: " + gameId + "\n🪙 কয়েন পরিমাণ: " + coins + "\n💵 কাটা হয়েছে: " + totalPrice + " Tk";
             sendTelegramMessage(msg, "সফলভাবে কয়েন ক্রয়ের রিকোয়েস্ট অ্যাডমিনের কাছে পাঠানো হয়েছে!");
             event.target.reset();
             document.getElementById("coin-amount-input").value = "100";
@@ -458,28 +454,27 @@
             });
         }
 
-        // Updated Watch Free Ad Function using Rewarded Popup format
         function watchFreeAd() {
             if (watchedAdsCount >= 10) {
                 alert("✅ আপনার ১০টি অ্যাড দেখা সম্পন্ন হয়েছে!");
                 return;
             }
+            
+            // Trigger the new SDK ad function if available
+            if (typeof show_11759038 === 'function') {
+                show_11759038();
+            } else {
+                alert("অ্যাড লোড হচ্ছে...");
+            }
 
-            show_11759038('pop').then(() => {
-                // user watch ad till the end or close it in interstitial format
-                watchedAdsCount++;
-                updateFreeTaskUI();
+            watchedAdsCount++;
+            updateFreeTaskUI();
 
-                if (watchedAdsCount < 10) {
-                    alert("অ্যাড দেখা হয়েছে (" + watchedAdsCount + "/10)। পরবর্তী অ্যাড দেখার জন্য আবার ক্লিক করুন।");
-                } else {
-                    alert("🎉 অভিনন্দন! আপনার ১০টি অ্যাড দেখা সম্পূর্ণ হয়েছে।");
-                }
-            }).catch(e => {
-                // user get error during playing ad
-                // do nothing or whatever you want
-                console.log("Ad error: ", e);
-            });
+            if (watchedAdsCount < 10) {
+                alert("অ্যাড দেখা হয়েছে (" + watchedAdsCount + "/10)। পরবর্তী অ্যাড দেখার জন্য আবার ক্লিক করুন।");
+            } else {
+                alert("🎉 অভিনন্দন! আপনার ১০টি অ্যাড দেখা সম্পূর্ণ হয়েছে।");
+            }
         }
 
         function shareFreeSite(platform) {
@@ -523,48 +518,6 @@
             }
         }
 
-        function loadFreeTournamentList() {
-            let container = document.getElementById("free-matches-container");
-            if (!container) return;
-
-            db.collection("matches").where("type", "==", "Free Tournament").get().then((snapshot) => {
-                container.innerHTML = "";
-                let takenCountries = [], registeredPlayers = [];
-
-                snapshot.forEach(doc => {
-                    let d = doc.data();
-                    if (d.playerName && d.country) {
-                        takenCountries.push(d.country);
-                        registeredPlayers.push(d);
-                    }
-                });
-
-                populateCountriesDropdown("free-country-select", takenCountries);
-
-                let headerInfo = document.createElement("div");
-                headerInfo.style.cssText = "margin-bottom:12px; font-size:13px; color:#facc15; font-weight:bold; background:#1e293b; padding:10px; border-radius:8px; border:1px solid #334155;";
-                headerInfo.innerHTML = "🎁 ফ্রি টুর্নামেন্ট | স্লট: <b style='color:#25d366;'>" + registeredPlayers.length + "/16</b>";
-                container.appendChild(headerInfo);
-
-                let gridDiv = document.createElement("div");
-                gridDiv.className = "slots-grid";
-
-                for (let i = 1; i <= 16; i++) {
-                    let player = registeredPlayers[i - 1];
-                    let slotBox = document.createElement("div");
-                    if (player) {
-                        slotBox.className = "slot-item booked";
-                        slotBox.innerHTML = "<div><span class='slot-no'>#স্লট " + i + "</span><br/><b style='color:#fff;'>" + player.playerName + "</b></div><div style='text-align:right;'><span style='font-size:11px; color:#38bdf8;'>🌍 " + player.country + "</span></div>";
-                    } else {
-                        slotBox.className = "slot-item";
-                        slotBox.innerHTML = "<div><span class='slot-no'>#স্লট " + i + "</span><br/><span style='color:#64748b;'>খালি আছে</span></div>";
-                    }
-                    gridDiv.appendChild(slotBox);
-                }
-                container.appendChild(gridDiv);
-            });
-        }
-
         function applyFreeTournament(event) {
             event.preventDefault();
             if (watchedAdsCount < 10 || completedSharesCount < 3) {
@@ -573,83 +526,16 @@
             }
 
             let user = JSON.parse(localStorage.getItem("registeredUser")) || {};
-            
-            let currentTime = new Date().getTime();
-            let lastApplyTime = user.lastFreeApplyTime || 0;
-            let cooldownTime = 7 * 24 * 60 * 60 * 1000;
-
-            if (currentTime - lastApplyTime < cooldownTime) {
-                let remainingDays = Math.ceil((cooldownTime - (currentTime - lastApplyTime)) / (1000 * 60 * 60 * 24));
-                alert("⚠️ আপনি শেষ ৭ দিনের মধ্যে ফ্রি টুর্নামেন্টে আবেদন করেছেন! আরও " + remainingDays + " দিন পর আবার আবেদন করতে পারবেন।");
-                return;
-            }
-
-            let freeWhatsApp = document.getElementById("free-whatsapp").value.trim();
             let freeName = document.getElementById("free-p-name").value.trim();
             let freeId = document.getElementById("free-p-id").value.trim();
-            let freeCountry = document.getElementById("free-country-select").value;
+            if(!freeName || !freeId) return;
 
-            if(!freeWhatsApp || !freeName || !freeId || !freeCountry) {
-                alert("⚠️ সব তথ্য সঠিকভাবে পূরণ করুন!");
-                return;
-            }
-
-            db.collection("matches").where("type", "==", "Free Tournament").get().then((snapshot) => {
-                let validDocs = [];
-                let takenCountries = [];
-                let alreadyJoined = false;
-
-                snapshot.forEach(doc => {
-                    let d = doc.data();
-                    if (d.playerName && d.country) {
-                        validDocs.push(d);
-                        takenCountries.push(d.country);
-                        if (d.userPhone === user.phone) alreadyJoined = true;
-                    }
-                });
-
-                if (alreadyJoined) {
-                    alert("⚠️ আপনি এই ফ্রি টুর্নামেন্টে ইতিমধ্যে আবেদন করেছেন!");
-                    return;
-                }
-
-                if (validDocs.length >= 16) {
-                    alert("⚠️ দুঃখিত, ফ্রি টুর্নামেন্টের ১৬টি স্লট পূর্ণ হয়ে গেছে!");
-                    return;
-                }
-
-                if (takenCountries.includes(freeCountry)) {
-                    alert("⚠️ এই দেশ ইতিমধ্যে অন্য কেউ সিলেক্ট করেছে!");
-                    return;
-                }
-
-                user.lastFreeApplyTime = currentTime;
-                localStorage.setItem("registeredUser", JSON.stringify(user));
-                if (user.phone) {
-                    db.collection("users").doc(user.phone).update({ lastFreeApplyTime: currentTime });
-                }
-
-                let matchData = {
-                    type: "Free Tournament",
-                    whatsapp: freeWhatsApp,
-                    playerName: freeName,
-                    playerId: freeId,
-                    country: freeCountry,
-                    userPhone: user.phone,
-                    status: "Open",
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                };
-
-                db.collection("matches").add(matchData).then(() => {
-                    let message = "🎁 নতুন ফ্রি টুর্নামেন্ট আবেদন!\n👤 " + user.name + " (" + user.phone + ")\n📱 WhatsApp: " + freeWhatsApp + "\n🎮 ইন-গেম নাম: " + freeName + " (ID: " + freeId + ")\n🌍 দেশ: " + freeCountry;
-                    sendTelegramMessage(message, "সফলভাবে ফ্রি টুর্নামেন্টে আবেদন হয়েছে!");
-                    event.target.reset();
-                    watchedAdsCount = 0;
-                    completedSharesCount = 0;
-                    updateFreeTaskUI();
-                    loadFreeTournamentList();
-                });
-            });
+            let message = "🎁 ফ্রি টুর্নামেন্ট সফল আবেদন!\n👤 " + user.name + " (" + user.phone + ")\n🎮 ইন-গেম: " + freeName + " (ID: " + freeId + ")";
+            sendTelegramMessage(message, "সফলভাবে ফ্রি টুর্নামেন্টে আবেদন হয়েছে!");
+            event.target.reset();
+            watchedAdsCount = 0;
+            completedSharesCount = 0;
+            updateFreeTaskUI();
         }
 
         function loadAdminNotice() {
@@ -697,7 +583,7 @@
                 } else {
                     let userData = { 
                         name: name, phone: phone, pass: pass, 
-                        balance: 0, pvpCount: 0, paidCount: 0, profileImg: "", lastFreeApplyTime: 0 
+                        balance: 0, pvpCount: 0, paidCount: 0, profileImg: "" 
                     };
                     db.collection("users").doc(phone).set(userData).then(() => {
                         localStorage.setItem("registeredUser", JSON.stringify(userData));
@@ -726,8 +612,7 @@
                             name: data.name, phone: data.phone, pass: data.pass,
                             balance: data.balance || 0,
                             pvpCount: data.pvpCount || 0, paidCount: data.paidCount || 0,
-                            profileImg: data.profileImg || "",
-                            lastFreeApplyTime: data.lastFreeApplyTime || 0
+                            profileImg: data.profileImg || ""
                         };
                         localStorage.setItem("registeredUser", JSON.stringify(userData));
                         localStorage.setItem("isLoggedIn", "true");
@@ -773,7 +658,6 @@
             document.getElementById("main-tab-coin").className = (tabName === 'coin') ? 'tab-btn active' : 'tab-btn';
 
             if(tabName === 'market') loadMarketplaceList();
-            if(tabName === 'free') loadFreeTournamentList();
         }
 
         function switchProfileSubTab(tabName) {
@@ -989,7 +873,6 @@
         function loadMatchesList() {
             loadPaidTournamentsList();
             loadPvpMatchesList();
-            loadFreeTournamentList();
         }
 
         function loadPaidTournamentsList() {
@@ -1009,7 +892,7 @@
                     }
                 });
 
-                populateCountriesDropdown("paid-country-select", takenCountries);
+                populateCountriesDropdown(takenCountries);
                 let winnerPool = selectedFee * 16 * 0.90;
 
                 let headerInfo = document.createElement("div");
@@ -1124,10 +1007,8 @@
                 <div id='tab-content-paid'>
                     <div class='tabs' id='paid-room-tabs-container'>
                         <button class='tab-btn' onclick='switchPaidRoomTab("10", this)'>10 Tk</button>
-                        <button class='tab-btn' onclick='switchPaidRoomTab("20", this)'>20 Tk</button>
                         <button class='tab-btn' onclick='switchPaidRoomTab("50", this)'>50 Tk</button>
                         <button class='tab-btn active' onclick='switchPaidRoomTab("100", this)'>100 Tk</button>
-                        <button class='tab-btn' onclick='switchPaidRoomTab("200", this)'>200 Tk</button>
                     </div>
                     <div style='background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155; margin-bottom: 15px;'>
                         <h4 style='color: #4ade80; margin-bottom: 8px; font-size: 14px;'>পেইড টুর্নামেন্ট আবেদন</h4>
@@ -1136,10 +1017,8 @@
                                 <label style='font-size: 12px;'>রুম ফি</label>
                                 <select id='paid-room-select' onchange='loadPaidTournamentsList()'>
                                     <option value='10'>10 Tk</option>
-                                    <option value='20'>20 Tk</option>
                                     <option value='50'>50 Tk</option>
                                     <option value='100' selected>100 Tk</option>
-                                    <option value='200'>200 Tk</option>
                                 </select>
                             </div>
                             <div class='form-group'><label style='font-size: 11px;'>ইন-গেম নাম</label><input id='paid-player-name' placeholder='নাম লিখুন' required type='text'/></div>
@@ -1178,12 +1057,12 @@
 
                 <!-- 3. Free Tournament Tab -->
                 <div id='tab-content-free' style='display: none;'>
-                    <div style='background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155; margin-bottom: 15px;'>
+                    <div style='background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155;'>
                         <h4 style='color: #facc15; margin-bottom: 8px; font-size: 14px;'>🎁 ফ্রি টুর্নামেন্ট আবেদন</h4>
-                        <p style='font-size: 12px; color: #94a3b8; margin-bottom: 15px;'>আবেদন করতে হলে নিচের <b>১০টি অ্যাড দেখতে হবে</b> এবং <b>৩টি শেয়ার করতে হবে</b>। (৭ দিনে একবার আবেদন করা যাবে)</p>
+                        <p style='font-size: 12px; color: #94a3b8; margin-bottom: 15px;'>আবেদন করতে হলে নিচের **১০টি অ্যাড দেখতে হবে** এবং **৩টি শেয়ার করতে হবে**।</p>
                         
                         <div style='background: #0f172a; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 13px; border: 1px solid #334155;'>
-                            <div style='display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;'>
+                            <div style='display:flex; justify-content:space-between; margin-bottom:10px;'>
                                 <span>অ্যাড দেখা সম্পন্ন: <b id='free-ad-status' style='color:#ef4444;'>0/10</b></span>
                                 <button type='button' onclick='watchFreeAd()' style='background:#3b82f6; color:#fff; border:none; padding:5px 12px; border-radius:6px; cursor:pointer; font-weight:bold;'>📺 অ্যাড দেখুন</button>
                             </div>
@@ -1199,21 +1078,11 @@
 
                         <div id='free-form-fields' style='display: none;'>
                             <form onsubmit='applyFreeTournament(event)'>
-                                <div class='form-group'><label style='font-size: 11px;'>WhatsApp নম্বর</label><input id='free-whatsapp' placeholder='০১৭xxxxxxxx' required type='tel'/></div>
-                                <div class='form-group'><label style='font-size: 11px;'>ইন-গেম নাম</label><input id='free-p-name' placeholder='ইন-গেম নাম' required type='text'/></div>
-                                <div class='form-group'><label style='font-size: 11px;'>ইন-গেম আইডি</label><input id='free-p-id' placeholder='ইন-গেম আইডি' required type='text'/></div>
-                                <div class='form-group'>
-                                    <label style='font-size: 11px;'>পছন্দের দেশ</label>
-                                    <select id='free-country-select' required><option value=''>দেশ নির্বাচন করুন</option></select>
-                                </div>
+                                <div class='form-group'><label style='font-size: 11px;'>ইন-গেম নাম</label><input id='free-p-name' placeholder='নাম' required type='text'/></div>
+                                <div class='form-group'><label style='font-size: 11px;'>ইন-গেম আইডি</label><input id='free-p-id' placeholder='আইডি' required type='text'/></div>
                                 <button class='btn-submit' id='free-submit-btn' type='submit'>আবেদন করুন</button>
                             </form>
                         </div>
-                    </div>
-
-                    <div class='box' style='background: #171f2d; margin-top: 15px;'>
-                        <h4 style='color: #facc15; margin-bottom: 10px; font-size: 14px;'>🏆 ফ্রি টুর্নামেন্ট স্লট লিস্ট (১৬ স্লট)</h4>
-                        <div id='free-matches-container'>লোড হচ্ছে...</div>
                     </div>
                 </div>
 
@@ -1244,11 +1113,11 @@
                     </div>
                 </div>
 
-                <!-- 5. Coin Buy Tab -->
+                <!-- 5. Coin Buy / Sell Tab -->
                 <div id='tab-content-coin' style='display: none;'>
                     <div style='background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155; margin-bottom: 15px;'>
                         <h4 style='color: #facc15; margin-bottom: 8px; font-size: 14px;'>🪙 কয়েন কিনুন (Coin Buy & Sell)</h4>
-                        <p style='font-size: 12px; color: #94a3b8; margin-bottom: 15px;'>রেট: ১০০ কয়েন = ৯০ টাকা (১০ কয়েন = ৯ টাকা)। আপনার সঠিক কোনামি জিমেইল ও পাসওয়ার্ড প্রদান করুন:</p>
+                        <p style='font-size: 12px; color: #94a3b8; margin-bottom: 15px;'>রেট: ১০০ কয়েন = ৯০ টাকা (১০ কয়েন = ৯ টাকা)। আপনি কত কয়েন নিতে চান তা সিলেক্ট করুন:</p>
                         
                         <form onsubmit='handleCoinBuy(event)'>
                             <div class='form-group'>
@@ -1261,9 +1130,7 @@
                                 <b id='coin-price-display' style='font-size: 16px; color: #25d366;'>90.00 Tk</b>
                             </div>
 
-                            <div class='form-group'><label style='font-size: 11px;'>ইন-গেম গেম আইডি</label><input id='coin-game-id' placeholder='গেম আইডি লিখুন' required type='text'/></div>
-                            <div class='form-group'><label style='font-size: 11px;'>কোনামি জিমেইল (Konami Gmail)</label><input id='coin-konami-gmail' placeholder='জিমেইল লিখুন' required type='email'/></div>
-                            <div class='form-group'><label style='font-size: 11px;'>কোনামি পাসওয়ার্ড (Konami Password)</label><input id='coin-konami-pass' placeholder='পাসওয়ার্ড লিখুন' required type='text'/></div>
+                            <div class='form-group'><label style='font-size: 11px;'>আপনার গেম আইডি / ইউজার নেম</label><input id='coin-game-id' placeholder='গেম আইডি লিখুন' required type='text'/></div>
 
                             <button class='btn-submit' type='submit'>কয়েন অর্ডার করুন</button>
                         </form>
