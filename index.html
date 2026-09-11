@@ -140,7 +140,155 @@
             nav{padding:10px 12px!important}.logo{font-size:16px!important}.brand-subtitle{font-size:7px;letter-spacing:1.2px}.main-container{padding:10px!important}.box{padding:14px!important}#home-section{padding:13px!important}.tabs{margin-bottom:12px!important}.tab-btn{padding:8px 11px!important;font-size:11px!important}.slots-grid{grid-template-columns:1fr!important}.balance-badge{font-size:10px!important;padding:6px 9px!important}.auth-container{padding:28px 20px!important}}
         @media(min-width:800px){.main-container{padding-top:26px!important}.bottom-nav{max-width:760px;left:50%;transform:translateX(-50%);border:1px solid rgba(148,163,184,.12);border-bottom:0;border-radius:18px 18px 0 0}}
 
-    </style>
+    
+/* ============================
+   eFootball Arena Store — PRO v2
+   Premium esports / graphic-design UI
+   ============================ */
+:root{
+  --ea-green:#b7ff19;
+  --ea-green2:#5cff7a;
+  --ea-blue:#19a7ff;
+  --ea-cyan:#5ee7ff;
+  --ea-gold:#ffd166;
+  --ea-bg:#030711;
+  --ea-panel:rgba(8,15,29,.84);
+}
+body{
+  background:
+    radial-gradient(circle at 8% 0%,rgba(183,255,25,.10),transparent 25%),
+    radial-gradient(circle at 92% 8%,rgba(25,167,255,.14),transparent 28%),
+    radial-gradient(circle at 50% 45%,rgba(25,167,255,.045),transparent 38%),
+    linear-gradient(145deg,#02050b 0%,#06101d 48%,#02050b 100%)!important;
+}
+body:after{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;
+  background:linear-gradient(115deg,transparent 0 46%,rgba(94,231,255,.025) 50%,transparent 54%),
+             linear-gradient(25deg,transparent 0 48%,rgba(183,255,25,.018) 50%,transparent 52%);
+}
+.telegram-topbar{
+  width:100%;padding:7px 14px;
+  background:linear-gradient(90deg,rgba(5,18,30,.96),rgba(7,26,40,.96));
+  border-bottom:1px solid rgba(94,231,255,.16);
+}
+.telegram-topbar a{
+  max-width:980px;margin:auto;display:flex;align-items:center;gap:10px;
+  text-decoration:none;color:#fff;
+}
+.telegram-topbar .tg-icon{
+  width:31px;height:31px;border-radius:9px;display:grid;place-items:center;
+  background:linear-gradient(135deg,#18a8ff,#087ec8);
+  box-shadow:0 0 20px rgba(24,168,255,.25);font-size:17px;
+}
+.telegram-topbar span:nth-child(2){display:flex;flex-direction:column;line-height:1.1}
+.telegram-topbar b{font-size:10px;letter-spacing:1.2px}
+.telegram-topbar small{color:#8ea7ba;font-size:9px;margin-top:2px}
+.telegram-topbar strong{
+  margin-left:auto;font-size:9px;letter-spacing:1px;color:#07111c;
+  padding:7px 10px;border-radius:8px;background:linear-gradient(135deg,#b7ff19,#5cff7a);
+}
+nav{top:0!important;position:sticky!important}
+.logo{display:flex;align-items:center;gap:6px!important;font-weight:900!important}
+.logo-mark{
+  display:inline-grid;place-items:center;width:27px;height:27px;border-radius:8px;
+  background:linear-gradient(135deg,#b7ff19,#19a7ff);color:#041018;
+  font-size:10px;font-weight:1000;box-shadow:0 0 22px rgba(25,167,255,.25);
+}
+.main-container{max-width:1040px!important}
+#home-section{
+  position:relative;overflow:hidden;
+  background:linear-gradient(145deg,rgba(7,16,30,.92),rgba(3,9,18,.84))!important;
+}
+#home-section:before{
+  content:"";position:absolute;right:-120px;top:-120px;width:340px;height:340px;border-radius:50%;
+  border:1px solid rgba(94,231,255,.08);box-shadow:0 0 90px rgba(25,167,255,.07);
+  pointer-events:none;
+}
+.main-tabs{
+  padding:5px!important;background:rgba(0,0,0,.22);border:1px solid rgba(148,163,184,.10);
+  border-radius:15px;
+}
+.main-tabs .tab-btn{flex:1;min-width:88px;text-align:center;padding:11px 12px!important}
+.main-tabs .tab-btn.active{
+  background:linear-gradient(135deg,#b7ff19,#19a7ff)!important;color:#041018!important;
+  box-shadow:0 8px 28px rgba(25,167,255,.18),inset 0 1px rgba(255,255,255,.3);
+}
+#tab-content-paid{
+  position:relative;
+}
+#tab-content-paid:before{
+  content:"PAID TOURNAMENT";display:block;font-size:10px;font-weight:900;letter-spacing:3px;
+  color:#6f8499;margin:2px 2px 11px;
+}
+#tab-content-paid>div:first-of-type{
+  padding:18px!important;
+}
+.fee-heading{
+  display:flex;align-items:end;justify-content:space-between;gap:10px;margin-bottom:10px;
+}
+.fee-heading span{font-size:12px;font-weight:900;letter-spacing:1.4px;color:#f8fafc}
+.fee-heading small{font-size:9px;color:#71859a}
+.fee-tabs{
+  display:grid!important;grid-template-columns:repeat(5,1fr);overflow:visible!important;
+  padding:5px!important;background:rgba(0,0,0,.2);border-radius:13px;
+}
+.fee-tabs .tab-btn{
+  width:100%;padding:10px 7px!important;font-size:11px!important;
+}
+#paid-room-tabs-container .tab-btn.active{
+  background:linear-gradient(135deg,#ffd166,#f59e0b)!important;color:#17100a!important;
+  box-shadow:0 7px 22px rgba(245,158,11,.18);
+}
+#paid-room-select{
+  border-color:rgba(255,209,102,.22)!important;
+}
+#paid-matches-container{
+  min-height:80px;
+}
+#paid-matches-container:empty{min-height:0}
+.box h4{letter-spacing:.2px}
+.notice-board{
+  position:relative;overflow:hidden;
+}
+.notice-board:after{
+  content:"";position:absolute;top:0;left:-80%;width:45%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.07),transparent);
+  transform:skewX(-20deg);animation:ea-shine 4.5s infinite;
+}
+@keyframes ea-shine{0%,55%{left:-80%}100%{left:150%}}
+.match-card,.slot-item{
+  box-shadow:0 10px 30px rgba(0,0,0,.18)!important;
+}
+.btn-submit{
+  position:relative;overflow:hidden;
+  background:linear-gradient(100deg,#b7ff19,#5cff7a 45%,#19a7ff)!important;
+  color:#041018!important;text-shadow:none;font-weight:950!important;
+}
+.btn-submit:after{
+  content:"";position:absolute;inset:0;transform:translateX(-110%);
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.32),transparent);
+  animation:ea-button-shine 3.8s infinite;
+}
+@keyframes ea-button-shine{0%,60%{transform:translateX(-110%)}100%{transform:translateX(110%)}}
+.profile-card{
+  box-shadow:0 18px 50px rgba(0,0,0,.25)!important;
+}
+.bottom-nav-item.active{
+  color:#b7ff19!important;
+  box-shadow:inset 0 0 0 1px rgba(183,255,25,.08),0 0 20px rgba(183,255,25,.04);
+}
+@media(max-width:600px){
+  .telegram-topbar{padding:6px 10px}
+  .telegram-topbar b{font-size:9px}.telegram-topbar small{font-size:8px}
+  .telegram-topbar strong{font-size:8px;padding:6px 8px}
+  .logo-mark{width:25px;height:25px}.logo{font-size:15px!important}
+  .fee-tabs{grid-template-columns:repeat(5,minmax(64px,1fr));overflow-x:auto!important}
+  .fee-tabs .tab-btn{min-width:64px}
+  .main-tabs{overflow-x:auto!important}
+  .main-tabs .tab-btn{flex:0 0 auto;min-width:82px}
+}
+
+</style>
 
     <script type='text/javascript'>
         const firebaseConfig = {
@@ -1102,9 +1250,17 @@
     </div>
 
     <div id='main-site-content' style='display: none;'>
+        <div class='telegram-topbar'>
+            <a href='https://t.me/eFootballArenaStore' target='_blank' rel='noopener noreferrer'>
+                <span class='tg-icon'>✈</span>
+                <span><b>OFFICIAL TELEGRAM</b><small>@eFootballArenaStore</small></span>
+                <strong>JOIN NOW ↗</strong>
+            </a>
+        </div>
+
         <nav>
             <div>
-                <div class='logo' onclick='switchSection("home")'>⚡ eFootball <span>Arena Store</span></div>
+                <div class='logo' onclick='switchSection("home")'><span class='logo-mark'>EA</span> eFootball <span>Arena Store</span></div>
                 <span class='brand-subtitle'>PRO GAMING • TOURNAMENTS • MARKET</span>
             </div>
             <div class='nav-right'>
@@ -1118,20 +1274,26 @@
 
             <!-- হোম সেকশন মেনু ট্যাব -->
             <div class='box' id='home-section'>
-                <div class='tabs' style='margin-bottom: 15px;'>
-                    <button class='tab-btn active' id='main-tab-paid' onclick='switchMainTab("paid")'>🏆 Paid</button>
+                <div class='tabs main-tabs' style='margin-bottom: 15px;'>
+                    <button class='tab-btn' id='main-tab-market' onclick='switchMainTab("market")'>🛒 ID Sell</button>
                     <button class='tab-btn' id='main-tab-slot' onclick='switchMainTab("slot")'>🎮 PvP</button>
                     <button class='tab-btn' id='main-tab-free' onclick='switchMainTab("free")'>🎁 Free</button>
-                    <button class='tab-btn' id='main-tab-market' onclick='switchMainTab("market")'>🛒 ID Sell</button>
+                    <button class='tab-btn active' id='main-tab-paid' onclick='switchMainTab("paid")'>🏆 Paid</button>
                     <button class='tab-btn' id='main-tab-coin' onclick='switchMainTab("coin")'>🪙 Coin Buy</button>
                 </div>
 
                 <!-- 1. Paid Tournament Tab -->
                 <div id='tab-content-paid'>
-                    <div class='tabs' id='paid-room-tabs-container'>
+                    <div class='fee-heading'>
+                        <span>💰 SELECT ENTRY FEE</span>
+                        <small>Choose your tournament room</small>
+                    </div>
+                    <div class='tabs fee-tabs' id='paid-room-tabs-container'>
                         <button class='tab-btn' onclick='switchPaidRoomTab("10", this)'>10 Tk</button>
+                        <button class='tab-btn' onclick='switchPaidRoomTab("20", this)'>20 Tk</button>
                         <button class='tab-btn' onclick='switchPaidRoomTab("50", this)'>50 Tk</button>
                         <button class='tab-btn active' onclick='switchPaidRoomTab("100", this)'>100 Tk</button>
+                        <button class='tab-btn' onclick='switchPaidRoomTab("200", this)'>200 Tk</button>
                     </div>
                     <div style='background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155; margin-bottom: 15px;'>
                         <h4 style='color: #4ade80; margin-bottom: 8px; font-size: 14px;'>পেইড টুর্নামেন্ট আবেদন</h4>
@@ -1140,8 +1302,10 @@
                                 <label style='font-size: 12px;'>রুম ফি</label>
                                 <select id='paid-room-select' onchange='loadPaidTournamentsList()'>
                                     <option value='10'>10 Tk</option>
+                                    <option value='20'>20 Tk</option>
                                     <option value='50'>50 Tk</option>
                                     <option value='100' selected>100 Tk</option>
+                                    <option value='200'>200 Tk</option>
                                 </select>
                             </div>
                             <div class='form-group'><label style='font-size: 11px;'>ইন-গেম নাম</label><input id='paid-player-name' placeholder='নাম লিখুন' required type='text'/></div>
