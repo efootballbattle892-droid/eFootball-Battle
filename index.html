@@ -288,6 +288,24 @@ nav{top:0!important;position:sticky!important}
   .main-tabs .tab-btn{flex:0 0 auto;min-width:82px}
 }
 
+
+/* Wallet + international payment upgrade */
+.phone-row{display:grid;grid-template-columns:92px 1fr;gap:8px;align-items:stretch}
+.country-code{min-width:0!important}
+.hidden-select{display:none!important}
+.payment-methods{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0 13px}
+.pay-card{border:1px solid #263752;background:linear-gradient(145deg,#0c1628,#08111f);border-radius:13px;padding:10px 6px;color:#dbeafe;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;transition:.2s}
+.pay-card.active{border-color:#35e36c;box-shadow:0 0 0 1px rgba(53,227,108,.16),0 10px 24px rgba(0,0,0,.2);transform:translateY(-1px)}
+.pay-logo{width:40px;height:28px;border-radius:8px;display:grid;place-items:center;font-weight:1000;font-size:11px}
+.bkash-logo{background:#e2136e;color:#fff}.nagad-logo{background:#f7c948;color:#111}.wallet-logo{background:linear-gradient(135deg,#b7ff19,#19a7ff);color:#06111a;font-size:16px}
+.pay-card b{font-size:9px}
+.wallet-dashboard{position:relative;overflow:hidden;margin:0 0 16px;padding:17px;border:1px solid rgba(94,231,255,.16);border-radius:20px;background:radial-gradient(circle at 85% 0%,rgba(25,167,255,.16),transparent 35%),linear-gradient(145deg,#091629,#050b16);box-shadow:0 18px 45px rgba(0,0,0,.28)}
+.wallet-dashboard:after{content:"";position:absolute;width:190px;height:190px;border:1px solid rgba(183,255,25,.08);border-radius:50%;right:-75px;bottom:-100px}
+.wallet-head{display:flex;justify-content:space-between;align-items:center}.wallet-head span{font-size:8px;letter-spacing:2px;color:#6f8499;font-weight:900}.wallet-head h3{margin:4px 0 0;font-size:17px;color:#fff}.wallet-secure{font-size:8px;color:#5cff7a;border:1px solid rgba(92,255,122,.2);padding:6px 8px;border-radius:8px}
+.wallet-balance{margin:16px 0;padding:15px;border-radius:14px;background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.06)}.wallet-balance small{display:block;color:#7890a7;font-size:9px}.wallet-balance strong{display:block;font-size:28px;line-height:1.1;margin:5px 0;color:#f8fafc}.wallet-balance span{font-size:8px;color:#b7ff19;letter-spacing:1px}
+.wallet-assets{display:grid;grid-template-columns:1fr 1fr;gap:8px}.asset-card{display:flex;align-items:center;gap:8px;padding:10px;border-radius:12px;background:rgba(8,15,29,.7);border:1px solid rgba(148,163,184,.1)}.asset-icon{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-size:9px;font-weight:900}.asset-icon.bks{background:#e2136e;color:#fff}.asset-icon.int{background:linear-gradient(135deg,#b7ff19,#19a7ff);color:#06111a;font-size:14px}.asset-card b{display:block;font-size:9px;color:#e5edf6}.asset-card small{display:block;font-size:7px;color:#6f8499;margin-top:2px}.wallet-note{margin-top:10px;font-size:8px;color:#637890;line-height:1.45}
+@media(max-width:600px){.phone-row{grid-template-columns:82px 1fr}.payment-methods{gap:6px}.wallet-assets{grid-template-columns:1fr}.wallet-balance strong{font-size:25px}}
+
 </style>
 
     <script type='text/javascript'>
@@ -426,6 +444,8 @@ nav{top:0!important;position:sticky!important}
             document.getElementById("prof-name").innerText = user.name || "-";
             document.getElementById("prof-phone").innerText = user.phone || "-";
             document.getElementById("prof-balance").innerText = (user.balance || 0) + " Tk";
+            let walletBalance = document.getElementById("wallet-main-balance");
+            if (walletBalance) walletBalance.innerText = (user.balance || 0) + " Tk";
             document.getElementById("prof-pvp").innerText = (user.pvpCount || 0) + " টি";
             document.getElementById("prof-paid").innerText = (user.paidCount || 0) + " টি";
         }
@@ -833,14 +853,16 @@ nav{top:0!important;position:sticky!important}
             event.preventDefault();
             let submitBtn = document.getElementById("su-btn");
             let name = document.getElementById("su-name").value.trim();
-            let phone = document.getElementById("su-phone").value.trim();
+            let rawPhone = document.getElementById("su-phone").value.trim().replace(/\s|-/g, "");
+            let countryCode = document.getElementById("su-country-code").value;
             let pass = document.getElementById("su-pass").value.trim();
 
-            let phoneRegex = /^01[3-9]\d{8}$/;
-            if (!phoneRegex.test(phone)) {
-                alert("⚠️ সঠিক বাংলাদেশি মোবাইল নম্বর দিন (যেমন: 01XXXXXXXXX)");
+            if (!/^\d{7,15}$/.test(rawPhone.replace(/^\+/, ""))) {
+                alert("⚠️ সঠিক মোবাইল নম্বর দিন।");
                 return;
             }
+            let phone = countryCode + rawPhone.replace(/^\+/, "");
+            if (countryCode === "+880") phone = "+880" + rawPhone.replace(/^0+/, "");
 
             submitBtn.disabled = true;
             submitBtn.innerText = "যাচাই করা হচ্ছে...";
@@ -872,10 +894,19 @@ nav{top:0!important;position:sticky!important}
 
         function handleLogin(event) {
             event.preventDefault();
-            let phone = document.getElementById("li-phone").value.trim();
+            let rawPhone = document.getElementById("li-phone").value.trim().replace(/\s|-/g, "");
+            let countryCode = document.getElementById("li-country-code").value;
             let pass = document.getElementById("li-pass").value.trim();
+            let phone = countryCode + rawPhone.replace(/^\+/, "");
+            if (countryCode === "+880") phone = "+880" + rawPhone.replace(/^0+/, "");
 
             db.collection("users").doc(phone).get().then((doc) => {
+                if (!doc.exists && countryCode === "+880") {
+                    // Backward compatibility for older accounts saved as 01XXXXXXXXX.
+                    return db.collection("users").doc(rawPhone).get();
+                }
+                return doc;
+            }).then((doc) => {
                 if (doc.exists) {
                     let data = doc.data();
                     if (data.pass === pass) {
@@ -951,6 +982,13 @@ nav{top:0!important;position:sticky!important}
             fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) })
             .then(res => res.json())
             .then(resData => { if(resData.ok && successMessage) alert(successMessage); });
+        }
+
+        function selectPayMethod(prefix, method, btn) {
+            const select = document.getElementById(prefix + "-method");
+            if (select) select.value = method;
+            document.querySelectorAll('#profile-' + (prefix === 'dep' ? 'deposit' : 'withdraw') + '-view .pay-card').forEach(card => card.classList.remove('active'));
+            if (btn) btn.classList.add('active');
         }
 
         function handleDeposit(event) {
@@ -1231,7 +1269,7 @@ nav{top:0!important;position:sticky!important}
             <h2>eFootball <span>Matchday</span></h2>
             <form onsubmit='handleSignup(event)'>
                 <div class='form-group'><label>আপনার নাম</label><input id='su-name' placeholder='নাম লিখুন' required type='text'/></div>
-                <div class='form-group'><label>মোবাইল নম্বর</label><input id='su-phone' placeholder='০১xxxxxxxx' required type='tel'/></div>
+                <div class='form-group'><label>মোবাইল নম্বর</label><div class='phone-row'><select id='su-country-code' class='country-code'><option value='+880' selected>🇧🇩 +880</option><option value='+91'>🇮🇳 +91</option><option value='+92'>🇵🇰 +92</option><option value='+966'>🇸🇦 +966</option><option value='+971'>🇦🇪 +971</option><option value='+974'>🇶🇦 +974</option><option value='+44'>🇬🇧 +44</option><option value='+1'>🇺🇸 +1</option><option value='+60'>🇲🇾 +60</option><option value='+65'>🇸🇬 +65</option></select><input id='su-phone' placeholder='মোবাইল নম্বর' required type='tel'/></div></div>
                 <div class='form-group'><label>পাসওয়ার্ড</label><input id='su-pass' placeholder='পাসওয়ার্ড দিন' required type='password'/></div>
                 <button class='btn-submit' id='su-btn' type='submit'>সাইন আপ করুন</button>
             </form>
@@ -1241,7 +1279,7 @@ nav{top:0!important;position:sticky!important}
         <div class='auth-container' id='login-box' style='display: none;'>
             <h2>ইউজার <span>লগইন</span></h2>
             <form onsubmit='handleLogin(event)'>
-                <div class='form-group'><label>মোবাইল নম্বর</label><input id='li-phone' placeholder='০১xxxxxxxx' required type='tel'/></div>
+                <div class='form-group'><label>মোবাইল নম্বর</label><div class='phone-row'><select id='li-country-code' class='country-code'><option value='+880' selected>🇧🇩 +880</option><option value='+91'>🇮🇳 +91</option><option value='+92'>🇵🇰 +92</option><option value='+966'>🇸🇦 +966</option><option value='+971'>🇦🇪 +971</option><option value='+974'>🇶🇦 +974</option><option value='+44'>🇬🇧 +44</option><option value='+1'>🇺🇸 +1</option><option value='+60'>🇲🇾 +60</option><option value='+65'>🇸🇬 +65</option></select><input id='li-phone' placeholder='মোবাইল নম্বর' required type='tel'/></div></div>
                 <div class='form-group'><label>পাসওয়ার্ড</label><input id='li-pass' placeholder='পাসওয়ার্ড দিন' required type='password'/></div>
                 <button class='btn-submit' type='submit'>লগইন করুন</button>
             </form>
@@ -1450,6 +1488,16 @@ nav{top:0!important;position:sticky!important}
                     </div>
                 </div>
                 
+                <div class='wallet-dashboard'>
+                    <div class='wallet-head'><div><span>MY WALLET</span><h3>eFootball Wallet</h3></div><div class='wallet-secure'>🔒 SECURE</div></div>
+                    <div class='wallet-balance'><small>Available Balance</small><strong id='wallet-main-balance'>0 Tk</strong><span>BDT • Local Wallet</span></div>
+                    <div class='wallet-assets'>
+                        <div class='asset-card'><span class='asset-icon bks'>bK</span><div><b>BDT Wallet</b><small>Bangladesh • bKash / Nagad</small></div></div>
+                        <div class='asset-card'><span class='asset-icon int'>◈</span><div><b>International Wallet</b><small>Global number / wallet address</small></div></div>
+                    </div>
+                    <div class='wallet-note'>International wallet is a built-in wallet interface. External transfers require admin confirmation.</div>
+                </div>
+
                 <div class='profile-card' style='margin-bottom: 15px;'>
                     <div class='profile-info-row'><span>নাম:</span><span id='prof-name'>-</span></div>
                     <div class='profile-info-row'><span>নম্বর:</span><span id='prof-phone'>-</span></div>
@@ -1472,10 +1520,10 @@ nav{top:0!important;position:sticky!important}
                     </div>
                     <p style='font-size: 12px; color: #facc15; margin-bottom: 10px; font-weight: bold;'>ডিপোজিট নম্বর: 01622842102 (Send Money)</p>
                     <form onsubmit='handleDeposit(event)'>
-                        <div class='form-group'><label style='font-size: 11px;'>মাধ্যম</label><select id='dep-method'><option value='Bkash'>Bkash</option><option value='Nagad'>Nagad</option></select></div>
+                        <div class='payment-methods'><button type='button' class='pay-card active' data-method='Bkash' onclick='selectPayMethod("dep","Bkash",this)'><span class='pay-logo bkash-logo'>bKash</span><b>bKash</b></button><button type='button' class='pay-card' data-method='Nagad' onclick='selectPayMethod("dep","Nagad",this)'><span class='pay-logo nagad-logo'>N</span><b>Nagad</b></button><button type='button' class='pay-card' data-method='International Wallet' onclick='selectPayMethod("dep","International Wallet",this)'><span class='pay-logo wallet-logo'>◈</span><b>International</b></button></div><select id='dep-method' class='hidden-select'><option value='Bkash' selected>bKash</option><option value='Nagad'>Nagad</option><option value='International Wallet'>International Wallet</option></select>
                         <div class='form-group'><label style='font-size: 11px;'>টাকা পরিমাণ</label><input id='dep-amount' placeholder='যেমন: 100' required type='number'/></div>
-                        <div class='form-group'><label style='font-size: 11px;'>প্রেরক নম্বর</label><input id='dep-sender-no' placeholder='০১xxxxxxxx' required type='tel'/></div>
-                        <div class='form-group'><label style='font-size: 11px;'>TrxID</label><input id='dep-trxid' placeholder='TrxID লিখুন' required type='text'/></div>
+                        <div class='form-group'><label style='font-size: 11px;'>পেমেন্ট নম্বর / Wallet</label><div class='phone-row'><select id='dep-country-code' class='country-code'><option value='+880' selected>🇧🇩 +880</option><option value='+91'>🇮🇳 +91</option><option value='+92'>🇵🇰 +92</option><option value='+966'>🇸🇦 +966</option><option value='+971'>🇦🇪 +971</option><option value='+974'>🇶🇦 +974</option><option value='+44'>🇬🇧 +44</option><option value='+1'>🇺🇸 +1</option><option value='+60'>🇲🇾 +60</option><option value='+65'>🇸🇬 +65</option></select><input id='dep-sender-no' placeholder='নম্বর / Wallet Address' required type='text'/></div></div>
+                        <div class='form-group'><label style='font-size: 11px;'>TrxID / Reference</label><input id='dep-trxid' placeholder='TrxID বা Reference লিখুন' required type='text'/></div>
                         <button class='btn-submit' type='submit'>ডিপোজিট সাবমিট করুন</button>
                     </form>
                 </div>
@@ -1486,10 +1534,10 @@ nav{top:0!important;position:sticky!important}
                         <button onclick='switchProfileSubTab("main")' style='background: #334155; color: #fff; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;'>⬅️ ব্যাক</button>
                     </div>
                     <form onsubmit='handleWithdraw(event)'>
-                        <div class='form-group'><label style='font-size: 11px;'>মাধ্যম</label><select id='wd-method'><option value='Bkash'>Bkash</option><option value='Nagad'>Nagad</option></select></div>
+                        <div class='payment-methods'><button type='button' class='pay-card active' data-method='Bkash' onclick='selectPayMethod("wd","Bkash",this)'><span class='pay-logo bkash-logo'>bKash</span><b>bKash</b></button><button type='button' class='pay-card' data-method='Nagad' onclick='selectPayMethod("wd","Nagad",this)'><span class='pay-logo nagad-logo'>N</span><b>Nagad</b></button><button type='button' class='pay-card' data-method='International Wallet' onclick='selectPayMethod("wd","International Wallet",this)'><span class='pay-logo wallet-logo'>◈</span><b>International</b></button></div><select id='wd-method' class='hidden-select'><option value='Bkash' selected>bKash</option><option value='Nagad'>Nagad</option><option value='International Wallet'>International Wallet</option></select>
                         <div class='form-group'><label style='font-size: 11px;'>টাকা পরিমাণ (সর্বনিম্ন ১০০)</label><input id='wd-amount' placeholder='যেমন: 100' required type='number'/></div>
-                        <div class='form-group'><label style='font-size: 11px;'>নম্বর</label><input id='wd-target-phone' placeholder='০১xxxxxxxx' required type='tel'/></div>
-                        <div class='form-group'><label style='font-size: 11px;'>নোট / ID</label><input id='wd-trxid' placeholder='নোট দিন' required type='text'/></div>
+                        <div class='form-group'><label style='font-size: 11px;'>প্রাপক নম্বর / Wallet</label><div class='phone-row'><select id='wd-country-code' class='country-code'><option value='+880' selected>🇧🇩 +880</option><option value='+91'>🇮🇳 +91</option><option value='+92'>🇵🇰 +92</option><option value='+966'>🇸🇦 +966</option><option value='+971'>🇦🇪 +971</option><option value='+974'>🇶🇦 +974</option><option value='+44'>🇬🇧 +44</option><option value='+1'>🇺🇸 +1</option><option value='+60'>🇲🇾 +60</option><option value='+65'>🇸🇬 +65</option></select><input id='wd-target-phone' placeholder='নম্বর / Wallet Address' required type='text'/></div></div>
+                        <div class='form-group'><label style='font-size: 11px;'>নোট / Reference</label><input id='wd-trxid' placeholder='নোট বা Reference দিন' required type='text'/></div>
                         <button class='btn-submit' type='submit' style='background: linear-gradient(135deg, #ef4444, #dc2626);'>উইথড্র পাঠান</button>
                     </form>
                 </div>
