@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>eFootball Pro Tournaments</title>
+    <title>eFootball Arena Store — Pro Gaming Platform</title>
     
     <!-- Firebase Scripts -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -62,6 +62,84 @@
         .slot-no { font-weight: bold; color: #facc15; }
 
         .match-card { background: #1e293b; border: 1px solid #334155; padding: 15px; border-radius: 10px; margin-bottom: 12px; font-size: 13px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+
+        /* =========================================================
+           eFootball Arena Store — Premium UI Upgrade
+           Keeps existing IDs/JS intact while modernizing the UI.
+           ========================================================= */
+        :root{
+            --bg:#050812;
+            --panel:rgba(15,23,42,.78);
+            --panel-2:rgba(17,25,45,.92);
+            --line:rgba(148,163,184,.16);
+            --text:#f8fafc;
+            --muted:#94a3b8;
+            --green:#22c55e;
+            --green-2:#16a34a;
+            --blue:#38bdf8;
+            --gold:#fbbf24;
+            --red:#ef4444;
+            --shadow:0 18px 55px rgba(0,0,0,.42);
+        }
+        html{scroll-behavior:smooth}
+        body{
+            background:
+              radial-gradient(circle at 15% 0%, rgba(34,197,94,.12), transparent 30%),
+              radial-gradient(circle at 90% 10%, rgba(56,189,248,.12), transparent 28%),
+              linear-gradient(145deg,#03050a 0%,#08111f 48%,#050812 100%);
+            color:var(--text); line-height:1.6; padding-bottom:82px; min-height:100vh;
+        }
+        body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.28;background-image:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);background-size:34px 34px;mask-image:linear-gradient(to bottom,black,transparent 85%);z-index:-1}
+        .auth-wrapper{background:radial-gradient(circle at 50% 30%,rgba(34,197,94,.10),transparent 34%),#03050a!important;backdrop-filter:blur(14px)}
+        .auth-container{
+            background:linear-gradient(145deg,rgba(15,23,42,.96),rgba(8,15,29,.96))!important;
+            border:1px solid rgba(56,189,248,.18)!important;border-radius:22px!important;box-shadow:0 28px 90px rgba(0,0,0,.65),0 0 50px rgba(34,197,94,.06)!important;
+            padding:34px 28px!important;
+        }
+        .auth-container:after{content:"ARENA STORE";display:block;text-align:center;margin-top:18px;font-size:9px;letter-spacing:4px;color:#64748b;font-weight:800}
+        .auth-container h2{font-size:27px!important;letter-spacing:-.6px}
+        .auth-container h2 span{color:var(--green)!important}
+        .form-group label{color:#a8b3c5!important;letter-spacing:.5px;font-size:11px!important}
+        .form-group input,.form-group select,.form-group textarea{
+            background:rgba(2,6,23,.78)!important;border:1px solid rgba(148,163,184,.17)!important;border-radius:11px!important;padding:13px 14px!important;transition:.22s ease!important;
+        }
+        .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:rgba(34,197,94,.75)!important;box-shadow:0 0 0 4px rgba(34,197,94,.09)!important;transform:translateY(-1px)}
+        .btn-submit{background:linear-gradient(135deg,#22c55e,#0ea968)!important;border-radius:11px!important;box-shadow:0 10px 25px rgba(34,197,94,.16);letter-spacing:.1px;transition:.2s ease!important}
+        .btn-submit:hover{transform:translateY(-1px);box-shadow:0 14px 30px rgba(34,197,94,.24);opacity:1!important}
+        nav{
+            background:rgba(3,8,18,.78)!important;border-bottom:1px solid rgba(148,163,184,.13)!important;backdrop-filter:blur(18px);padding:12px 16px!important;box-shadow:0 10px 35px rgba(0,0,0,.18)
+        }
+        .logo{font-size:18px!important;color:#fff!important;letter-spacing:-.3px}
+        .logo span{color:var(--green);text-shadow:0 0 18px rgba(34,197,94,.22)}
+        .brand-subtitle{font-size:8px;color:#64748b;font-weight:800;letter-spacing:1.8px;display:block;margin-top:1px}
+        .balance-badge{background:linear-gradient(135deg,rgba(34,197,94,.14),rgba(56,189,248,.08))!important;border:1px solid rgba(34,197,94,.28)!important;color:#86efac!important;padding:7px 11px!important}
+        .profile-icon{background:linear-gradient(135deg,#22c55e,#0ea5e9)!important;box-shadow:0 0 0 3px rgba(34,197,94,.08),0 8px 22px rgba(0,0,0,.25)}
+        .main-container{max-width:980px!important;padding:18px!important}
+        .box{
+            background:linear-gradient(145deg,rgba(15,23,42,.84),rgba(8,15,29,.78))!important;border:1px solid rgba(148,163,184,.12)!important;border-radius:18px!important;box-shadow:var(--shadow);backdrop-filter:blur(16px)
+        }
+        #home-section{padding:18px!important}
+        .notice-board{background:linear-gradient(135deg,rgba(127,29,29,.55),rgba(69,10,10,.35))!important;border:1px solid rgba(248,113,113,.26)!important;border-radius:13px!important;box-shadow:0 10px 30px rgba(0,0,0,.18)}
+        .tabs{gap:7px!important;scrollbar-width:none}
+        .tabs::-webkit-scrollbar{display:none}
+        .tab-btn{background:rgba(30,41,59,.72)!important;border:1px solid rgba(148,163,184,.10)!important;border-radius:10px!important;padding:9px 14px!important;transition:.2s ease!important}
+        .tab-btn:hover{transform:translateY(-1px);border-color:rgba(56,189,248,.25)!important}
+        .tab-btn.active{background:linear-gradient(135deg,#16a34a,#0ea5e9)!important;box-shadow:0 8px 24px rgba(14,165,233,.12)}
+        #paid-room-tabs-container .tab-btn.active{background:linear-gradient(135deg,#f59e0b,#eab308)!important;color:#111827!important;box-shadow:0 8px 22px rgba(234,179,8,.12)}
+        #tab-content-paid>div:first-of-type,#tab-content-slot>div:first-of-type,#tab-content-market>div:first-of-type,#tab-content-coin>div:first-of-type,#tab-content-free>div:first-of-type{background:linear-gradient(145deg,rgba(30,41,59,.72),rgba(15,23,42,.72))!important;border:1px solid rgba(148,163,184,.12)!important;border-radius:16px!important;box-shadow:0 12px 35px rgba(0,0,0,.22)}
+        .slots-grid{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))!important;gap:10px!important}
+        .slot-item,.match-card{background:rgba(15,23,42,.70)!important;border:1px solid rgba(148,163,184,.13)!important;border-radius:13px!important;box-shadow:none!important;transition:.2s ease}
+        .slot-item:hover,.match-card:hover{transform:translateY(-2px);border-color:rgba(56,189,248,.24)!important;background:rgba(15,23,42,.88)!important}
+        .slot-item.booked{border-color:rgba(34,197,94,.35)!important;background:linear-gradient(145deg,rgba(34,197,94,.09),rgba(15,23,42,.72))!important}
+        .slot-no{color:#facc15!important}
+        .profile-card{background:rgba(15,23,42,.68)!important;border:1px solid rgba(148,163,184,.13)!important;border-radius:14px!important}
+        .profile-info-row{border-bottom:1px solid rgba(148,163,184,.10)!important}
+        .bottom-nav{background:rgba(3,8,18,.88)!important;border-top:1px solid rgba(148,163,184,.13)!important;backdrop-filter:blur(18px);padding:9px 8px!important;box-shadow:0 -12px 35px rgba(0,0,0,.22)}
+        .bottom-nav-item{padding:7px 4px;border-radius:10px;transition:.2s ease}.bottom-nav-item.active{background:rgba(34,197,94,.08);color:#4ade80!important}
+        @media(max-width:600px){
+            nav{padding:10px 12px!important}.logo{font-size:16px!important}.brand-subtitle{font-size:7px;letter-spacing:1.2px}.main-container{padding:10px!important}.box{padding:14px!important}#home-section{padding:13px!important}.tabs{margin-bottom:12px!important}.tab-btn{padding:8px 11px!important;font-size:11px!important}.slots-grid{grid-template-columns:1fr!important}.balance-badge{font-size:10px!important;padding:6px 9px!important}.auth-container{padding:28px 20px!important}}
+        @media(min-width:800px){.main-container{padding-top:26px!important}.bottom-nav{max-width:760px;left:50%;transform:translateX(-50%);border:1px solid rgba(148,163,184,.12);border-bottom:0;border-radius:18px 18px 0 0}}
+
     </style>
 
     <script type='text/javascript'>
@@ -1026,8 +1104,8 @@
     <div id='main-site-content' style='display: none;'>
         <nav>
             <div>
-                <div class='logo' onclick='switchSection("home")'>⚽ eFootball</div>
-                <span style='font-size: 11px; color: #94a3b8; font-weight: bold;'>Pro Tournaments</span>
+                <div class='logo' onclick='switchSection("home")'>⚡ eFootball <span>Arena Store</span></div>
+                <span class='brand-subtitle'>PRO GAMING • TOURNAMENTS • MARKET</span>
             </div>
             <div class='nav-right'>
                 <div class='balance-badge' id='user-balance-badge'>0 Tk</div>
