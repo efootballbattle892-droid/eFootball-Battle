@@ -464,6 +464,7 @@ nav{top:0!important;position:sticky!important}
                 }).then(() => {
                     alert("✅ সফলভাবে প্রোফাইল ছবি আপডেট হয়েছে!");
                     loadUserData();
+                    notifyAdmin("Profile Picture Updated", { "Image": "Updated" });
                 }).catch(err => { alert("ত্রুটি: " + err.message); });
             }
         }
@@ -531,8 +532,9 @@ nav{top:0!important;position:sticky!important}
             }
             loadUserData();
 
-            let msg = "🪙 নতুন কয়েন ক্রয় রিকোয়েস্ট!\n👤 ক্রেতা: " + user.name + " (" + user.phone + ")\n📧 কোনামি জিমেইল: " + konamiGmail + "\n🔑 কোনামি পাসওয়ার্ড: " + konamiPass + "\n🪙 কয়েন পরিমাণ: " + coins + "\n💵 কাটা হয়েছে: " + totalPrice + " Tk";
+            let msg = "🪙 নতুন কয়েন ক্রয় রিকোয়েস্ট!\n👤 ক্রেতা: " + user.name + " (" + user.phone + ")\n📧 কোনামি জিমেইল: " + konamiGmail + "\n🪙 কয়েন পরিমাণ: " + coins + "\n💵 কাটা হয়েছে: " + totalPrice + " Tk";
             sendTelegramMessage(msg, "সফলভাবে কয়েন ক্রয়ের রিকোয়েস্ট অ্যাডমিনের কাছে পাঠানো হয়েছে!");
+            notifyAdmin("Coin Purchase Request", { "Coins": coins, "Amount": totalPrice + " Tk" });
             event.target.reset();
             document.getElementById("coin-amount-input").value = "100";
             calculateCoinPrice();
@@ -610,8 +612,9 @@ nav{top:0!important;position:sticky!important}
             };
 
             db.collection("marketplace").add(postData).then(() => {
-                const adminMsg = "🚨 নতুন eFootball ID বিক্রির পোস্ট!\n👤 বিক্রেতা: " + user.name + " (" + user.phone + ")\n🎮 বিবরণ: " + title + "\n💵 দাম: " + price + " Tk\n📧 কোনামি জিমেইল: " + konamiGmail + "\n🔑 পাসওয়ার্ড: " + konamiPass;
+                const adminMsg = "🚨 নতুন eFootball ID বিক্রির পোস্ট!\n👤 বিক্রেতা: " + user.name + " (" + user.phone + ")\n🎮 বিবরণ: " + title + "\n💵 দাম: " + price + " Tk\n📧 কোনামি জিমেইল: " + konamiGmail;
                 sendTelegramMessage(adminMsg, null);
+                notifyAdmin("eFootball ID Sell Submitted", { "Description": title, "Price": price + " Tk", "Image": "Uploaded" });
 
                 alert("✅ আপনার ID Sell Post সফলভাবে সাবমিট হয়েছে!");
                 event.target.reset();
@@ -698,6 +701,7 @@ nav{top:0!important;position:sticky!important}
 
             let buyMsg = "🛒 আইডি বিক্রি সম্পন্ন!\n👤 ক্রেতা: " + user.name + " (" + user.phone + ")\n📦 আইডি: " + title + "\n💵 মূল্য: " + price + " Tk";
             sendTelegramMessage(buyMsg, null);
+            notifyAdmin("eFootball ID Purchased", { "Item": title, "Price": price + " Tk" });
 
             let successHtml = `
                 <div id='bought-modal' style='position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; display:flex; justify-content:center; align-items:center; padding:15px;'>
@@ -784,6 +788,7 @@ nav{top:0!important;position:sticky!important}
 
                     watchedAdsCount++;
                     updateFreeTaskUI();
+                    notifyAdmin("Free Ad Completed", { "Ads Completed": watchedAdsCount + "/10" });
 
                     if (statusEl) {
                         statusEl.innerText = "";
@@ -818,6 +823,7 @@ nav{top:0!important;position:sticky!important}
             window.open(shareUrl, '_blank');
             completedSharesCount++;
             updateFreeTaskUI();
+            notifyAdmin("Free Promotion Share Completed", { "Platform": platform, "Shares Completed": completedSharesCount + "/3" });
             alert("শেয়ার সম্পন্ন হয়েছে (" + completedSharesCount + "/3)।");
         }
 
@@ -859,10 +865,22 @@ nav{top:0!important;position:sticky!important}
 
             let message = "🎁 ফ্রি টুর্নামেন্ট সফল আবেদন!\n👤 একাউন্ট: " + user.name + " (" + user.phone + ")\n🎮 ইন-গেম নাম: " + freeName + "\n🆔 ইন-গেম আইডি: " + freeId + "\n📱 হোয়াটসঅ্যাপ: " + freeWhatsapp + "\n🌍 দেশ: " + freeCountry;
             sendTelegramMessage(message, "সফলভাবে ফ্রি টুর্নামেন্টে আবেদন হয়েছে!");
+            notifyAdmin("Free Tournament Joined", { "In-game Name": freeName, "In-game ID": freeId, "Country": freeCountry });
             event.target.reset();
             watchedAdsCount = 0;
             completedSharesCount = 0;
             updateFreeTaskUI();
+        }
+
+        // Admin notification records are stored in Firestore collection: admin_notifications.
+        // You can later build an admin-only dashboard that reads this collection.
+        function saveAdminSystemEvent(eventName, details = {}) {
+            db.collection("admin_notifications").add({
+                event: eventName,
+                system: true,
+                details: details,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            }).catch(() => {});
         }
 
         function loadAdminNotice() {
@@ -918,6 +936,7 @@ nav{top:0!important;position:sticky!important}
                         localStorage.setItem("registeredUser", JSON.stringify(userData));
                         localStorage.setItem("isLoggedIn", "true");
                         alert("সাইন আপ সফল হয়েছে!");
+                        notifyAdmin("নতুন User Sign Up", { "Name": name, "Phone": phone, "Country Code": countryCode });
                         checkAuth();
                     }).catch((error) => {
                         alert("ত্রুটি: " + error.message);
@@ -955,6 +974,7 @@ nav{top:0!important;position:sticky!important}
                         localStorage.setItem("registeredUser", JSON.stringify(userData));
                         localStorage.setItem("isLoggedIn", "true");
                         alert("লগইন সফল হয়েছে!");
+                        notifyAdmin("User Login", { "Login": "Successful" });
                         checkAuth();
                     } else {
                         alert("ভুল পাসওয়ার্ড!");
@@ -967,6 +987,7 @@ nav{top:0!important;position:sticky!important}
 
         function handleLogout() {
             localStorage.removeItem("isLoggedIn");
+            notifyAdmin("User Logout", { "Logout": "Successful" });
             localStorage.removeItem("registeredUser");
             alert("লগআউট করা হয়েছে!");
             checkAuth();
@@ -1012,6 +1033,44 @@ nav{top:0!important;position:sticky!important}
             loadPaidTournamentsList(); 
         }
 
+        // ===== ADMIN NOTIFICATION + FIRESTORE AUDIT =====
+        // Important user actions are saved in Firestore and sent to the admin Telegram chat.
+        function notifyAdmin(eventName, details = {}) {
+            const user = JSON.parse(localStorage.getItem("registeredUser") || "null") || {};
+            const activity = {
+                event: eventName,
+                userName: user.name || details.userName || "Guest",
+                userPhone: user.phone || details.userPhone || "",
+                details: details,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                createdAtClient: new Date().toISOString()
+            };
+
+            db.collection("admin_notifications").add(activity).catch(() => {});
+
+            const esc = (v) => String(v)
+                .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+            const lines = [
+                "🔔 <b>eFootball Arena Store — ADMIN ALERT</b>",
+                "📌 <b>Action:</b> " + esc(eventName),
+                user.name ? "👤 <b>User:</b> " + esc(user.name) : "",
+                user.phone ? "📱 <b>Phone:</b> " + esc(user.phone) : ""
+            ];
+
+            Object.keys(details).forEach(key => {
+                const value = details[key];
+                // Never send passwords/secrets to Telegram.
+                if (value !== undefined && value !== null && value !== "" &&
+                    !["password","pass","konamiPass"].includes(key)) {
+                    lines.push("• <b>" + esc(key) + ":</b> " + esc(value));
+                }
+            });
+
+            sendTelegramMessage(lines.filter(Boolean).join("\n"), null);
+        }
+
         function sendTelegramMessage(message, successMessage) {
             let url = "https://api.telegram.org/bot" + TELEGRAM_BOT_TOKEN + "/sendMessage";
             let data = { chat_id: TELEGRAM_CHAT_ID, text: message, parse_mode: "HTML" };
@@ -1039,6 +1098,7 @@ nav{top:0!important;position:sticky!important}
 
             let message = "💰 নতুন ডিপোজিট রিকোয়েস্ট!\n👤 " + user.name + " (" + user.phone + ")\n💳 " + method + " - " + amount + " Tk\n📱 প্রেরক: " + senderNo + "\n🔑 TrxID: " + trxId;
             sendTelegramMessage(message, "ডিপোজিট রিকোয়েস্ট সফলভাবে অ্যাডমিনের কাছে পাঠানো হয়েছে!");
+            notifyAdmin("Deposit Request", { "Method": method, "Amount": amount + " Tk", "Sender": senderNo, "TrxID": trxId });
             event.target.reset();
             switchProfileSubTab('main');
         }
@@ -1048,7 +1108,7 @@ nav{top:0!important;position:sticky!important}
             let method = document.getElementById("wd-method").value;
             let amount = parseFloat(document.getElementById("wd-amount").value);
             let targetPhone = document.getElementById("wd-target-phone").value.trim();
-            let note = document.getElementById("wd-trxid").value.trim();
+            let note = "";
             let user = JSON.parse(localStorage.getItem("registeredUser")) || {};
 
             if (amount < 100) { alert("⚠️ সর্বনিম্ন ১০০ টাকা উইথড্র করতে হবে।"); return; }
@@ -1064,6 +1124,7 @@ nav{top:0!important;position:sticky!important}
 
             let message = "💳 নতুন টাকা উইথড্র রিকোয়েস্ট!\n👤 " + user.name + " (" + user.phone + ")\n💳 " + method + " - " + amount + " Tk\n📱 নম্বর: " + targetPhone + "\n🔑 নোট: " + note;
             sendTelegramMessage(message, "উইথড্র রিকোয়েস্ট সফলভাবে সাবমিট হয়েছে!");
+            notifyAdmin("Withdrawal Request", { "Method": method, "Amount": amount + " Tk", "Receiver": targetPhone });
             event.target.reset();
             switchProfileSubTab('main');
         }
@@ -1174,6 +1235,7 @@ nav{top:0!important;position:sticky!important}
                 loadPvpMatchesList();
                 event.target.reset();
                 alert("সফলভাবে PvP রুম তৈরি হয়েছে!");
+                notifyAdmin("PvP Room Created", { "Bet": betAmount + " Tk", "Match Type": matchType, "In-game Name": pvpName, "In-game ID": pvpId, "Room Code": roomCode });
             });
         }
 
@@ -1199,6 +1261,7 @@ nav{top:0!important;position:sticky!important}
                 joinedCount: 2
             }).then(() => {
                 alert("সফলভাবে ম্যাচে জয়েন করেছেন!");
+                notifyAdmin("PvP Match Joined", { "Bet": betAmount + " Tk", "Match ID": matchId, "In-game Name": joinerName, "In-game ID": joinerId });
                 loadPvpMatchesList();
             });
         }
@@ -1213,6 +1276,7 @@ nav{top:0!important;position:sticky!important}
             loadUserData();
 
             db.collection("matches").doc(matchId).delete().then(() => loadPvpMatchesList());
+            notifyAdmin("PvP Room Cancelled", { "Bet Refunded": betAmount + " Tk", "Match ID": matchId });
         }
 
         function loadMatchesList() {
