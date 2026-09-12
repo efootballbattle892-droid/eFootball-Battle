@@ -1261,6 +1261,16 @@ nav{top:0!important;position:sticky!important}
             });
         }
     </script>
+<style>
+.wallet-head{display:flex;justify-content:space-between;gap:15px;align-items:flex-start;margin:5px 0 18px}.wallet-kicker,.panel-kicker{font-size:9px;letter-spacing:2px;color:#6f8499;font-weight:900}.wallet-head h3{margin:3px 0 4px!important;font-size:20px!important}.wallet-head p{margin:0;color:#8194a8;font-size:11px}.wallet-secure{font-size:8px;font-weight:900;letter-spacing:1px;color:#b7ff19;border:1px solid rgba(183,255,25,.2);background:rgba(183,255,25,.06);padding:8px 10px;border-radius:10px}
+.wallet-method-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}.wallet-method,.mini-method{border:1px solid rgba(148,163,184,.13);background:rgba(11,21,38,.72);color:#fff;border-radius:13px;padding:11px;display:flex;align-items:center;gap:9px;text-align:left;cursor:pointer;transition:.2s}.wallet-method.active,.mini-method.active{border-color:rgba(183,255,25,.48);background:linear-gradient(145deg,rgba(183,255,25,.09),rgba(25,167,255,.08));box-shadow:0 8px 28px rgba(0,0,0,.2)}
+.method-logo{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;font-weight:1000;font-size:12px;flex:none}.bkash-logo{background:linear-gradient(135deg,#e2136e,#ff4b94);color:#fff}.nagad-logo{background:linear-gradient(135deg,#f4b400,#ffdd63);color:#15100a}.payoneer-logo{background:linear-gradient(135deg,#e51d2a,#ff5c65);color:#fff}
+.wallet-method span:last-child,.form-method-badge span:last-child{display:flex;flex-direction:column}.wallet-method b,.form-method-badge b{font-size:12px}.wallet-method small,.form-method-badge small{font-size:9px;color:#8498ab;margin-top:2px}
+.wallet-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:15px 0}.wallet-action{border:0;border-radius:15px;padding:14px 15px;display:flex;align-items:center;gap:11px;color:#061018;text-align:left;cursor:pointer;box-shadow:0 12px 30px rgba(0,0,0,.22)}.deposit-action{background:linear-gradient(135deg,#b7ff19,#5cff7a)}.withdraw-action{background:linear-gradient(135deg,#19a7ff,#5ee7ff)}.wallet-action .action-icon{width:35px;height:35px;border-radius:11px;background:rgba(0,0,0,.13);display:grid;place-items:center;font-size:21px;font-weight:900}.wallet-action span:last-child{display:flex;flex-direction:column}.wallet-action b{font-size:14px}.wallet-action small{font-size:9px;opacity:.72;margin-top:2px}
+.receive-card{background:linear-gradient(145deg,rgba(6,14,27,.92),rgba(12,24,42,.76));border:1px solid rgba(94,231,255,.11);border-radius:15px;padding:13px}.receive-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.receive-title span{font-size:9px;letter-spacing:1.5px;font-weight:900;color:#b7ff19}.receive-title small{font-size:8px;color:#687d91}.receive-row{display:grid;grid-template-columns:34px 1fr auto;align-items:center;gap:9px;padding:9px;border-top:1px solid rgba(148,163,184,.08)}.receive-row.active{background:rgba(183,255,25,.035);border-radius:9px}.receive-logo{width:31px;height:31px;border-radius:9px;display:grid;place-items:center;font-size:9px;font-weight:1000}.receive-row div{display:flex;flex-direction:column}.receive-row b{font-size:10px}.receive-row small{font-size:8px;color:#6f8499;margin-top:2px}.receive-row strong{font-size:10px;color:#b7ff19;text-align:right;word-break:break-all}
+.wallet-form-panel{background:linear-gradient(145deg,rgba(8,17,31,.96),rgba(4,10,19,.92));padding:16px;border-radius:16px;border:1px solid rgba(94,231,255,.12);margin-bottom:18px}.wallet-panel-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:13px}.wallet-panel-top h4{margin:2px 0 0!important;font-size:16px!important;color:#fff!important}.wallet-panel-top button{border:1px solid #334155;background:#111c2d;color:#cbd5e1;border-radius:8px;padding:6px 9px;font-size:10px;cursor:pointer}.form-method-badge{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid rgba(148,163,184,.11);border-radius:11px;margin-bottom:10px}.payment-receive-box{display:flex;flex-direction:column;align-items:center;text-align:center;padding:13px;border-radius:12px;background:rgba(183,255,25,.045);border:1px dashed rgba(183,255,25,.22);margin-bottom:13px}.payment-receive-box span{font-size:8px;letter-spacing:1px;color:#778da1}.payment-receive-box strong{font-size:15px;color:#b7ff19;margin:3px 0;word-break:break-all}.payment-receive-box small{font-size:8px;color:#74899d}.wallet-method-mini-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:13px}.mini-method{justify-content:center;padding:8px;font-size:10px}.mini-method .method-logo{width:27px;height:27px;border-radius:8px;font-size:9px}.wallet-submit{margin-top:4px!important}.withdraw-submit{background:linear-gradient(100deg,#19a7ff,#5ee7ff)!important}
+@media(max-width:600px){.wallet-head h3{font-size:17px!important}.wallet-method-grid{gap:7px}.wallet-method{padding:9px 7px}.wallet-method .method-logo{width:30px;height:30px}.wallet-method b{font-size:10px}.wallet-method small{font-size:7px}.wallet-actions{gap:8px}.wallet-action{padding:11px 9px}.wallet-action b{font-size:12px}.receive-row strong{font-size:8px;max-width:145px}}
+</style>
 </head>
 <body>
 
@@ -1507,38 +1517,52 @@ nav{top:0!important;position:sticky!important}
                 </div>
 
                 <div id='profile-main-view'>
-                    <div style='display: flex; gap: 10px; margin-bottom: 20px;'>
-                        <button onclick='switchProfileSubTab("deposit")' style='flex: 1; background: #25d366; color: #fff; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px;'>💳 ডিপোজিট করুন</button>
-                        <button onclick='switchProfileSubTab("withdraw")' style='flex: 1; background: #ef4444; color: #fff; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px;'>🪙 উইথড্র করুন</button>
+                    <div class='wallet-head'><div><span class='wallet-kicker'>SECURE WALLET</span><h3>Deposit & Withdrawal</h3><p>Choose a payment method and submit your transaction securely.</p></div><div class='wallet-secure'>🔒 SECURE</div></div>
+                    <div class='wallet-method-grid'>
+                        <button class='wallet-method active' onclick='selectWalletMethod("bKash", this)'><span class='method-logo bkash-logo'>bK</span><span><b>bKash</b><small>BDT • Mobile Wallet</small></span></button>
+                        <button class='wallet-method' onclick='selectWalletMethod("Nagad", this)'><span class='method-logo nagad-logo'>N</span><span><b>Nagad</b><small>BDT • Mobile Wallet</small></span></button>
+                        <button class='wallet-method' onclick='selectWalletMethod("Payoneer", this)'><span class='method-logo payoneer-logo'>P</span><span><b>Payoneer</b><small>USD • International</small></span></button>
+                    </div>
+                    <div class='wallet-actions'>
+                        <button class='wallet-action deposit-action' onclick='switchProfileSubTab("deposit")'><span class='action-icon'>↓</span><span><b>Deposit</b><small>Add funds to wallet</small></span></button>
+                        <button class='wallet-action withdraw-action' onclick='switchProfileSubTab("withdraw")'><span class='action-icon'>↑</span><span><b>Withdraw</b><small>Send funds from wallet</small></span></button>
+                    </div>
+                    <div class='receive-card'>
+                        <div class='receive-title'><span>RECEIVE PAYMENT</span><small>Official payment details</small></div>
+                        <div class='receive-row active' data-method='bKash'><span class='receive-logo bkash-logo'>bK</span><div><b>bKash</b><small>Send Money</small></div><strong>01622842102</strong></div>
+                        <div class='receive-row' data-method='Nagad'><span class='receive-logo nagad-logo'>N</span><div><b>Nagad</b><small>Send Money</small></div><strong>01622842102</strong></div>
+                        <div class='receive-row' data-method='Payoneer'><span class='receive-logo payoneer-logo'>P</span><div><b>Payoneer</b><small>USD Receive</small></div><strong>sksabbirahmedtambir@gmail.com</strong></div>
                     </div>
                 </div>
 
-                <div id='profile-deposit-view' style='display: none; background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155; margin-bottom: 20px;'>
-                    <div style='display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;'>
-                        <h4 style='color: #25d366; font-size: 15px;'>💳 টাকা ডিপোজিট করুন</h4>
-                        <button onclick='switchProfileSubTab("main")' style='background: #334155; color: #fff; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;'>⬅️ ব্যাক</button>
-                    </div>
-                    <p style='font-size: 12px; color: #facc15; margin-bottom: 10px; font-weight: bold;'>ডিপোজিট নম্বর: 01622842102 (Send Money)</p>
+                <div id='profile-deposit-view' class='wallet-form-panel' style='display: none;'>
+                    <div class='wallet-panel-top'><div><span class='panel-kicker'>ADD FUNDS</span><h4>Deposit Money</h4></div><button onclick='switchProfileSubTab("main")'>← Back</button></div>
+                    <div class='form-method-badge' id='deposit-method-badge'><span class='method-logo bkash-logo'>bK</span><span><b>bKash Deposit</b><small>BDT • Send Money</small></span></div>
+                    <div class='payment-receive-box' id='deposit-receive-box'><span>Send Payment to</span><strong>01622842102</strong><small>bKash • Official Receive Number</small></div>
                     <form onsubmit='handleDeposit(event)'>
-                        <div class='payment-methods'><button type='button' class='pay-card active' data-method='Bkash' onclick='selectPayMethod("dep","Bkash",this)'><span class='pay-logo bkash-logo'>bKash</span><b>bKash</b></button><button type='button' class='pay-card' data-method='Nagad' onclick='selectPayMethod("dep","Nagad",this)'><span class='pay-logo nagad-logo'>N</span><b>Nagad</b></button><button type='button' class='pay-card' data-method='International Wallet' onclick='selectPayMethod("dep","International Wallet",this)'><span class='pay-logo wallet-logo'>◈</span><b>International</b></button></div><select id='dep-method' class='hidden-select'><option value='Bkash' selected>bKash</option><option value='Nagad'>Nagad</option><option value='International Wallet'>International Wallet</option></select>
-                        <div class='form-group'><label style='font-size: 11px;'>টাকা পরিমাণ</label><input id='dep-amount' placeholder='যেমন: 100' required type='number'/></div>
-                        <div class='form-group'><label style='font-size: 11px;'>পেমেন্ট নম্বর / Wallet</label><div class='phone-row'><select id='dep-country-code' class='country-code'><option value='+880' selected>🇧🇩 +880</option><option value='+91'>🇮🇳 +91</option><option value='+92'>🇵🇰 +92</option><option value='+966'>🇸🇦 +966</option><option value='+971'>🇦🇪 +971</option><option value='+974'>🇶🇦 +974</option><option value='+44'>🇬🇧 +44</option><option value='+1'>🇺🇸 +1</option><option value='+60'>🇲🇾 +60</option><option value='+65'>🇸🇬 +65</option></select><input id='dep-sender-no' placeholder='নম্বর / Wallet Address' required type='text'/></div></div>
-                        <div class='form-group'><label style='font-size: 11px;'>TrxID / Reference</label><input id='dep-trxid' placeholder='TrxID বা Reference লিখুন' required type='text'/></div>
-                        <button class='btn-submit' type='submit'>ডিপোজিট সাবমিট করুন</button>
+                        <input type='hidden' id='dep-method' value='Bkash'/>
+                        <div class='form-group'><label id='dep-sender-label'>Sender Mobile Number</label><input id='dep-sender-no' placeholder='01XXXXXXXXX' required type='tel'/></div>
+                        <div class='form-group'><label>Transaction ID (TrxID)</label><input id='dep-trxid' placeholder='Enter TrxID / Reference' required type='text'/></div>
+                        <div class='form-group'><label id='dep-amount-label'>Deposit Amount (BDT)</label><input id='dep-amount' placeholder='e.g. 500' required type='number' min='1'/></div>
+                        <button class='btn-submit wallet-submit' type='submit'>✓ Submit Deposit</button>
                     </form>
                 </div>
 
-                <div id='profile-withdraw-view' style='display: none; background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155; margin-bottom: 20px;'>
-                    <div style='display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;'>
-                        <h4 style='color: #ef4444; font-size: 15px;'>🪙 টাকা উইথড্র করুন</h4>
-                        <button onclick='switchProfileSubTab("main")' style='background: #334155; color: #fff; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;'>⬅️ ব্যাক</button>
+                <div id='profile-withdraw-view' class='wallet-form-panel' style='display: none;'>
+                    <div class='wallet-panel-top'><div><span class='panel-kicker'>CASH OUT</span><h4>Withdraw Money</h4></div><button onclick='switchProfileSubTab("main")'>← Back</button></div>
+                    <div class='wallet-method-mini-grid'>
+                        <button type='button' onclick='setWithdrawMethod("Bkash")' class='mini-method active' id='wd-bkash'><span class='method-logo bkash-logo'>bK</span>bKash</button>
+                        <button type='button' onclick='setWithdrawMethod("Nagad")' class='mini-method' id='wd-nagad'><span class='method-logo nagad-logo'>N</span>Nagad</button>
+                        <button type='button' onclick='setWithdrawMethod("Payoneer")' class='mini-method' id='wd-payoneer'><span class='method-logo payoneer-logo'>P</span>Payoneer</button>
                     </div>
                     <form onsubmit='handleWithdraw(event)'>
-                        <div class='payment-methods'><button type='button' class='pay-card active' data-method='Bkash' onclick='selectPayMethod("wd","Bkash",this)'><span class='pay-logo bkash-logo'>bKash</span><b>bKash</b></button><button type='button' class='pay-card' data-method='Nagad' onclick='selectPayMethod("wd","Nagad",this)'><span class='pay-logo nagad-logo'>N</span><b>Nagad</b></button><button type='button' class='pay-card' data-method='International Wallet' onclick='selectPayMethod("wd","International Wallet",this)'><span class='pay-logo wallet-logo'>◈</span><b>International</b></button></div><select id='wd-method' class='hidden-select'><option value='Bkash' selected>bKash</option><option value='Nagad'>Nagad</option><option value='International Wallet'>International Wallet</option></select>
-                        <div class='form-group'><label style='font-size: 11px;'>টাকা পরিমাণ (সর্বনিম্ন ১০০)</label><input id='wd-amount' placeholder='যেমন: 100' required type='number'/></div>
-                        <div class='form-group'><label style='font-size: 11px;'>প্রাপক নম্বর / Wallet</label><div class='phone-row'><select id='wd-country-code' class='country-code'><option value='+880' selected>🇧🇩 +880</option><option value='+91'>🇮🇳 +91</option><option value='+92'>🇵🇰 +92</option><option value='+966'>🇸🇦 +966</option><option value='+971'>🇦🇪 +971</option><option value='+974'>🇶🇦 +974</option><option value='+44'>🇬🇧 +44</option><option value='+1'>🇺🇸 +1</option><option value='+60'>🇲🇾 +60</option><option value='+65'>🇸🇬 +65</option></select><input id='wd-target-phone' placeholder='নম্বর / Wallet Address' required type='text'/></div></div>
-                        <div class='form-group'><label style='font-size: 11px;'>নোট / Reference</label><input id='wd-trxid' placeholder='নোট বা Reference দিন' required type='text'/></div>
-                        <button class='btn-submit' type='submit' style='background: linear-gradient(135deg, #ef4444, #dc2626);'>উইথড্র পাঠান</button>
+                        <input type='hidden' id='wd-method' value='Bkash'/>
+                        <div class='form-group' id='wd-platform-group' style='display:none;'><label>Platform Username / ID</label><input id='wd-platform-id' placeholder='Your platform username or ID' type='text'/></div>
+                        <div class='form-group' id='wd-target-group'><label id='wd-target-label'>Receiver Mobile Number</label><input id='wd-target-phone' placeholder='01XXXXXXXXX' required type='tel'/></div>
+                        <div class='form-group'><label id='wd-amount-label'>Withdrawal Amount (BDT)</label><input id='wd-amount' placeholder='e.g. 500' required type='number' min='1'/></div>
+                        <div class='form-group' id='wd-holder-group' style='display:none;'><label>Account Holder Name</label><input id='wd-holder-name' placeholder='Account holder full name' type='text'/></div>
+                        <div class='form-group' id='wd-email-group' style='display:none;'><label>Payoneer Account Email</label><input id='wd-payoneer-email' placeholder='name@example.com' type='email'/></div>
+                        <button class='btn-submit wallet-submit withdraw-submit' type='submit'>↑ Submit Withdrawal</button>
                     </form>
                 </div>
 
@@ -1553,5 +1577,10 @@ nav{top:0!important;position:sticky!important}
             <div class='bottom-nav-item' onclick='switchSection("profile")'>👤 প্রোফাইল ও ওয়ালেট</div>
         </div>
     </div>
+<script>
+function selectWalletMethod(method,el){document.querySelectorAll('.wallet-method').forEach(x=>x.classList.remove('active'));if(el)el.classList.add('active');document.querySelectorAll('.receive-row').forEach(r=>r.classList.toggle('active',r.dataset.method===method));updateDepositUI(method);}
+function updateDepositUI(method){const cfg={bKash:['bK','bkash-logo','bKash Deposit','BDT • Send Money','01622842102','bKash • Official Receive Number'],Nagad:['N','nagad-logo','Nagad Deposit','BDT • Send Money','01622842102','Nagad • Official Receive Number'],Payoneer:['P','payoneer-logo','Payoneer Deposit','USD • International','sksabbirahmedtambir@gmail.com','Payoneer • USD Receive']}[method];if(!cfg)return;document.getElementById('dep-method').value=method==='Payoneer'?'Payoneer':method;document.getElementById('deposit-method-badge').innerHTML='<span class="method-logo '+cfg[1]+'">'+cfg[0]+'</span><span><b>'+cfg[2]+'</b><small>'+cfg[3]+'</small></span>';document.getElementById('deposit-receive-box').innerHTML='<span>Send Payment to</span><strong>'+cfg[4]+'</strong><small>'+cfg[5]+'</small>';const intl=method==='Payoneer';document.getElementById('dep-sender-label').textContent=intl?'Sender’s Full Name':'Sender Mobile Number';document.getElementById('dep-sender-no').placeholder=intl?'Enter sender full name':'01XXXXXXXXX';document.getElementById('dep-sender-no').type=intl?'text':'tel';document.getElementById('dep-amount-label').textContent=intl?'Deposit Amount (USD)':'Deposit Amount (BDT)';}
+function setWithdrawMethod(method){document.getElementById('wd-method').value=method;document.querySelectorAll('.mini-method').forEach(x=>x.classList.remove('active'));document.getElementById(method==='Bkash'?'wd-bkash':method==='Nagad'?'wd-nagad':'wd-payoneer').classList.add('active');const intl=method==='Payoneer';document.getElementById('wd-platform-group').style.display=intl?'block':'none';document.getElementById('wd-holder-group').style.display=intl?'block':'none';document.getElementById('wd-email-group').style.display=intl?'block':'none';document.getElementById('wd-target-label').textContent=intl?'Payoneer Account Email':'Receiver Mobile Number';document.getElementById('wd-target-phone').placeholder=intl?'name@example.com':'01XXXXXXXXX';document.getElementById('wd-target-phone').type=intl?'email':'tel';document.getElementById('wd-amount-label').textContent=intl?'Withdrawal Amount (USD)':'Withdrawal Amount (BDT)';}
+</script>
 </body>
 </html>
