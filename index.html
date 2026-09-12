@@ -596,21 +596,29 @@ nav{top:0!important;position:sticky!important}
                 return;
             }
 
+            if (!user.phone) {
+                alert("⚠️ আগে Sign Up / Login করুন।");
+                return;
+            }
+
             const postData = {
                 itemType: "eFootball ID Sell",
                 title: title,
                 price: price,
-                konamiGmail: konamiGmail,
-                konamiPass: konamiPass,
                 imgUrl: imgUrl,
-                sellerName: user.name,
+                sellerName: user.name || "Seller",
                 sellerPhone: user.phone,
                 sellerImg: user.profileImg || "",
+                status: "available",
+                sold: false,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             };
 
-            db.collection("marketplace").add(postData).then(() => {
-                const adminMsg = "🚨 নতুন eFootball ID বিক্রির পোস্ট!\n👤 বিক্রেতা: " + user.name + " (" + user.phone + ")\n🎮 বিবরণ: " + title + "\n💵 দাম: " + price + " Tk\n📧 কোনামি জিমেইল: " + konamiGmail + "\n🔑 পাসওয়ার্ড: " + konamiPass;
+            // Public marketplace data only. Do NOT put Konami credentials in a public document.
+            db.collection("marketplace").add(postData).then(docRef => {
+                console.log("Marketplace post created:", docRef.id);
+                const adminMsg = "🚨 নতুন eFootball ID বিক্রির পোস্ট!\n👤 বিক্রেতা: " + (user.name || "Seller") + " (" + user.phone + ")\n🎮 বিবরণ: " + title + "\n💵 দাম: " + price + " Tk\n🖼️ Image: Uploaded\n🆔 Post ID: " + docRef.id;
                 sendTelegramMessage(adminMsg, null);
 
                 alert("✅ আপনার ID Sell Post সফলভাবে সাবমিট হয়েছে!");
@@ -637,34 +645,37 @@ nav{top:0!important;position:sticky!important}
             }[ch]));
         }
 
+        let marketplaceUnsubscribe = null;
+
         function loadMarketplaceList() {
             const container = document.getElementById("marketplace-items-container");
             if (!container) return;
-
             container.innerHTML = "<div class='market-loading'>⏳ Marketplace লোড হচ্ছে...</div>";
 
-            // No orderBy() here: this avoids a Firestore composite/index requirement
-            // that can make a public listing silently appear empty.
-            db.collection("marketplace").get().then(snapshot => {
+            if (marketplaceUnsubscribe) {
+                marketplaceUnsubscribe();
+                marketplaceUnsubscribe = null;
+            }
+
+            // Realtime listener: newly created posts appear automatically for every user.
+            marketplaceUnsubscribe = db.collection("marketplace").onSnapshot(snapshot => {
                 const posts = [];
                 snapshot.forEach(doc => posts.push({ id: doc.id, data: doc.data() }));
-
                 posts.sort((a,b) => {
-                    const ta = a.data.timestamp?.seconds || 0;
-                    const tb = b.data.timestamp?.seconds || 0;
+                    const ta = a.data.createdAt?.seconds || a.data.timestamp?.seconds || 0;
+                    const tb = b.data.createdAt?.seconds || b.data.timestamp?.seconds || 0;
                     return tb - ta;
                 });
 
                 container.innerHTML = "";
                 if (!posts.length) {
-                    container.innerHTML = "<div class='market-empty'>🎮 এখনো কোনো eFootball ID বিক্রির পোস্ট নেই।<br><small>প্রথম পোস্টটি আপনি দিতে পারেন!</small></div>";
+                    container.innerHTML = "<div class='market-empty'>🎮 এখনো কোনো eFootball ID বিক্রির পোস্ট নেই।<br><small>ID Sell করলে পোস্টটি এখানে সবার কাছে দেখা যাবে।</small></div>";
                     return;
                 }
-
                 posts.forEach(item => renderMarketplacePost(container, item.id, item.data));
-            }).catch(err => {
-                console.error("Marketplace load error:", err);
-                container.innerHTML = "<div class='market-error'>⚠️ Marketplace লোড করা যাচ্ছে না। Firebase Firestore Rules/Index/Network সেটিংস পরীক্ষা করুন।</div>";
+            }, err => {
+                console.error("Marketplace realtime error:", err);
+                container.innerHTML = "<div class='market-error'>⚠️ Marketplace load error: " + escapeMarketText(err.message || "Firestore read failed") + "</div>";
             });
         }
 
@@ -1669,7 +1680,8 @@ nav{top:0!important;position:sticky!important}
                     </div>
 
                     <div class='box' style='background: #171f2d; margin-top: 15px;'>
-                        <h4 style='color: #facc15; margin-bottom: 10px; font-size: 14px;'>📢 পাব্লিক মার্কেটপ্লেস</h4>
+                        <div style='display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px;'><h4 style='color:#facc15;margin:0;font-size:14px;'>📢 পাব্লিক মার্কেটপ্লেস</h4><button type='button' onclick='loadMarketplaceList()' style='border:1px solid #334155;background:#0f172a;color:#8be9fd;border-radius:8px;padding:6px 9px;font-size:9px;'>↻ Refresh</button></div>
+                        <div style='font-size:8px;color:#6f8499;margin:-3px 0 10px;'>ছবি, দাম ও seller profile সবার জন্য visible • নতুন পোস্ট realtime-এ দেখা যাবে</div>
                         <div id='marketplace-items-container'>লোড হচ্ছে...</div>
                     </div>
                 </div>
