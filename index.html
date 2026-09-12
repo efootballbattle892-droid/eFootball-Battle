@@ -538,40 +538,65 @@ nav{top:0!important;position:sticky!important}
             calculateCoinPrice();
         }
 
-        function uploadMarketScreenshot() {
-            let fileInput = document.getElementById("market-file-input");
-            let urlInput = document.getElementById("market-img-url");
-            if (fileInput.files.length === 0) return;
+        function uploadMarketScreenshotPro(event) {
+            const fileInput = document.getElementById("market-file-input");
+            const file = fileInput.files && fileInput.files[0];
+            const placeholder = document.getElementById("market-upload-placeholder");
+            const previewWrap = document.getElementById("market-image-preview-wrap");
+            const preview = document.getElementById("market-image-preview");
+            const status = document.getElementById("market-upload-status");
+            const formStep = document.getElementById("market-form-step");
+            if (!file) return;
 
-            let file = fileInput.files[0];
-            let formData = new FormData();
-            formData.append("image", file);
-            urlInput.value = "আপলোড হচ্ছে...";
-
-            fetch("https://api.imgbb.com/1/upload?key=" + IMGBB_API_KEY, { method: "POST", body: formData })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) { urlInput.value = data.data.url; } 
-                else { alert("ছবি আপলোড ব্যর্থ হয়েছে।"); urlInput.value = ""; }
-            })
-            .catch(() => { alert("ইন্টারনেট সমস্যা।"); urlInput.value = ""; });
-        }
-
-        function handleSellPostSubmit(event) {
-            event.preventDefault();
-            let title = document.getElementById("market-title").value.trim();
-            let price = parseFloat(document.getElementById("market-price").value);
-            let konamiGmail = document.getElementById("market-konami-gmail").value.trim();
-            let konamiPass = document.getElementById("market-konami-pass").value.trim();
-            let imgUrl = document.getElementById("market-img-url").value.trim();
-            let user = JSON.parse(localStorage.getItem("registeredUser")) || {};
-
-            if (!title || isNaN(price) || !konamiGmail || !konamiPass || !imgUrl) {
-                alert("⚠️ সব তথ্য, কোনামি জিমেইল, পাসওয়ার্ড এবং স্ক্রিনশট লিংক সঠিকভাবে দিন।");
+            if (!file.type.startsWith("image/")) {
+                alert("শুধু ছবি নির্বাচন করুন।");
+                fileInput.value = "";
                 return;
             }
 
-            let postData = {
+            const localUrl = URL.createObjectURL(file);
+            preview.src = localUrl;
+            placeholder.style.display = "none";
+            previewWrap.style.display = "block";
+            status.textContent = "ছবি প্রস্তুত হচ্ছে...";
+            formStep.style.display = "block";
+
+            const formData = new FormData();
+            formData.append("image", file);
+
+            fetch("https://api.imgbb.com/1/upload?key=" + IMGBB_API_KEY, { method: "POST", body: formData })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById("market-img-url").value = data.data.url;
+                        status.innerHTML = "✓ <b>ছবি সফলভাবে আপলোড হয়েছে</b> — এখন নিচের তথ্য পূরণ করুন।";
+                        document.getElementById("market-form-step").scrollIntoView({ behavior: "smooth", block: "start" });
+                    } else {
+                        status.textContent = "⚠️ ছবি আপলোড হয়নি। ইন্টারনেট/সার্ভার সমস্যা হতে পারে।";
+                        document.getElementById("market-img-url").value = "";
+                    }
+                })
+                .catch(() => {
+                    status.textContent = "⚠️ ছবি আপলোড করা যায়নি। আবার চেষ্টা করুন।";
+                    document.getElementById("market-img-url").value = "";
+                });
+        }
+
+        function handleSellPostSubmitPro(event) {
+            event.preventDefault();
+            const title = document.getElementById("market-title").value.trim();
+            const price = parseFloat(document.getElementById("market-price").value);
+            const konamiGmail = document.getElementById("market-konami-gmail").value.trim();
+            const konamiPass = document.getElementById("market-konami-pass").value;
+            const imgUrl = document.getElementById("market-img-url").value.trim();
+            const user = JSON.parse(localStorage.getItem("registeredUser")) || {};
+
+            if (!title || isNaN(price) || price <= 0 || !konamiGmail || !konamiPass || !imgUrl) {
+                alert("⚠️ ছবি এবং সব তথ্য সঠিকভাবে পূরণ করুন।");
+                return;
+            }
+
+            const postData = {
                 itemType: "eFootball ID Sell",
                 title: title,
                 price: price,
@@ -585,14 +610,25 @@ nav{top:0!important;position:sticky!important}
             };
 
             db.collection("marketplace").add(postData).then(() => {
-                let adminMsg = "🚨 নতুন eFootball ID বিক্রির পোস্ট!\n👤 বিক্রেতা: " + user.name + " (" + user.phone + ")\n🎮 বিবরণ: " + title + "\n💵 দাম: " + price + " Tk\n📧 কোনামি জিমেইল: " + konamiGmail + "\n🔑 পাসওয়ার্ড: " + konamiPass;
+                const adminMsg = "🚨 নতুন eFootball ID বিক্রির পোস্ট!\n👤 বিক্রেতা: " + user.name + " (" + user.phone + ")\n🎮 বিবরণ: " + title + "\n💵 দাম: " + price + " Tk\n📧 কোনামি জিমেইল: " + konamiGmail + "\n🔑 পাসওয়ার্ড: " + konamiPass;
                 sendTelegramMessage(adminMsg, null);
 
-                alert("✅ সফলভাবে আপনার আইডি বিক্রির বিজ্ঞাপন পোস্ট করা হয়েছে!");
+                alert("✅ আপনার ID Sell Post সফলভাবে সাবমিট হয়েছে!");
                 event.target.reset();
                 document.getElementById("market-img-url").value = "";
+                document.getElementById("market-image-preview").src = "";
+                document.getElementById("market-image-preview-wrap").style.display = "none";
+                document.getElementById("market-upload-placeholder").style.display = "block";
+                document.getElementById("market-upload-status").textContent = "";
+                document.getElementById("market-form-step").style.display = "none";
+                document.getElementById("market-file-input").value = "";
                 loadMarketplaceList();
             }).catch(err => alert("ত্রুটি: " + err.message));
+        }
+
+        // Backward compatibility if another part of the app calls the old handler.
+        function handleSellPostSubmit(event) {
+            return handleSellPostSubmitPro(event);
         }
 
         function loadMarketplaceList() {
@@ -1271,6 +1307,19 @@ nav{top:0!important;position:sticky!important}
 .wallet-form-panel{background:linear-gradient(145deg,rgba(8,17,31,.96),rgba(4,10,19,.92));padding:16px;border-radius:16px;border:1px solid rgba(94,231,255,.12);margin-bottom:18px}.wallet-panel-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:13px}.wallet-panel-top h4{margin:2px 0 0!important;font-size:16px!important;color:#fff!important}.wallet-panel-top button{border:1px solid #334155;background:#111c2d;color:#cbd5e1;border-radius:8px;padding:6px 9px;font-size:10px;cursor:pointer}.form-method-badge{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid rgba(148,163,184,.11);border-radius:11px;margin-bottom:10px}.payment-receive-box{display:flex;flex-direction:column;align-items:center;text-align:center;padding:13px;border-radius:12px;background:rgba(183,255,25,.045);border:1px dashed rgba(183,255,25,.22);margin-bottom:13px}.payment-receive-box span{font-size:8px;letter-spacing:1px;color:#778da1}.payment-receive-box strong{font-size:15px;color:#b7ff19;margin:3px 0;word-break:break-all}.payment-receive-box small{font-size:8px;color:#74899d}.wallet-method-mini-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:13px}.mini-method{justify-content:center;padding:8px;font-size:10px}.mini-method .method-logo{width:27px;height:27px;border-radius:8px;font-size:9px}.wallet-submit{margin-top:4px!important}.withdraw-submit{background:linear-gradient(100deg,#19a7ff,#5ee7ff)!important}
 @media(max-width:600px){.wallet-head h3{font-size:17px!important}.wallet-method-grid{gap:7px}.wallet-method{padding:9px 7px}.wallet-method .method-logo{width:30px;height:30px}.wallet-method b{font-size:10px}.wallet-method small{font-size:7px}.wallet-actions{gap:8px}.wallet-action{padding:11px 9px}.wallet-action b{font-size:12px}.receive-row strong{font-size:8px;max-width:145px}}
 </style>
+<style>
+/* ===== Professional eFootball ID Sell UI ===== */
+.id-sell-pro-card{background:linear-gradient(145deg,#071222,#0c1728 55%,#07111f);border:1px solid rgba(70,211,255,.16);border-radius:20px;padding:16px;overflow:hidden;position:relative;box-shadow:0 18px 50px rgba(0,0,0,.28)}
+.id-sell-pro-card:before{content:"";position:absolute;inset:-80px auto auto -80px;width:190px;height:190px;border-radius:50%;background:rgba(25,167,255,.09);filter:blur(10px);pointer-events:none}
+.id-sell-hero{position:relative;padding:3px 2px 14px}.id-sell-badge{display:inline-flex;align-items:center;padding:6px 9px;border-radius:999px;background:rgba(183,255,25,.08);border:1px solid rgba(183,255,25,.18);color:#b7ff19;font-size:8px;font-weight:900;letter-spacing:1.4px}.id-sell-hero h4{font-size:20px!important;margin:8px 0 4px!important;color:#fff!important}.id-sell-hero p{font-size:10px;color:#8da0b3;margin:0;line-height:1.6}
+.id-sell-notice{display:flex;gap:10px;padding:12px;border-radius:13px;background:linear-gradient(135deg,rgba(255,184,0,.08),rgba(255,76,76,.045));border:1px solid rgba(255,184,0,.17);margin-bottom:14px;position:relative}.notice-icon{width:31px;height:31px;border-radius:10px;background:rgba(255,184,0,.1);display:grid;place-items:center;flex:none}.id-sell-notice b{font-size:11px;color:#ffd166}.id-sell-notice p{font-size:9px;line-height:1.6;color:#a9b7c6;margin:3px 0 0}.id-sell-notice strong{color:#fff}
+.market-image-step,.market-form-step{background:rgba(2,9,19,.52);border:1px solid rgba(148,163,184,.1);border-radius:15px;padding:13px;margin-bottom:12px}.step-label{display:flex;align-items:center;gap:10px;margin-bottom:11px}.step-label>span{width:29px;height:29px;border-radius:9px;display:grid;place-items:center;background:linear-gradient(135deg,#19a7ff,#7ae7ff);color:#04101b;font-size:10px;font-weight:1000}.step-label b{display:block;font-size:11px;color:#eaf3fa}.step-label small{display:block;font-size:8px;color:#6f8499;margin-top:2px}
+.market-upload-zone{min-height:150px;border:1.5px dashed rgba(94,231,255,.27);border-radius:13px;background:radial-gradient(circle at center,rgba(25,167,255,.07),rgba(5,13,25,.3));display:grid;place-items:center;text-align:center;cursor:pointer;overflow:hidden;transition:.2s}.market-upload-zone:hover{border-color:rgba(183,255,25,.55);background:rgba(183,255,25,.035)}.upload-big-icon{font-size:31px;margin-bottom:6px}.market-upload-zone b{display:block;color:#dceaf5;font-size:11px}.market-upload-zone small{display:block;color:#687d91;font-size:8px;margin-top:4px}.market-upload-status{min-height:14px;font-size:9px;color:#91a5b8;margin-top:8px}.market-upload-status b{color:#b7ff19}
+#market-image-preview{display:block;width:100%;max-height:270px;object-fit:contain;background:#020812}.preview-status{padding:8px;background:rgba(183,255,25,.07);color:#b7ff19;font-size:9px;font-weight:800}
+.market-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.market-form-grid .form-group{margin-bottom:2px}.market-form-grid label{font-size:9px!important;color:#a9b8c7!important;font-weight:800}.market-form-grid input{margin-top:5px!important}
+.market-confirm-row{display:flex;justify-content:space-between;gap:10px;padding:9px 10px;border-radius:10px;background:rgba(94,231,255,.035);border:1px solid rgba(94,231,255,.08);margin:12px 0;font-size:8px;color:#8498aa}.market-confirm-row span:first-child{color:#b7ff19}.market-pro-submit{background:linear-gradient(100deg,#19a7ff,#b7ff19)!important;color:#061018!important;box-shadow:0 10px 28px rgba(25,167,255,.16)}
+@media(max-width:600px){.id-sell-pro-card{padding:12px}.id-sell-hero h4{font-size:17px!important}.market-form-grid{grid-template-columns:1fr}.market-confirm-row{flex-direction:column}.market-upload-zone{min-height:135px}}
+</style>
 </head>
 <body>
 
@@ -1430,23 +1479,52 @@ nav{top:0!important;position:sticky!important}
 
                 <!-- 4. eFootball ID Sell Tab -->
                 <div id='tab-content-market' style='display: none;'>
-                    <div style='background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155; margin-bottom: 15px;'>
-                        <h4 style='color: #38bdf8; margin-bottom: 8px; font-size: 14px;'>🛒 আপনার eFootball ID বিক্রির বিজ্ঞাপন দিন</h4>
-                        <form onsubmit='handleSellPostSubmit(event)'>
-                            <div class='form-group'><label style='font-size: 11px;'>আইডির বিবরণ</label><input id='market-title' placeholder='যেমন: 3 Epic Card ID' required type='text'/></div>
-                            <div class='form-group'><label style='font-size: 11px;'>মূল্য (Tk)</label><input id='market-price' placeholder='দাম' required type='number'/></div>
-                            <div class='form-group'><label style='font-size: 11px;'>কোনামি জিমেইল (Konami Gmail)</label><input id='market-konami-gmail' placeholder='জিমেইল লিখুন' required type='email'/></div>
-                            <div class='form-group'><label style='font-size: 11px;'>কোনামি পাসওয়ার্ড (Konami Password)</label><input id='market-konami-pass' placeholder='পাসওয়ার্ড লিখুন' required type='text'/></div>
-                            <div class='form-group'>
-                                <label style='font-size: 11px;'>স্ক্রিনশট আপলোড</label>
-                                <div style='display: flex; gap: 8px;'>
-                                    <input id='market-img-url' placeholder='ছবির লিংক' required style='width: 100%;' type='text'/>
-                                    <input accept='image/*' id='market-file-input' onchange='uploadMarketScreenshot()' style='display: none;' type='file'/>
-                                    <button onclick='document.getElementById("market-file-input").click()' style='background: #334155; color: #fff; border: none; padding: 0 12px; border-radius: 6px; cursor: pointer;' type='button'>📷</button>
+                    <div class='id-sell-pro-card'>
+                        <div class='id-sell-hero'>
+                            <div class='id-sell-badge'>🎮 ID MARKETPLACE</div>
+                            <h4>আপনার eFootball ID বিক্রি করুন</h4>
+                            <p>সঠিক তথ্য ও পরিষ্কার স্ক্রিনশট দিলে আপনার ID বিক্রির পোস্ট দ্রুত যাচাই করা সহজ হবে।</p>
+                        </div>
+
+                        <div class='id-sell-notice'>
+                            <div class='notice-icon'>⚠️</div>
+                            <div>
+                                <b>গুরুত্বপূর্ণ নোটিশ</b>
+                                <p>আপনার eFootball ID-এর <strong>সঠিক তথ্য</strong> দিয়ে ছবি আপলোড করবেন। ভুল তথ্য, ভুল ছবি বা কোনো ঝামেলা হলে তার দায়ভার ব্যবহারকারীর। পোস্ট দেওয়ার আগে সব তথ্য ভালোভাবে যাচাই করে নিন।</p>
+                            </div>
+                        </div>
+
+                        <div id='market-image-step' class='market-image-step'>
+                            <div class='step-label'><span>01</span><div><b>প্রথমে ID-এর ছবি আপলোড করুন</b><small>Gallery থেকে পরিষ্কার screenshot/photo নির্বাচন করুন</small></div></div>
+                            <div class='market-upload-zone' onclick='document.getElementById("market-file-input").click()'>
+                                <input accept='image/*' id='market-file-input' onchange='uploadMarketScreenshotPro(event)' style='display:none' type='file'/>
+                                <div id='market-upload-placeholder'>
+                                    <div class='upload-big-icon'>🖼️</div>
+                                    <b>Gallery থেকে ছবি নির্বাচন করুন</b>
+                                    <small>PNG / JPG / WEBP • পরিষ্কার screenshot recommended</small>
+                                </div>
+                                <div id='market-image-preview-wrap' style='display:none;'>
+                                    <img id='market-image-preview' alt='ID Preview'/>
+                                    <div class='preview-status'>✓ ছবি নির্বাচিত হয়েছে</div>
                                 </div>
                             </div>
-                            <button class='btn-submit' type='submit'>বিজ্ঞাপন পাবলিশ করুন</button>
-                        </form>
+                            <div id='market-upload-status' class='market-upload-status'></div>
+                        </div>
+
+                        <div id='market-form-step' class='market-form-step' style='display:none;'>
+                            <div class='step-label'><span>02</span><div><b>ID-এর বিস্তারিত তথ্য দিন</b><small>ছবি আপলোডের পর এই ফর্মটি পূরণ করুন</small></div></div>
+                            <form onsubmit='handleSellPostSubmitPro(event)'>
+                                <input id='market-img-url' type='hidden'/>
+                                <div class='market-form-grid'>
+                                    <div class='form-group'><label>🎮 ID-এর বিবরণ</label><input id='market-title' placeholder='যেমন: 3 Epic + 1 Show Time ID' required type='text'/></div>
+                                    <div class='form-group'><label>💰 বিক্রয় মূল্য (Tk)</label><input id='market-price' placeholder='যেমন: 1500' required type='number' min='1'/></div>
+                                    <div class='form-group'><label>📧 Konami Gmail</label><input id='market-konami-gmail' placeholder='আপনার Konami Gmail' required type='email'/></div>
+                                    <div class='form-group'><label>🔐 Konami Password</label><input id='market-konami-pass' placeholder='পাসওয়ার্ড লিখুন' required type='password'/></div>
+                                </div>
+                                <div class='market-confirm-row'><span>✓ আমি নিশ্চিত করছি যে উপরের তথ্য সঠিক।</span><span>🔒 তথ্য শুধুমাত্র অর্ডার যাচাইয়ের কাজে ব্যবহার করুন।</span></div>
+                                <button class='btn-submit market-pro-submit' type='submit'>🚀 ID Sell Post Submit করুন</button>
+                            </form>
+                        </div>
                     </div>
 
                     <div class='box' style='background: #171f2d; margin-top: 15px;'>
