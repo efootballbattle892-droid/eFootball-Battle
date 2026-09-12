@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>eFootball Arena Store — Pro Gaming Platform</title>
+    <link rel="icon" type="image/png" sizes="512x512" href="./logo.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="./logo.png">
+    <meta name="theme-color" content="#030711">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="eFootball Arena">
     
     <!-- Firebase Scripts -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -190,7 +196,7 @@ body:after{
 nav{top:0!important;position:sticky!important}
 .logo{display:flex;align-items:center;gap:6px!important;font-weight:900!important}
 .logo-mark{
-  display:inline-grid;place-items:center;width:27px;height:27px;border-radius:8px;
+  display:inline-grid;place-items:center;width:42px;height:42px;border-radius:8px;
   background:linear-gradient(135deg,#b7ff19,#19a7ff);color:#041018;
   font-size:10px;font-weight:1000;box-shadow:0 0 22px rgba(25,167,255,.25);
 }
@@ -281,7 +287,7 @@ nav{top:0!important;position:sticky!important}
   .telegram-topbar{padding:6px 10px}
   .telegram-topbar b{font-size:9px}.telegram-topbar small{font-size:8px}
   .telegram-topbar strong{font-size:8px;padding:6px 8px}
-  .logo-mark{width:25px;height:25px}.logo{font-size:15px!important}
+  .logo-mark{width:42px;height:42px}.logo{font-size:15px!important}
   .fee-tabs{grid-template-columns:repeat(5,minmax(64px,1fr));overflow-x:auto!important}
   .fee-tabs .tab-btn{min-width:64px}
   .main-tabs{overflow-x:auto!important}
@@ -307,19 +313,26 @@ nav{top:0!important;position:sticky!important}
 @media(max-width:600px){.phone-row{grid-template-columns:82px 1fr}.payment-methods{gap:6px}.wallet-assets{grid-template-columns:1fr}.wallet-balance strong{font-size:25px}}
 
 
-/* ===== ID Sell Professional Alert + Upload Fix ===== */
-#market-pro-alert{position:fixed;inset:0;z-index:999999;display:none;align-items:center;justify-content:center;padding:22px}
-#market-pro-alert.show{display:flex}
-.market-alert-backdrop{position:absolute;inset:0;background:rgba(0,5,12,.78);backdrop-filter:blur(10px)}
-.market-alert-card{position:relative;width:min(420px,94vw);padding:26px 22px 20px;border:1px solid rgba(94,231,255,.24);border-radius:24px;background:linear-gradient(145deg,rgba(10,19,35,.98),rgba(3,8,18,.98));box-shadow:0 25px 90px rgba(0,0,0,.65),0 0 45px rgba(25,167,255,.10);text-align:center;animation:marketAlertIn .22s ease-out}
-.market-alert-icon{width:58px;height:58px;margin:0 auto 12px;border-radius:18px;display:grid;place-items:center;font-size:28px;font-weight:900;background:rgba(183,255,25,.10);border:1px solid rgba(183,255,25,.28);color:#b7ff19}
-.market-alert-title{font-size:19px;font-weight:800;color:#fff;margin-bottom:7px}
-.market-alert-message{font-size:13px;line-height:1.7;color:#b9c7d8;word-break:break-word}
-.market-alert-ok{width:100%;margin-top:18px;border:0;border-radius:14px;padding:12px 16px;font-weight:800;font-size:14px;color:#031007;background:linear-gradient(90deg,#19a7ff,#b7ff19);box-shadow:0 8px 25px rgba(25,167,255,.16)}
-.market-pro-submit:disabled{opacity:.55!important;filter:saturate(.55);cursor:not-allowed!important}
-@keyframes marketAlertIn{from{opacity:0;transform:translateY(10px) scale(.97)}to{opacity:1;transform:none}}
-
-</style>
+.logo-mark img{width:100%;height:100%;object-fit:cover;border-radius:10px;display:block}
+.free-social-pro{margin:14px 0;padding:14px;border-radius:14px;background:linear-gradient(145deg,rgba(10,22,40,.96),rgba(3,11,22,.96));border:1px solid rgba(94,231,255,.16);box-shadow:0 10px 30px rgba(0,0,0,.18)}
+.free-social-pro h5{font-size:14px;color:#fff;margin:0 0 5px}
+.free-social-pro p{font-size:11px;color:#8ea7ba;margin:0 0 12px}
+.free-social-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.free-social-btn{display:flex;align-items:center;justify-content:center;gap:7px;padding:11px 8px;border-radius:10px;text-decoration:none;color:#fff;font-size:12px;font-weight:800;border:1px solid rgba(255,255,255,.1)}
+.free-social-btn.youtube{background:linear-gradient(135deg,#ff1f3d,#c9001d)}
+.free-social-btn.facebook{background:linear-gradient(135deg,#1877f2,#0d4db3)}
+.free-social-check{display:flex;align-items:center;gap:8px;margin-top:10px;color:#cbd5e1;font-size:11px}
+.free-social-check input{width:18px;height:18px;accent-color:#25d366}
+@media(max-width:520px){.free-social-grid{grid-template-columns:1fr}}
+    
+.pro-notice-backdrop{position:fixed;inset:0;background:rgba(0,5,15,.78);backdrop-filter:blur(7px);z-index:99999}
+.pro-notice-card{position:fixed;z-index:100000;left:50%;top:50%;transform:translate(-50%,-50%);width:min(88vw,390px);padding:24px 20px 18px;border-radius:22px;background:linear-gradient(145deg,#111c2d,#07101d);border:1px solid rgba(94,231,255,.2);box-shadow:0 25px 80px rgba(0,0,0,.65);text-align:center;color:#fff}
+.pro-notice-card:before{content:"";position:absolute;left:18%;right:18%;top:0;height:2px;background:linear-gradient(90deg,#19a7ff,#b7ff19);border-radius:10px}
+.pro-notice-icon{width:52px;height:52px;margin:0 auto 10px;border-radius:50%;display:grid;place-items:center;font-size:27px;font-weight:900;background:rgba(37,211,102,.13);color:#5cff7a;border:1px solid rgba(92,255,122,.35)}
+.pro-notice-card.warning .pro-notice-icon{color:#ffd84d;background:rgba(250,204,21,.12);border-color:rgba(250,204,21,.35)}
+.pro-notice-card.error .pro-notice-icon{color:#ff6875;background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.35)}
+.pro-notice-title{font-size:19px;font-weight:900;margin-bottom:7px}.pro-notice-message{font-size:13px;color:#aebdcd;line-height:1.65;margin-bottom:18px}.pro-notice-ok{width:100%;padding:11px;border:0;border-radius:11px;background:linear-gradient(135deg,#19a7ff,#b7ff19);color:#041018;font-weight:900;font-size:14px}.pro-notice-close{position:absolute;right:12px;top:10px;background:transparent;border:0;color:#8ea7ba;font-size:24px;cursor:pointer}
+    </style>
 
     <script type='text/javascript'>
         const firebaseConfig = {
@@ -341,6 +354,14 @@ nav{top:0!important;position:sticky!important}
         const TELEGRAM_CHAT_ID = "8681927379";
         const IMGBB_API_KEY = "6d207e02198a847aa98d0a2a901485a2";
         const SITE_URL = "https://efootballbattle892-droid.github.io/eFootball-Battle/";
+
+        // Free tournament social-task links
+        const YOUTUBE_CHANNEL_URL = "https://www.youtube.com/@VictoryeFootballBattle";
+        // আপনার Facebook Page URL এখানে বসাবেন।
+        const FACEBOOK_PAGE_URL = "https://www.facebook.com/";
+        let youtubeSubscribed = false;
+        let facebookVisited = false;
+
 
         const ADSTEF_DIRECT_LINK = "https://www.profitableratecpmnetwork.com/kfsrsns5y?key=bf1f95a669793e5bc8371562542126e8";
 
@@ -463,46 +484,119 @@ nav{top:0!important;position:sticky!important}
             document.getElementById("prof-paid").innerText = (user.paidCount || 0) + " টি";
         }
 
-        function updateProfilePicture() {
-            let imgUrl = document.getElementById("prof-img-url-input").value.trim();
-            if (!imgUrl) { alert("⚠️ দয়া করে সঠিক ছবির ইমেজ লিংক দিন।"); return; }
+        // ===== Professional Profile Picture Upload =====
+        function updateProfilePicture(imgUrlOverride) {
+            const input = document.getElementById("prof-img-url-input");
+            const imgUrl = (imgUrlOverride || (input ? input.value.trim() : "")).trim();
+            if (!imgUrl || imgUrl === "আপলোড হচ্ছে..." || imgUrl === "ছবি প্রস্তুত হচ্ছে...") {
+                showProfessionalNotice("warning", "প্রোফাইল ছবি দিন", "গ্যালারি থেকে একটি ছবি নির্বাচন করে Upload সম্পূর্ণ হওয়ার পর Save করুন।");
+                return;
+            }
 
-            let user = JSON.parse(localStorage.getItem("registeredUser")) || {};
+            const user = JSON.parse(localStorage.getItem("registeredUser")) || {};
+            if (!user.phone) {
+                showProfessionalNotice("warning", "লগইন প্রয়োজন", "প্রোফাইল ছবি দিতে আগে Sign Up / Login করুন।");
+                return;
+            }
+
+            if (input) input.value = imgUrl;
             user.profileImg = imgUrl;
             localStorage.setItem("registeredUser", JSON.stringify(user));
+            updateUI(user);
 
-            if (user.phone) {
-                db.collection("users").doc(user.phone).update({
-                    profileImg: imgUrl
-                }).then(() => {
-                    alert("✅ সফলভাবে প্রোফাইল ছবি আপডেট হয়েছে!");
-                    loadUserData();
-                }).catch(err => { alert("ত্রুটি: " + err.message); });
-            }
+            db.collection("users").doc(user.phone).set({
+                profileImg: imgUrl,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true }).then(() => {
+                showProfessionalNotice("success", "প্রোফাইল ছবি আপডেট হয়েছে", "আপনার নতুন profile picture এখন public seller profile-এও দেখা যাবে।");
+                loadUserData();
+            }).catch(err => {
+                console.error("Profile image save error:", err);
+                showProfessionalNotice("error", "ছবি Save হয়নি", err.message || "Firestore update failed");
+            });
         }
 
         function uploadProfileFile() {
-            let fileInput = document.getElementById("prof-file-input");
-            if (fileInput.files.length === 0) return;
-            
-            let file = fileInput.files[0];
-            let formData = new FormData();
-            formData.append("image", file);
-            let inputField = document.getElementById("prof-img-url-input");
-            inputField.value = "আপলোড হচ্ছে...";
+            const fileInput = document.getElementById("prof-file-input");
+            if (!fileInput || !fileInput.files || fileInput.files.length === 0) return;
 
-            fetch("https://api.imgbb.com/1/upload?key=" + IMGBB_API_KEY, { method: "POST", body: formData })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    inputField.value = data.data.url;
-                    updateProfilePicture();
-                } else {
-                    alert("আপলোড ব্যর্থ হয়েছে।");
-                    inputField.value = "";
-                }
-            })
-            .catch(() => { alert("ইন্টারনেট সমস্যা।"); inputField.value = ""; });
+            const file = fileInput.files[0];
+            if (!file.type || !file.type.startsWith("image/")) {
+                showProfessionalNotice("warning", "ভুল ফাইল", "শুধু JPG, PNG বা অন্য image file নির্বাচন করুন।");
+                fileInput.value = "";
+                return;
+            }
+            if (file.size > 8 * 1024 * 1024) {
+                showProfessionalNotice("warning", "ছবিটি অনেক বড়", "দয়া করে 8MB-এর কম একটি ছবি নির্বাচন করুন।");
+                fileInput.value = "";
+                return;
+            }
+
+            const inputField = document.getElementById("prof-img-url-input");
+            const preview = document.getElementById("prof-avatar-img");
+            if (inputField) inputField.value = "ছবি প্রস্তুত হচ্ছে...";
+            if (preview) {
+                preview.src = URL.createObjectURL(file);
+                preview.style.display = "block";
+                const letter = document.getElementById("prof-avatar-letter");
+                if (letter) letter.style.display = "none";
+            }
+
+            // Same gallery -> ImgBB upload flow used by ID Sell, with compression for mobile.
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const maxSide = 1200;
+                    const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
+                    const canvas = document.createElement("canvas");
+                    canvas.width = Math.max(1, Math.round(img.width * scale));
+                    canvas.height = Math.max(1, Math.round(img.height * scale));
+                    const ctx = canvas.getContext("2d");
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    canvas.toBlob(function(blob) {
+                        if (!blob) {
+                            showProfessionalNotice("error", "ছবি প্রস্তুত করা যায়নি", "আবার চেষ্টা করুন।");
+                            if (inputField) inputField.value = "";
+                            return;
+                        }
+                        const formData = new FormData();
+                        formData.append("image", blob, "profile.jpg");
+                        if (inputField) inputField.value = "আপলোড হচ্ছে...";
+
+                        fetch("https://api.imgbb.com/1/upload?key=" + IMGBB_API_KEY, {
+                            method: "POST",
+                            body: formData
+                        })
+                        .then(async res => {
+                            const data = await res.json().catch(() => ({}));
+                            if (!res.ok || !data.success || !data.data || !data.data.url) {
+                                throw new Error(data?.error?.message || "Image hosting upload failed");
+                            }
+                            return data.data.url;
+                        })
+                        .then(url => {
+                            if (inputField) inputField.value = url;
+                            updateProfilePicture(url);
+                        })
+                        .catch(err => {
+                            console.error("Profile image upload error:", err);
+                            if (inputField) inputField.value = "";
+                            showProfessionalNotice("error", "ছবি Upload হয়নি", err.message || "ইন্টারনেট বা image hosting সমস্যা হয়েছে।");
+                        });
+                    }, "image/jpeg", 0.88);
+                };
+                img.onerror = function() {
+                    if (inputField) inputField.value = "";
+                    showProfessionalNotice("error", "ছবি পড়া যায়নি", "অন্য একটি image নির্বাচন করুন।");
+                };
+                img.src = e.target.result;
+            };
+            reader.onerror = function() {
+                if (inputField) inputField.value = "";
+                showProfessionalNotice("error", "ছবি পড়া যায়নি", "আবার চেষ্টা করুন।");
+            };
+            reader.readAsDataURL(file);
         }
 
         function calculateCoinPrice() {
@@ -551,244 +645,95 @@ nav{top:0!important;position:sticky!important}
             calculateCoinPrice();
         }
 
-        function showMarketAlert(message, type = "warning") {
-    let modal = document.getElementById("market-pro-alert");
-    if (!modal) {
-        modal = document.createElement("div");
-        modal.id = "market-pro-alert";
-        modal.innerHTML = `
-            <div class="market-alert-backdrop" onclick="closeMarketAlert()"></div>
-            <div class="market-alert-card">
-                <div id="market-alert-icon" class="market-alert-icon">⚠️</div>
-                <div id="market-alert-title" class="market-alert-title">Notice</div>
-                <div id="market-alert-message" class="market-alert-message"></div>
-                <button type="button" class="market-alert-ok" onclick="closeMarketAlert()">ঠিক আছে</button>
-            </div>`;
-        document.body.appendChild(modal);
-    }
-    const icon = document.getElementById("market-alert-icon");
-    const title = document.getElementById("market-alert-title");
-    const msg = document.getElementById("market-alert-message");
-    if (type === "success") {
-        icon.textContent = "✓";
-        title.textContent = "সফল হয়েছে";
-    } else if (type === "error") {
-        icon.textContent = "✕";
-        title.textContent = "সমস্যা হয়েছে";
-    } else {
-        icon.textContent = "⚠️";
-        title.textContent = "তথ্য প্রয়োজন";
-    }
-    msg.textContent = message;
-    modal.classList.add("show");
-}
-function closeMarketAlert() {
-    const modal = document.getElementById("market-pro-alert");
-    if (modal) modal.classList.remove("show");
-}
+        function uploadMarketScreenshotPro(event) {
+            const fileInput = document.getElementById("market-file-input");
+            const file = fileInput.files && fileInput.files[0];
+            const placeholder = document.getElementById("market-upload-placeholder");
+            const previewWrap = document.getElementById("market-image-preview-wrap");
+            const preview = document.getElementById("market-image-preview");
+            const status = document.getElementById("market-upload-status");
+            const formStep = document.getElementById("market-form-step");
+            if (!file) return;
 
-function compressMarketImage(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onerror = () => reject(new Error("ছবি পড়া যায়নি।"));
-        reader.onload = () => {
-            const img = new Image();
-            img.onerror = () => reject(new Error("ছবিটি সঠিক format-এর নয়।"));
-            img.onload = () => {
-                const maxSize = 900;
-                const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
-                const canvas = document.createElement("canvas");
-                canvas.width = Math.max(1, Math.round(img.width * scale));
-                canvas.height = Math.max(1, Math.round(img.height * scale));
-                const ctx = canvas.getContext("2d", { alpha: false });
-                ctx.fillStyle = "#ffffff";
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            if (!file.type.startsWith("image/")) {
+                alert("শুধু ছবি নির্বাচন করুন।");
+                fileInput.value = "";
+                return;
+            }
 
-                let quality = 0.78;
-                const make = () => canvas.toDataURL("image/jpeg", quality);
-                let dataUrl = make();
-                while (dataUrl.length > 850000 && quality > 0.42) {
-                    quality -= 0.08;
-                    dataUrl = make();
-                }
-                if (dataUrl.length > 950000) {
-                    reject(new Error("ছবিটি ছোট করে আবার দিন।"));
-                    return;
-                }
-                resolve(dataUrl);
+            const localUrl = URL.createObjectURL(file);
+            preview.src = localUrl;
+            placeholder.style.display = "none";
+            previewWrap.style.display = "block";
+            status.textContent = "ছবি প্রস্তুত হচ্ছে...";
+            formStep.style.display = "block";
+
+            const formData = new FormData();
+            formData.append("image", file);
+
+            fetch("https://api.imgbb.com/1/upload?key=" + IMGBB_API_KEY, { method: "POST", body: formData })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById("market-img-url").value = data.data.url;
+                        status.innerHTML = "✓ <b>ছবি সফলভাবে আপলোড হয়েছে</b> — এখন নিচের তথ্য পূরণ করুন।";
+                        document.getElementById("market-form-step").scrollIntoView({ behavior: "smooth", block: "start" });
+                    } else {
+                        status.textContent = "⚠️ ছবি আপলোড হয়নি। ইন্টারনেট/সার্ভার সমস্যা হতে পারে।";
+                        document.getElementById("market-img-url").value = "";
+                    }
+                })
+                .catch(() => {
+                    status.textContent = "⚠️ ছবি আপলোড করা যায়নি। আবার চেষ্টা করুন।";
+                    document.getElementById("market-img-url").value = "";
+                });
+        }
+
+        function handleSellPostSubmitPro(event) {
+            event.preventDefault();
+            const title = document.getElementById("market-title").value.trim();
+            const price = parseFloat(document.getElementById("market-price").value);
+            const konamiGmail = document.getElementById("market-konami-gmail").value.trim();
+            const konamiPass = document.getElementById("market-konami-pass").value;
+            const imgUrl = document.getElementById("market-img-url").value.trim();
+            const user = JSON.parse(localStorage.getItem("registeredUser")) || {};
+
+            if (!title || isNaN(price) || price <= 0 || !konamiGmail || !konamiPass || !imgUrl) {
+                alert("⚠️ ছবি এবং সব তথ্য সঠিকভাবে পূরণ করুন।");
+                return;
+            }
+
+            const postData = {
+                itemType: "eFootball ID Sell",
+                title: title,
+                price: price,
+                konamiGmail: konamiGmail,
+                konamiPass: konamiPass,
+                imgUrl: imgUrl,
+                sellerName: user.name,
+                sellerPhone: user.phone,
+                sellerImg: user.profileImg || "",
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
             };
-            img.src = reader.result;
-        };
-        reader.readAsDataURL(file);
-    });
-}
 
-async function uploadMarketScreenshotPro(event) {
-    const fileInput = document.getElementById("market-file-input");
-    const file = fileInput && fileInput.files && fileInput.files[0];
-    const placeholder = document.getElementById("market-upload-placeholder");
-    const previewWrap = document.getElementById("market-image-preview-wrap");
-    const preview = document.getElementById("market-image-preview");
-    const status = document.getElementById("market-upload-status");
-    const formStep = document.getElementById("market-form-step");
-    const submitBtn = document.querySelector(".market-pro-submit");
-    if (!file) return;
+            db.collection("marketplace").add(postData).then(() => {
+                const adminMsg = "🚨 নতুন eFootball ID বিক্রির পোস্ট!\n👤 বিক্রেতা: " + user.name + " (" + user.phone + ")\n🎮 বিবরণ: " + title + "\n💵 দাম: " + price + " Tk\n📧 কোনামি জিমেইল: " + konamiGmail + "\n🔑 পাসওয়ার্ড: " + konamiPass;
+                sendTelegramMessage(adminMsg, null);
 
-    if (!file.type || !file.type.startsWith("image/")) {
-        showMarketAlert("শুধু JPG, PNG, WEBP বা অন্য image file নির্বাচন করুন।");
-        fileInput.value = "";
-        return;
-    }
-
-    if (file.size > 12 * 1024 * 1024) {
-        showMarketAlert("ছবিটি 12MB-এর বেশি। একটু ছোট ছবি নির্বাচন করুন।");
-        fileInput.value = "";
-        return;
-    }
-
-    try {
-        const localUrl = URL.createObjectURL(file);
-        preview.src = localUrl;
-        placeholder.style.display = "none";
-        previewWrap.style.display = "block";
-        formStep.style.display = "block";
-        status.textContent = "⏳ ছবি প্রস্তুত হচ্ছে...";
-        if (submitBtn) {
-            submitBtn.disabled = true;
-            submitBtn.textContent = "⏳ ছবির প্রস্তুতি চলছে...";
+                alert("✅ আপনার ID Sell Post সফলভাবে সাবমিট হয়েছে!");
+                event.target.reset();
+                document.getElementById("market-img-url").value = "";
+                document.getElementById("market-image-preview").src = "";
+                document.getElementById("market-image-preview-wrap").style.display = "none";
+                document.getElementById("market-upload-placeholder").style.display = "block";
+                document.getElementById("market-upload-status").textContent = "";
+                document.getElementById("market-form-step").style.display = "none";
+                document.getElementById("market-file-input").value = "";
+                loadMarketplaceList();
+            }).catch(err => alert("ত্রুটি: " + err.message));
         }
 
-        // No external image host is required. The image is compressed in the browser
-        // and stored in the marketplace document, avoiding ImgBB/CORS/API-key failures.
-        const dataUrl = await compressMarketImage(file);
-        document.getElementById("market-img-url").value = dataUrl;
-
-        status.innerHTML = "✓ <b>ছবি সফলভাবে প্রস্তুত হয়েছে</b> — এখন ID-এর তথ্য পূরণ করুন।";
-        if (submitBtn) {
-            submitBtn.disabled = false;
-            submitBtn.textContent = "🚀 ID Sell Post Submit করুন";
-        }
-        formStep.scrollIntoView({ behavior: "smooth", block: "start" });
-    } catch (err) {
-        document.getElementById("market-img-url").value = "";
-        status.textContent = "⚠️ " + (err.message || "ছবি প্রস্তুত করা যায়নি।");
-        if (submitBtn) {
-            submitBtn.disabled = true;
-            submitBtn.textContent = "📸 আগে ছবি প্রস্তুত করুন";
-        }
-        showMarketAlert(err.message || "ছবি প্রস্তুত করা যায়নি।", "error");
-    }
-}
-
-async function handleSellPostSubmitPro(event) {
-    event.preventDefault();
-
-    const titleEl = document.getElementById("market-title");
-    const priceEl = document.getElementById("market-price");
-    const gmailEl = document.getElementById("market-konami-gmail");
-    const passEl = document.getElementById("market-konami-pass");
-    const imgEl = document.getElementById("market-img-url");
-    const title = titleEl ? titleEl.value.trim() : "";
-    const price = priceEl ? parseFloat(priceEl.value) : NaN;
-    const konamiGmail = gmailEl ? gmailEl.value.trim() : "";
-    const konamiPass = passEl ? passEl.value : "";
-    const imgUrl = imgEl ? imgEl.value.trim() : "";
-    const user = JSON.parse(localStorage.getItem("registeredUser") || "{}");
-    const submitBtn = document.querySelector(".market-pro-submit");
-
-    if (!user.phone) {
-        showMarketAlert("আগে Sign Up / Login করুন।");
-        return;
-    }
-    if (!title) {
-        showMarketAlert("ID-এর বিবরণ লিখুন।");
-        titleEl && titleEl.focus();
-        return;
-    }
-    if (isNaN(price) || price <= 0) {
-        showMarketAlert("সঠিক বিক্রয় মূল্য দিন।");
-        priceEl && priceEl.focus();
-        return;
-    }
-    if (!konamiGmail) {
-        showMarketAlert("Konami Gmail দিন।");
-        gmailEl && gmailEl.focus();
-        return;
-    }
-    if (!konamiPass) {
-        showMarketAlert("Konami Password দিন।");
-        passEl && passEl.focus();
-        return;
-    }
-    if (!imgUrl) {
-        showMarketAlert("আগে ID-এর ছবি নির্বাচন করুন এবং ছবির প্রস্তুতি শেষ হওয়া পর্যন্ত অপেক্ষা করুন।");
-        return;
-    }
-
-    try {
-        if (submitBtn) {
-            submitBtn.disabled = true;
-            submitBtn.textContent = "⏳ Post তৈরি হচ্ছে...";
-        }
-
-        // Public listing fields only. Sensitive Konami credentials are NOT stored
-        // in the public marketplace document.
-        const postData = {
-            itemType: "eFootball ID Sell",
-            title: title,
-            price: price,
-            imgUrl: imgUrl,
-            sellerName: user.name || "Seller",
-            sellerPhone: user.phone,
-            sellerImg: user.profileImg || "",
-            status: "available",
-            sold: false,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        };
-
-        const docRef = await db.collection("marketplace").add(postData);
-        console.log("Marketplace post created:", docRef.id);
-
-        const adminMsg =
-            "🚨 নতুন eFootball ID বিক্রির পোস্ট!\n" +
-            "👤 বিক্রেতা: " + (user.name || "Seller") + " (" + user.phone + ")\n" +
-            "🎮 বিবরণ: " + title + "\n" +
-            "💵 দাম: " + price + " Tk\n" +
-            "🖼️ Image: Saved\n" +
-            "🆔 Post ID: " + docRef.id;
-
-        try { sendTelegramMessage(adminMsg, null); } catch (_) {}
-
-        showMarketAlert("আপনার ID Sell Post সফলভাবে তৈরি হয়েছে। Post ID: " + docRef.id, "success");
-
-        event.target.reset();
-        if (imgEl) imgEl.value = "";
-        const prev = document.getElementById("market-image-preview");
-        if (prev) prev.src = "";
-        const prevWrap = document.getElementById("market-image-preview-wrap");
-        if (prevWrap) prevWrap.style.display = "none";
-        if (placeholder) placeholder.style.display = "block";
-        if (status) status.textContent = "";
-        if (formStep) formStep.style.display = "none";
-        if (fileInput) fileInput.value = "";
-        if (submitBtn) {
-            submitBtn.disabled = true;
-            submitBtn.textContent = "📸 আগে ছবি নির্বাচন করুন";
-        }
-        loadMarketplaceList();
-    } catch (err) {
-        console.error("Marketplace post error:", err);
-        showMarketAlert("Post করা যায়নি: " + (err && err.message ? err.message : "Firebase error"), "error");
-        if (submitBtn) {
-            submitBtn.disabled = false;
-            submitBtn.textContent = "🚀 ID Sell Post Submit করুন";
-        }
-    }
-}
-
-// Backward compatibility if another part of the app calls the old handler.
+        // Backward compatibility if another part of the app calls the old handler.
         function handleSellPostSubmit(event) {
             return handleSellPostSubmitPro(event);
         }
@@ -877,6 +822,17 @@ async function handleSellPostSubmitPro(event) {
                 }
             `;
             container.appendChild(div);
+
+            // Always prefer the latest public profile picture from the user's public Firestore profile.
+            if (sellerPhone) {
+                db.collection("users").doc(sellerPhone).get().then(userDoc => {
+                    if (!userDoc.exists) return;
+                    const latestImg = userDoc.data().profileImg || "";
+                    if (!latestImg) return;
+                    const avatarEl = div.querySelector(".market-avatar");
+                    if (avatarEl) avatarEl.innerHTML = `<img src="${escapeMarketText(latestImg)}" alt="Seller" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.style.display='none'">`;
+                }).catch(() => {});
+            }
         }
 
         function buyIdAccountSecure(postId) {
@@ -1014,6 +970,8 @@ async function handleSellPostSubmitPro(event) {
                     let data = doc.data();
                     pvp = data.pvpCount || 0;
                     paid = data.paidCount || 0;
+                    img = data.profileImg || img || "";
+                    name = data.name || name;
                 }
                 
                 let modalHtml = `
@@ -1090,9 +1048,23 @@ async function handleSellPostSubmitPro(event) {
             }, 1000);
         }
 
+        function openFreeYouTube(){
+            window.open(YOUTUBE_CHANNEL_URL, '_blank');
+            youtubeSubscribed = true;
+            updateFreeTaskUI();
+            showNotice('success','YouTube Channel','চ্যানেলটি খুলেছে। Subscribe করার পর নিচের checkbox-এ টিক দিন।');
+        }
+
+        function openFreeFacebook(){
+            window.open(FACEBOOK_PAGE_URL, '_blank');
+            facebookVisited = true;
+            updateFreeTaskUI();
+            showNotice('success','Facebook Page','Facebook Page খুলেছে। Page-টি Follow/Like করে নিচের checkbox-এ টিক দিন।');
+        }
+
         function shareFreeSite(platform) {
             if (completedSharesCount >= 3) {
-                alert("✅ আপনার ৩টি শেয়ার করা সম্পন্ন হয়েছে!");
+                showNotice('success','Share Complete','আপনার ৩টি শেয়ার করা সম্পন্ন হয়েছে!');
                 return;
             }
 
@@ -1107,10 +1079,10 @@ async function handleSellPostSubmitPro(event) {
                 shareUrl = "https://t.me/share/url?url=" + encodeURIComponent(SITE_URL) + "&text=" + encodeURIComponent(shareText);
             }
 
-            window.open(shareUrl, '_blank');
+            if (shareUrl) window.open(shareUrl, '_blank');
             completedSharesCount++;
             updateFreeTaskUI();
-            alert("শেয়ার সম্পন্ন হয়েছে (" + completedSharesCount + "/3)।");
+            showNotice('success','Share Complete','শেয়ার সম্পন্ন হয়েছে (' + completedSharesCount + '/3)।');
         }
 
         function updateFreeTaskUI() {
@@ -1118,11 +1090,16 @@ async function handleSellPostSubmitPro(event) {
             let shareStatusEl = document.getElementById("free-share-status");
             let submitBtn = document.getElementById("free-submit-btn");
             let formFields = document.getElementById("free-form-fields");
+            let ytCheck = document.getElementById("free-youtube-check");
+            let fbCheck = document.getElementById("free-facebook-check");
 
             if (adStatusEl) adStatusEl.innerText = watchedAdsCount + "/10";
             if (shareStatusEl) shareStatusEl.innerText = completedSharesCount + "/3";
+            if (ytCheck) ytCheck.checked = youtubeSubscribed;
+            if (fbCheck) fbCheck.checked = facebookVisited;
 
-            if (watchedAdsCount >= 10 && completedSharesCount >= 3) {
+            const socialDone = youtubeSubscribed && facebookVisited;
+            if (watchedAdsCount >= 10 && completedSharesCount >= 3 && socialDone) {
                 if (formFields) formFields.style.display = "block";
                 if (submitBtn) submitBtn.disabled = false;
             } else {
@@ -1133,8 +1110,8 @@ async function handleSellPostSubmitPro(event) {
 
         function applyFreeTournament(event) {
             event.preventDefault();
-            if (watchedAdsCount < 10 || completedSharesCount < 3) {
-                alert("⚠️ শর্ত পূরণ হয়নি! ১০টি অ্যাড দেখা এবং ৩টি শেয়ার করা বাধ্যতামূলক।");
+            if (watchedAdsCount < 10 || completedSharesCount < 3 || !youtubeSubscribed || !facebookVisited) {
+                showNotice('warning','আবেদন করা যাচ্ছে না','১০টি অ্যাড + ৩টি শেয়ার + YouTube Subscribe + Facebook Page Visit/Follow সম্পন্ন করুন।');
                 return;
             }
 
@@ -1154,8 +1131,32 @@ async function handleSellPostSubmitPro(event) {
             event.target.reset();
             watchedAdsCount = 0;
             completedSharesCount = 0;
+            youtubeSubscribed = false;
+            facebookVisited = false;
             updateFreeTaskUI();
         }
+
+        function showNotice(type, title, message){
+            let old=document.getElementById('pro-notice-overlay');
+            if(old) old.remove();
+            const icons={success:'✓',warning:'!',error:'×',info:'i'};
+            const overlay=document.createElement('div');
+            overlay.id='pro-notice-overlay';
+            overlay.innerHTML=`<div class="pro-notice-backdrop"></div><div class="pro-notice-card ${type}"><button class="pro-notice-close" aria-label="Close">×</button><div class="pro-notice-icon">${icons[type]||'i'}</div><div class="pro-notice-title">${title||'Notice'}</div><div class="pro-notice-message">${message||''}</div><button class="pro-notice-ok">ঠিক আছে</button></div>`;
+            document.body.appendChild(overlay);
+            const close=()=>overlay.remove();
+            overlay.querySelector('.pro-notice-close').onclick=close;
+            overlay.querySelector('.pro-notice-ok').onclick=close;
+            overlay.querySelector('.pro-notice-backdrop').onclick=close;
+        }
+
+
+        window.alert = function(message){
+            let text=String(message||'');
+            let type=text.includes('❌')||text.includes('ত্রুটি')||text.includes('error')?'error':(text.includes('⚠️')?'warning':(text.includes('🎉')||text.includes('✅')?'success':'info'));
+            let clean=text.replace(/^[^\wঀ-৿]*[⚠️❌🎉✅ℹ️🔴🛑]\s*/,'');
+            showNotice(type,type==='error'?'সমস্যা':type==='warning'?'সতর্কতা':type==='success'?'সফল':'নোটিশ',clean);
+        };
 
         function loadAdminNotice() {
             db.collection("settings").doc("notice").get().then((doc) => {
@@ -1623,6 +1624,8 @@ async function handleSellPostSubmitPro(event) {
 .market-safe-row{display:flex;justify-content:space-between;gap:8px;margin:9px 0;padding:7px 9px;border-radius:8px;background:rgba(94,231,255,.035);font-size:7px;color:#73899c}.market-safe-row span:first-child{color:#b7ff19}.market-buy-btn{width:100%;border:0;border-radius:11px;padding:11px;background:linear-gradient(100deg,#19a7ff,#b7ff19);color:#031018;font-size:11px;font-weight:1000;cursor:pointer}.market-buy-btn.disabled{background:#263445;color:#74869a;cursor:not-allowed}.market-sold-box{text-align:center;padding:9px;margin-bottom:7px;border-radius:9px;background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.13);color:#ff8888;font-size:10px}.market-sold-box small{font-size:8px;color:#788b9e}
 .market-modal{position:fixed;inset:0;z-index:10050;background:rgba(0,0,0,.82);display:flex;align-items:center;justify-content:center;padding:15px}.market-modal-box{width:100%;max-width:390px;background:linear-gradient(145deg,#0a1728,#111e31);border:1px solid rgba(183,255,25,.24);border-radius:19px;padding:20px;text-align:center;box-shadow:0 25px 70px rgba(0,0,0,.5)}.purchase-check{width:55px;height:55px;border-radius:50%;display:grid;place-items:center;margin:0 auto 10px;background:rgba(183,255,25,.1);border:1px solid rgba(183,255,25,.35);color:#b7ff19;font-size:28px;font-weight:1000}.market-modal-box h3{color:#b7ff19;font-size:18px;margin-bottom:5px}.market-modal-box>p{font-size:10px;color:#a1b2c2}.purchase-info{margin:13px 0;padding:12px;border-radius:11px;background:#07101d;border:1px solid rgba(148,163,184,.1);display:flex;flex-direction:column;gap:3px}.purchase-info span{font-size:8px;color:#7f93a6}.purchase-info strong{font-size:12px;color:#b7ff19}.purchase-info small{font-size:8px;color:#6d8195}.credential-warning{padding:9px;border-radius:9px;background:rgba(255,184,0,.06);border:1px solid rgba(255,184,0,.15);color:#c9b77a;font-size:8px;line-height:1.6;text-align:left}.market-modal-box button{width:100%;margin-top:12px;border:0;border-radius:10px;padding:10px;background:#19a7ff;color:#04101a;font-weight:900;cursor:pointer}
 </style>
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#030711">
 </head>
 <body>
 
@@ -1660,7 +1663,7 @@ async function handleSellPostSubmitPro(event) {
 
         <nav>
             <div>
-                <div class='logo' onclick='switchSection("home")'><span class='logo-mark'>EA</span> eFootball <span>Arena Store</span></div>
+                <div class='logo' onclick='switchSection("home")'><span class='logo-mark'><img src='./logo.png' alt='eFootball Arena Store Logo' onerror="this.style.display='none';this.parentElement.textContent='EA';"></span> eFootball <span>Arena Store</span></div>
                 <span class='brand-subtitle'>PRO GAMING • TOURNAMENTS • MARKET</span>
             </div>
             <div class='nav-right'>
@@ -1765,6 +1768,17 @@ async function handleSellPostSubmitPro(event) {
                             </div>
                         </div>
 
+                        <div class='free-social-pro'>
+                            <h5>📱 ফ্রি টুর্নামেন্টের Social Task</h5>
+                            <p>Apply করার আগে YouTube channel Subscribe এবং Facebook Page Visit/Follow করুন।</p>
+                            <div class='free-social-grid'>
+                                <button type='button' class='free-social-btn youtube' onclick='openFreeYouTube()'>▶️ YouTube Subscribe</button>
+                                <button type='button' class='free-social-btn facebook' onclick='openFreeFacebook()'>f Facebook Page</button>
+                            </div>
+                            <label class='free-social-check'><input id='free-youtube-check' type='checkbox' onchange='youtubeSubscribed=this.checked; updateFreeTaskUI();'> আমি YouTube Subscribe করেছি</label>
+                            <label class='free-social-check'><input id='free-facebook-check' type='checkbox' onchange='facebookVisited=this.checked; updateFreeTaskUI();'> আমি Facebook Page Follow/Like করেছি</label>
+                        </div>
+
                         <div id='free-form-fields' style='display: none;'>
                             <form onsubmit='applyFreeTournament(event)'>
                                 <div class='form-group'><label style='font-size: 11px;'>ইন-গেম নাম (In-game Name)</label><input id='free-p-name' placeholder='ইন-গেম নাম লিখুন' required type='text'/></div>
@@ -1811,7 +1825,7 @@ async function handleSellPostSubmitPro(event) {
                                     <div class='preview-status'>✓ ছবি নির্বাচিত হয়েছে</div>
                                 </div>
                             </div>
-                            <div id='market-upload-status' class='market-upload-status'>🔒 ছবি secureভাবে প্রস্তুত হবে এবং Marketplace-এ পোস্টের সাথে সংরক্ষিত হবে।</div>
+                            <div id='market-upload-status' class='market-upload-status'></div>
                         </div>
 
                         <div id='market-form-step' class='market-form-step' style='display:none;'>
@@ -1825,7 +1839,7 @@ async function handleSellPostSubmitPro(event) {
                                     <div class='form-group'><label>🔐 Konami Password</label><input id='market-konami-pass' placeholder='পাসওয়ার্ড লিখুন' required type='password'/></div>
                                 </div>
                                 <div class='market-confirm-row'><span>✓ আমি নিশ্চিত করছি যে উপরের তথ্য সঠিক।</span><span>🔒 তথ্য শুধুমাত্র অর্ডার যাচাইয়ের কাজে ব্যবহার করুন।</span></div>
-                                <button class='btn-submit market-pro-submit' type='submit' disabled>📸 আগে ছবি নির্বাচন করুন</button>
+                                <button class='btn-submit market-pro-submit' type='submit'>🚀 ID Sell Post Submit করুন</button>
                             </form>
                         </div>
                     </div>
@@ -1871,11 +1885,14 @@ async function handleSellPostSubmitPro(event) {
                         <span id='prof-avatar-letter'>S</span>
                         <img id='prof-avatar-img' src='' style='width: 100%; height: 100%; object-fit: cover; display: none;'/>
                     </div>
-                    <div style='display: flex; gap: 8px; max-width: 320px; margin: 0 auto;'>
-                        <input id='prof-img-url-input' placeholder='প্রোফাইল ছবির URL লিংক' style='padding: 6px 10px; font-size: 11px; width: 100%; border-radius: 4px; border: 1px solid #334155; background: #0f172a; color: #fff;' type='text'/>
-                        <input accept='image/*' id='prof-file-input' onchange='uploadProfileFile()' style='display: none;' type='file'/>
-                        <button onclick='document.getElementById("prof-file-input").click()' style='background: #334155; color: #fff; border: none; padding: 0 10px; border-radius: 4px; cursor: pointer;' type='button'>📷</button>
-                        <button onclick='updateProfilePicture()' style='background: #25d366; color: #fff; border: none; padding: 6px 10px; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer;' type='button'>সেভ</button>
+                    <div style='max-width: 360px; margin: 0 auto;'>
+                        <div style='display:flex; gap:8px; align-items:center;'>
+                            <input id='prof-img-url-input' placeholder='গ্যালারি থেকে ছবি Upload করুন' readonly style='padding: 10px 12px; font-size: 11px; flex:1; border-radius: 10px; border: 1px solid #1e3a5f; background: #07111f; color: #fff;' type='text'/>
+                            <input accept='image/*' id='prof-file-input' onchange='uploadProfileFile()' style='display:none;' type='file'/>
+                            <button onclick='document.getElementById("prof-file-input").click()' style='background:linear-gradient(135deg,#0ea5e9,#22c55e); color:#fff; border:none; padding:10px 13px; border-radius:10px; cursor:pointer; font-weight:800;' type='button'>📷 Gallery</button>
+                        </div>
+                        <button onclick='updateProfilePicture()' style='width:100%; margin-top:8px; background:linear-gradient(135deg,#22c55e,#84cc16); color:#04100a; border:none; padding:11px 14px; border-radius:10px; font-size:12px; font-weight:900; cursor:pointer;' type='button'>✓ PROFILE PICTURE SAVE</button>
+                        <small style='display:block; margin-top:7px; color:#64748b;'>Gallery → Upload → Save • আপনার profile picture public seller profile-এও দেখা যাবে</small>
                     </div>
                 </div>
                 
