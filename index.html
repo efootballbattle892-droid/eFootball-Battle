@@ -538,7 +538,7 @@ nav{top:0!important;position:sticky!important}
             calculateCoinPrice();
         }
 
-        async function uploadMarketScreenshotPro(event) {
+        function uploadMarketScreenshotPro(event) {
             const fileInput = document.getElementById("market-file-input");
             const file = fileInput.files && fileInput.files[0];
             const placeholder = document.getElementById("market-upload-placeholder");
@@ -546,17 +546,11 @@ nav{top:0!important;position:sticky!important}
             const preview = document.getElementById("market-image-preview");
             const status = document.getElementById("market-upload-status");
             const formStep = document.getElementById("market-form-step");
-            const imgEl = document.getElementById("market-img-url");
-            const submitBtn = document.querySelector(".market-pro-submit");
             if (!file) return;
-
-            imgEl.value = "";
-            if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = "⏳ ছবি আপলোড হচ্ছে..."; }
 
             if (!file.type.startsWith("image/")) {
                 alert("শুধু ছবি নির্বাচন করুন।");
                 fileInput.value = "";
-                if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = "🚀 ID Sell Post Submit করুন"; }
                 return;
             }
 
@@ -564,52 +558,28 @@ nav{top:0!important;position:sticky!important}
             preview.src = localUrl;
             placeholder.style.display = "none";
             previewWrap.style.display = "block";
+            status.textContent = "ছবি প্রস্তুত হচ্ছে...";
             formStep.style.display = "block";
-            status.textContent = "⏳ ছবি আপলোড হচ্ছে... একটু অপেক্ষা করুন।";
 
-            try {
-                // Mobile-friendly compression before ImgBB upload.
-                const compressed = await new Promise((resolve, reject) => {
-                    const img = new Image();
-                    img.onload = () => {
-                        const maxSide = 1600;
-                        const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
-                        const canvas = document.createElement("canvas");
-                        canvas.width = Math.max(1, Math.round(img.width * scale));
-                        canvas.height = Math.max(1, Math.round(img.height * scale));
-                        const ctx = canvas.getContext("2d");
-                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                        canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error("Image compression failed")), "image/jpeg", 0.82);
-                    };
-                    img.onerror = () => reject(new Error("ছবিটি পড়া যাচ্ছে না"));
-                    img.src = localUrl;
+            const formData = new FormData();
+            formData.append("image", file);
+
+            fetch("https://api.imgbb.com/1/upload?key=" + IMGBB_API_KEY, { method: "POST", body: formData })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById("market-img-url").value = data.data.url;
+                        status.innerHTML = "✓ <b>ছবি সফলভাবে আপলোড হয়েছে</b> — এখন নিচের তথ্য পূরণ করুন।";
+                        document.getElementById("market-form-step").scrollIntoView({ behavior: "smooth", block: "start" });
+                    } else {
+                        status.textContent = "⚠️ ছবি আপলোড হয়নি। ইন্টারনেট/সার্ভার সমস্যা হতে পারে।";
+                        document.getElementById("market-img-url").value = "";
+                    }
+                })
+                .catch(() => {
+                    status.textContent = "⚠️ ছবি আপলোড করা যায়নি। আবার চেষ্টা করুন।";
+                    document.getElementById("market-img-url").value = "";
                 });
-
-                const formData = new FormData();
-                formData.append("image", compressed, "efootball-id.jpg");
-                const res = await fetch("https://api.imgbb.com/1/upload?key=" + encodeURIComponent(IMGBB_API_KEY), { method: "POST", body: formData });
-                const data = await res.json().catch(() => ({}));
-
-                if (!res.ok || !data.success || !data.data || !data.data.url) {
-                    const reason = data && data.error && data.error.message ? data.error.message : ("HTTP " + res.status);
-                    throw new Error("ImgBB: " + reason);
-                }
-
-                imgEl.value = data.data.url;
-                status.innerHTML = "✓ <b>ছবি সফলভাবে আপলোড হয়েছে</b> — এখন সব তথ্য পূরণ করে Post করুন।";
-                if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = "🚀 ID Sell Post Submit করুন"; }
-                formStep.scrollIntoView({ behavior: "smooth", block: "start" });
-            } catch (err) {
-                console.error("Marketplace image upload error:", err);
-                imgEl.value = "";
-                status.innerHTML = "❌ <b>ছবি আপলোড হয়নি</b><br><small>" + String(err.message || "Unknown error").replace(/[<>]/g, "") + "</small>";
-                if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = "🔄 আবার ছবি আপলোড করুন"; }
-                alert("❌ ছবি আপলোড হয়নি।
-
-কারণ: " + (err.message || "Unknown error") + "
-
-ছবি সফলভাবে upload না হওয়া পর্যন্ত Post করা যাবে না।");
-            }
         }
 
         async function handleSellPostSubmitPro(event) {
@@ -634,12 +604,8 @@ nav{top:0!important;position:sticky!important}
                 alert("❌ Firebase চালু হয়নি। Page reload করে আবার চেষ্টা করুন।");
                 return;
             }
-            if (!title) { alert("⚠️ ID-এর বিবরণ দিন।"); return; }
-            if (!Number.isFinite(price) || price <= 0) { alert("⚠️ সঠিক বিক্রয় মূল্য দিন।"); return; }
-            if (!konamiGmail) { alert("⚠️ Konami Gmail দিন।"); return; }
-            if (!konamiPass) { alert("⚠️ Konami Password দিন।"); return; }
-            if (!imgUrl) {
-                alert("⚠️ ছবিটি এখনো সফলভাবে upload হয়নি। ছবির নিচে ✓ ছবি সফলভাবে আপলোড হয়েছে লেখা আসা পর্যন্ত অপেক্ষা করুন।");
+            if (!title || !Number.isFinite(price) || price <= 0 || !konamiGmail || !konamiPass || !imgUrl) {
+                alert("⚠️ ছবি আপলোড শেষ হয়েছে কিনা এবং সব তথ্য সঠিকভাবে পূরণ হয়েছে কিনা দেখুন।");
                 return;
             }
             if (!user.phone) {
@@ -1755,7 +1721,7 @@ nav{top:0!important;position:sticky!important}
                                     <div class='form-group'><label>🔐 Konami Password</label><input id='market-konami-pass' placeholder='পাসওয়ার্ড লিখুন' required type='password'/></div>
                                 </div>
                                 <div class='market-confirm-row'><span>✓ আমি নিশ্চিত করছি যে উপরের তথ্য সঠিক।</span><span>🔒 তথ্য শুধুমাত্র অর্ডার যাচাইয়ের কাজে ব্যবহার করুন।</span></div>
-                                <button class='btn-submit market-pro-submit' type='submit' disabled>🚀 আগে ছবি Upload করুন</button>
+                                <button class='btn-submit market-pro-submit' type='submit'>🚀 ID Sell Post Submit করুন</button>
                             </form>
                         </div>
                     </div>
