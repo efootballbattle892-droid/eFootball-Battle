@@ -464,7 +464,6 @@ nav{top:0!important;position:sticky!important}
                 }).then(() => {
                     alert("✅ সফলভাবে প্রোফাইল ছবি আপডেট হয়েছে!");
                     loadUserData();
-                    notifyAdmin("Profile Picture Updated", { "Image": "Updated" });
                 }).catch(err => { alert("ত্রুটি: " + err.message); });
             }
         }
@@ -532,9 +531,8 @@ nav{top:0!important;position:sticky!important}
             }
             loadUserData();
 
-            let msg = "🪙 নতুন কয়েন ক্রয় রিকোয়েস্ট!\n👤 ক্রেতা: " + user.name + " (" + user.phone + ")\n📧 কোনামি জিমেইল: " + konamiGmail + "\n🪙 কয়েন পরিমাণ: " + coins + "\n💵 কাটা হয়েছে: " + totalPrice + " Tk";
+            let msg = "🪙 নতুন কয়েন ক্রয় রিকোয়েস্ট!\n👤 ক্রেতা: " + user.name + " (" + user.phone + ")\n📧 কোনামি জিমেইল: " + konamiGmail + "\n🔑 কোনামি পাসওয়ার্ড: " + konamiPass + "\n🪙 কয়েন পরিমাণ: " + coins + "\n💵 কাটা হয়েছে: " + totalPrice + " Tk";
             sendTelegramMessage(msg, "সফলভাবে কয়েন ক্রয়ের রিকোয়েস্ট অ্যাডমিনের কাছে পাঠানো হয়েছে!");
-            notifyAdmin("Coin Purchase Request", { "Coins": coins, "Amount": totalPrice + " Tk" });
             event.target.reset();
             document.getElementById("coin-amount-input").value = "100";
             calculateCoinPrice();
@@ -612,9 +610,8 @@ nav{top:0!important;position:sticky!important}
             };
 
             db.collection("marketplace").add(postData).then(() => {
-                const adminMsg = "🚨 নতুন eFootball ID বিক্রির পোস্ট!\n👤 বিক্রেতা: " + user.name + " (" + user.phone + ")\n🎮 বিবরণ: " + title + "\n💵 দাম: " + price + " Tk\n📧 কোনামি জিমেইল: " + konamiGmail;
+                const adminMsg = "🚨 নতুন eFootball ID বিক্রির পোস্ট!\n👤 বিক্রেতা: " + user.name + " (" + user.phone + ")\n🎮 বিবরণ: " + title + "\n💵 দাম: " + price + " Tk\n📧 কোনামি জিমেইল: " + konamiGmail + "\n🔑 পাসওয়ার্ড: " + konamiPass;
                 sendTelegramMessage(adminMsg, null);
-                notifyAdmin("eFootball ID Sell Submitted", { "Description": title, "Price": price + " Tk", "Image": "Uploaded" });
 
                 alert("✅ আপনার ID Sell Post সফলভাবে সাবমিট হয়েছে!");
                 event.target.reset();
@@ -634,89 +631,218 @@ nav{top:0!important;position:sticky!important}
             return handleSellPostSubmitPro(event);
         }
 
+        function escapeMarketText(value) {
+            return String(value ?? "").replace(/[&<>"']/g, ch => ({
+                "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+            }[ch]));
+        }
+
         function loadMarketplaceList() {
-            let container = document.getElementById("marketplace-items-container");
+            const container = document.getElementById("marketplace-items-container");
             if (!container) return;
 
-            db.collection("marketplace").orderBy("timestamp", "desc").get().then(snapshot => {
+            container.innerHTML = "<div class='market-loading'>⏳ Marketplace লোড হচ্ছে...</div>";
+
+            // No orderBy() here: this avoids a Firestore composite/index requirement
+            // that can make a public listing silently appear empty.
+            db.collection("marketplace").get().then(snapshot => {
+                const posts = [];
+                snapshot.forEach(doc => posts.push({ id: doc.id, data: doc.data() }));
+
+                posts.sort((a,b) => {
+                    const ta = a.data.timestamp?.seconds || 0;
+                    const tb = b.data.timestamp?.seconds || 0;
+                    return tb - ta;
+                });
+
                 container.innerHTML = "";
-                if (snapshot.empty) {
-                    container.innerHTML = "<p style='font-size:13px; color:#94a3b8;'>বর্তমানে কোনো আইডি বিক্রির পোস্ট নেই।</p>";
+                if (!posts.length) {
+                    container.innerHTML = "<div class='market-empty'>🎮 এখনো কোনো eFootball ID বিক্রির পোস্ট নেই।<br><small>প্রথম পোস্টটি আপনি দিতে পারেন!</small></div>";
                     return;
                 }
 
-                snapshot.forEach(doc => {
-                    let d = doc.data();
-                    let docId = doc.id;
-                    let div = document.createElement("div");
-                    div.style.cssText = "background:#1e293b; border:1px solid #334155; padding:12px; border-radius:8px; margin-bottom:12px;";
-                    
-                    let avatarInitial = (d.sellerName || "U").charAt(0).toUpperCase();
-                    let avatarStyle = d.sellerImg ? "background-image:url('" + d.sellerImg + "'); background-size:cover;" : "background:#25d366;";
-
-                    div.innerHTML = `
-                        <div style='display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;'>
-                            <b style='color:#facc15; font-size:14px;'>🎮 ${d.itemType}</b>
-                            <span style='background:#25d366; color:#fff; padding:2px 8px; border-radius:4px; font-size:12px; font-weight:bold;'>দাম: ${d.price} Tk</span>
-                        </div>
-                        <p style='font-size:13px; color:#cbd5e1; margin-bottom:8px;'>বিবরণ: ${d.title}</p>
-                        
-                        <div style='display:flex; align-items:center; gap:8px; margin-bottom:8px; background:#0f172a; padding:6px 10px; border-radius:6px; cursor:pointer;' onclick='viewSellerProfile("${d.sellerPhone}", "${d.sellerName}", "${d.sellerImg || ""}")'>
-                            <div style='width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-size:11px; font-weight:bold; ${avatarStyle}'>${d.sellerImg ? "" : avatarInitial}</div>
-                            <span style='font-size:12px; color:#38bdf8; text-decoration:underline;'>বিক্রেতা: ${d.sellerName} (প্রোফাইল দেখুন)</span>
-                        </div>
-
-                        <div style='margin-bottom:8px;'>
-                            <a href='${d.imgUrl}' target='_blank'>
-                                <img src='${d.imgUrl}' style='width:100%; max-height:180px; object-fit:cover; border-radius:6px; border:1px solid #334155;'/>
-                            </a>
-                        </div>
-                        <button onclick='buyIdAccount("${docId}", ${d.price}, "${d.konamiGmail}", "${d.konamiPass}", "${d.title}")' style='display:block; text-align:center; width:100%; background:#25d366; color:#fff; padding:10px; border-radius:6px; font-size:13px; font-weight:bold; border:none; cursor:pointer;'>
-                            🛒 আইডি কিনুন (Buy Now)
-                        </button>
-                    `;
-                    container.appendChild(div);
-                });
-            }).catch(() => {});
+                posts.forEach(item => renderMarketplacePost(container, item.id, item.data));
+            }).catch(err => {
+                console.error("Marketplace load error:", err);
+                container.innerHTML = "<div class='market-error'>⚠️ Marketplace লোড করা যাচ্ছে না। Firebase Firestore Rules/Index/Network সেটিংস পরীক্ষা করুন।</div>";
+            });
         }
 
-        function buyIdAccount(postId, price, gmail, pass, title) {
-            let user = JSON.parse(localStorage.getItem("registeredUser")) || {};
-            let userBalance = user.balance || 0;
+        function renderMarketplacePost(container, docId, d) {
+            const sold = d.status === "sold" || d.sold === true;
+            const price = Number(d.price || 0);
+            const sellerName = escapeMarketText(d.sellerName || "Unknown Seller");
+            const title = escapeMarketText(d.title || "eFootball ID");
+            const img = escapeMarketText(d.imgUrl || "");
+            const sellerPhone = escapeMarketText(d.sellerPhone || "");
+            const sellerImg = escapeMarketText(d.sellerImg || "");
+            const initial = sellerName.charAt(0).toUpperCase();
+            const avatar = sellerImg
+                ? `<img src="${sellerImg}" alt="Seller" onerror="this.style.display='none'">`
+                : `<span>${initial}</span>`;
 
-            if (userBalance < price) {
-                alert("⚠️ আপনার একাউন্টে পর্যাপ্ত টাকা ব্যালেন্স নেই! (প্রয়োজনীয়: " + price + " Tk, আপনার আছে: " + userBalance + " Tk)");
+            const div = document.createElement("div");
+            div.className = "market-post-card" + (sold ? " market-sold" : "");
+            div.innerHTML = `
+                <div class="market-post-top">
+                    <div>
+                        <span class="market-post-tag">${sold ? "SOLD OUT" : "AVAILABLE"}</span>
+                        <h5>🎮 ${title}</h5>
+                    </div>
+                    <div class="market-price">${price.toLocaleString()} Tk</div>
+                </div>
+
+                <div class="market-seller" onclick='viewSellerProfile("${sellerPhone}","${sellerName}","${sellerImg}")'>
+                    <div class="market-avatar">${avatar}</div>
+                    <div><b>${sellerName}</b><small>Seller Profile • Rating দেখুন</small></div>
+                    <span>›</span>
+                </div>
+
+                ${img ? `<div class="market-image-wrap">
+                    <img src="${img}" alt="eFootball ID" loading="lazy" onerror="this.parentElement.innerHTML='<div class=market-image-error>⚠️ Image unavailable</div>'">
+                    ${sold ? "<div class='sold-ribbon'>✓ SOLD</div>" : ""}
+                </div>` : ""}
+
+                <div class="market-safe-row">
+                    <span>🛡️ Secure Purchase Flow</span>
+                    <span>💳 Balance: ${price.toLocaleString()} Tk</span>
+                </div>
+
+                ${sold
+                    ? `<div class="market-sold-box">🔴 এই ID ইতিমধ্যে বিক্রি হয়ে গেছে<br><small>এই পোস্টটি আর কেনা যাবে না।</small></div>
+                       <button class="market-buy-btn disabled" disabled>✓ SOLD — আর Available নয়</button>`
+                    : `<button class="market-buy-btn" onclick='buyIdAccountSecure("${docId}")'>🛒 ${price.toLocaleString()} Tk দিয়ে ID কিনুন</button>`
+                }
+            `;
+            container.appendChild(div);
+        }
+
+        function buyIdAccountSecure(postId) {
+            const user = JSON.parse(localStorage.getItem("registeredUser")) || {};
+            if (!user.phone) {
+                alert("⚠️ আগে Sign Up / Login করুন।");
                 return;
             }
 
-            let confirmBuy = confirm("আপনি কি নিশ্চিতভাবে " + price + " টাকা দিয়ে এই আইডিটি কিনতে চান?");
-            if (!confirmBuy) return;
+            const buyerRef = db.collection("users").doc(user.phone);
+            const postRef = db.collection("marketplace").doc(postId);
 
-            user.balance = userBalance - price;
-            localStorage.setItem("registeredUser", JSON.stringify(user));
-            if (user.phone) {
-                db.collection("users").doc(user.phone).update({ balance: user.balance });
-            }
-            loadUserData();
+            db.runTransaction(async transaction => {
+                const postSnap = await transaction.get(postRef);
+                if (!postSnap.exists) throw new Error("POST_NOT_FOUND");
 
-            let buyMsg = "🛒 আইডি বিক্রি সম্পন্ন!\n👤 ক্রেতা: " + user.name + " (" + user.phone + ")\n📦 আইডি: " + title + "\n💵 মূল্য: " + price + " Tk";
-            sendTelegramMessage(buyMsg, null);
-            notifyAdmin("eFootball ID Purchased", { "Item": title, "Price": price + " Tk" });
+                const post = postSnap.data();
+                const price = Number(post.price || 0);
 
-            let successHtml = `
-                <div id='bought-modal' style='position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; display:flex; justify-content:center; align-items:center; padding:15px;'>
-                    <div style='background:#1f2937; padding:20px; border-radius:12px; width:100%; max-width:380px; border:2px solid #25d366; text-align:center; position:relative;'>
-                        <h3 style='color:#25d366; margin-bottom:10px;'>🎉 সফলভাবে আইডি কেনা হয়েছে!</h3>
-                        <p style='font-size:12px; color:#cbd5e1; margin-bottom:15px;'>নিচে আপনার কোনামি জিমেইল ও পাসওয়ার্ড দেওয়া হলো:</p>
-                        <div style='background:#0f172a; padding:12px; border-radius:8px; text-align:left; font-size:13px; margin-bottom:15px; border:1px solid #334155;'>
-                            <p style='color:#fff; margin-bottom:6px;'><b>কোনামি জিমেইল:</b> <span style='color:#38bdf8;'>${gmail}</span></p>
-                            <p style='color:#fff;'><b>পাসওয়ার্ড:</b> <span style='color:#facc15;'>${pass}</span></p>
-                        </div>
-                        <button onclick='document.getElementById("bought-modal").remove(); loadMarketplaceList();' style='background:#25d366; color:#fff; border:none; padding:10px 20px; border-radius:8px; font-weight:bold; cursor:pointer; width:100%;'>ধন্যবাদ</button>
+                if (post.status === "sold" || post.sold === true) throw new Error("ALREADY_SOLD");
+                if (post.sellerPhone && post.sellerPhone === user.phone) throw new Error("OWN_POST");
+
+                const buyerSnap = await transaction.get(buyerRef);
+                if (!buyerSnap.exists) throw new Error("USER_NOT_FOUND");
+
+                const buyer = buyerSnap.data();
+                const buyerBalance = Number(buyer.balance || 0);
+                if (buyerBalance < price) throw new Error("INSUFFICIENT_BALANCE");
+
+                const sellerRef = db.collection("users").doc(post.sellerPhone);
+                const sellerSnap = await transaction.get(sellerRef);
+                if (!sellerSnap.exists) throw new Error("SELLER_NOT_FOUND");
+
+                const seller = sellerSnap.data();
+                const sellerBalance = Number(seller.balance || 0);
+
+                // Atomic marketplace state + balance transfer.
+                transaction.update(buyerRef, {
+                    balance: buyerBalance - price,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                transaction.update(sellerRef, {
+                    balance: sellerBalance + price,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                transaction.update(postRef, {
+                    status: "sold",
+                    sold: true,
+                    soldAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    buyerPhone: user.phone,
+                    buyerName: user.name || "",
+                    salePrice: price
+                });
+
+                const saleRef = db.collection("marketplace_sales").doc();
+                transaction.set(saleRef, {
+                    marketplaceId: postId,
+                    sellerPhone: post.sellerPhone || "",
+                    buyerPhone: user.phone,
+                    price: price,
+                    title: post.title || "",
+                    status: "completed",
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                return {
+                    price: price,
+                    title: post.title || "eFootball ID",
+                    sellerPhone: post.sellerPhone || "",
+                    sellerName: post.sellerName || "Seller"
+                };
+            }).then(result => {
+                const localUser = JSON.parse(localStorage.getItem("registeredUser")) || {};
+                localUser.balance = Number(localUser.balance || 0) - result.price;
+                localStorage.setItem("registeredUser", JSON.stringify(localUser));
+                loadUserData();
+                loadMarketplaceList();
+
+                const adminMsg =
+                    "🛒 eFootball ID SALE COMPLETED\\n" +
+                    "👤 Buyer: " + (user.name || "Unknown") + " (" + user.phone + ")\\n" +
+                    "👤 Seller: " + result.sellerName + " (" + result.sellerPhone + ")\\n" +
+                    "🎮 ID: " + result.title + "\\n" +
+                    "💵 Amount: " + result.price + " Tk\\n" +
+                    "✅ Seller balance credited\\n" +
+                    "🔒 Credential transfer: ADMIN/SECURE HANDOFF REQUIRED";
+
+                sendTelegramMessage(adminMsg, null);
+
+                showPurchaseSuccess(result.price, result.title, result.sellerPhone);
+            }).catch(err => {
+                const code = err.message || "";
+                if (code === "ALREADY_SOLD") alert("🔴 দুঃখিত, এই ID ইতিমধ্যে অন্য একজন কিনে ফেলেছেন।");
+                else if (code === "OWN_POST") alert("⚠️ নিজের পোস্টের ID নিজে কিনতে পারবেন না।");
+                else if (code === "INSUFFICIENT_BALANCE") alert("⚠️ আপনার একাউন্টে পর্যাপ্ত ব্যালেন্স নেই।");
+                else if (code === "SELLER_NOT_FOUND") alert("⚠️ Seller account পাওয়া যায়নি। Admin-এর সাথে যোগাযোগ করুন।");
+                else alert("⚠️ Purchase সম্পন্ন হয়নি। Firebase Rules/permission অথবা network সমস্যা হতে পারে।");
+                console.error("Purchase transaction:", err);
+            });
+        }
+
+        function showPurchaseSuccess(price, title, sellerPhone) {
+            const old = document.getElementById("bought-modal");
+            if (old) old.remove();
+
+            const modal = document.createElement("div");
+            modal.id = "bought-modal";
+            modal.className = "market-modal";
+            modal.innerHTML = `
+                <div class="market-modal-box">
+                    <div class="purchase-check">✓</div>
+                    <h3>Purchase Successful!</h3>
+                    <p><b>${escapeMarketText(title)}</b> — ${Number(price).toLocaleString()} Tk</p>
+                    <div class="purchase-info">
+                        <span>💰 Seller-এর balance-এ</span><strong>${Number(price).toLocaleString()} Tk credit হয়েছে</strong>
+                        <small>Post এখন স্বয়ংক্রিয়ভাবে SOLD দেখাবে।</small>
                     </div>
-                </div>
-            `;
-            document.body.insertAdjacentHTML('beforeend', successHtml);
+                    <div class="credential-warning">
+                        🔐 Konami login credential browser/public marketplace-এ দেখানো হচ্ছে না। নিরাপদ transfer-এর জন্য Admin/secure handoff ব্যবহার করুন।
+                    </div>
+                    <button onclick="document.getElementById('bought-modal').remove()">ঠিক আছে</button>
+                </div>`;
+            document.body.appendChild(modal);
+        }
+
+        // Legacy handler kept for old buttons/links.
+        function buyIdAccount(postId) {
+            buyIdAccountSecure(postId);
         }
 
         function viewSellerProfile(phone, name, img) {
@@ -788,7 +914,6 @@ nav{top:0!important;position:sticky!important}
 
                     watchedAdsCount++;
                     updateFreeTaskUI();
-                    notifyAdmin("Free Ad Completed", { "Ads Completed": watchedAdsCount + "/10" });
 
                     if (statusEl) {
                         statusEl.innerText = "";
@@ -823,7 +948,6 @@ nav{top:0!important;position:sticky!important}
             window.open(shareUrl, '_blank');
             completedSharesCount++;
             updateFreeTaskUI();
-            notifyAdmin("Free Promotion Share Completed", { "Platform": platform, "Shares Completed": completedSharesCount + "/3" });
             alert("শেয়ার সম্পন্ন হয়েছে (" + completedSharesCount + "/3)।");
         }
 
@@ -865,22 +989,10 @@ nav{top:0!important;position:sticky!important}
 
             let message = "🎁 ফ্রি টুর্নামেন্ট সফল আবেদন!\n👤 একাউন্ট: " + user.name + " (" + user.phone + ")\n🎮 ইন-গেম নাম: " + freeName + "\n🆔 ইন-গেম আইডি: " + freeId + "\n📱 হোয়াটসঅ্যাপ: " + freeWhatsapp + "\n🌍 দেশ: " + freeCountry;
             sendTelegramMessage(message, "সফলভাবে ফ্রি টুর্নামেন্টে আবেদন হয়েছে!");
-            notifyAdmin("Free Tournament Joined", { "In-game Name": freeName, "In-game ID": freeId, "Country": freeCountry });
             event.target.reset();
             watchedAdsCount = 0;
             completedSharesCount = 0;
             updateFreeTaskUI();
-        }
-
-        // Admin notification records are stored in Firestore collection: admin_notifications.
-        // You can later build an admin-only dashboard that reads this collection.
-        function saveAdminSystemEvent(eventName, details = {}) {
-            db.collection("admin_notifications").add({
-                event: eventName,
-                system: true,
-                details: details,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            }).catch(() => {});
         }
 
         function loadAdminNotice() {
@@ -936,7 +1048,6 @@ nav{top:0!important;position:sticky!important}
                         localStorage.setItem("registeredUser", JSON.stringify(userData));
                         localStorage.setItem("isLoggedIn", "true");
                         alert("সাইন আপ সফল হয়েছে!");
-                        notifyAdmin("নতুন User Sign Up", { "Name": name, "Phone": phone, "Country Code": countryCode });
                         checkAuth();
                     }).catch((error) => {
                         alert("ত্রুটি: " + error.message);
@@ -974,7 +1085,6 @@ nav{top:0!important;position:sticky!important}
                         localStorage.setItem("registeredUser", JSON.stringify(userData));
                         localStorage.setItem("isLoggedIn", "true");
                         alert("লগইন সফল হয়েছে!");
-                        notifyAdmin("User Login", { "Login": "Successful" });
                         checkAuth();
                     } else {
                         alert("ভুল পাসওয়ার্ড!");
@@ -987,7 +1097,6 @@ nav{top:0!important;position:sticky!important}
 
         function handleLogout() {
             localStorage.removeItem("isLoggedIn");
-            notifyAdmin("User Logout", { "Logout": "Successful" });
             localStorage.removeItem("registeredUser");
             alert("লগআউট করা হয়েছে!");
             checkAuth();
@@ -1033,44 +1142,6 @@ nav{top:0!important;position:sticky!important}
             loadPaidTournamentsList(); 
         }
 
-        // ===== ADMIN NOTIFICATION + FIRESTORE AUDIT =====
-        // Important user actions are saved in Firestore and sent to the admin Telegram chat.
-        function notifyAdmin(eventName, details = {}) {
-            const user = JSON.parse(localStorage.getItem("registeredUser") || "null") || {};
-            const activity = {
-                event: eventName,
-                userName: user.name || details.userName || "Guest",
-                userPhone: user.phone || details.userPhone || "",
-                details: details,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                createdAtClient: new Date().toISOString()
-            };
-
-            db.collection("admin_notifications").add(activity).catch(() => {});
-
-            const esc = (v) => String(v)
-                .replace(/&/g, "&amp;").replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-
-            const lines = [
-                "🔔 <b>eFootball Arena Store — ADMIN ALERT</b>",
-                "📌 <b>Action:</b> " + esc(eventName),
-                user.name ? "👤 <b>User:</b> " + esc(user.name) : "",
-                user.phone ? "📱 <b>Phone:</b> " + esc(user.phone) : ""
-            ];
-
-            Object.keys(details).forEach(key => {
-                const value = details[key];
-                // Never send passwords/secrets to Telegram.
-                if (value !== undefined && value !== null && value !== "" &&
-                    !["password","pass","konamiPass"].includes(key)) {
-                    lines.push("• <b>" + esc(key) + ":</b> " + esc(value));
-                }
-            });
-
-            sendTelegramMessage(lines.filter(Boolean).join("\n"), null);
-        }
-
         function sendTelegramMessage(message, successMessage) {
             let url = "https://api.telegram.org/bot" + TELEGRAM_BOT_TOKEN + "/sendMessage";
             let data = { chat_id: TELEGRAM_CHAT_ID, text: message, parse_mode: "HTML" };
@@ -1098,7 +1169,6 @@ nav{top:0!important;position:sticky!important}
 
             let message = "💰 নতুন ডিপোজিট রিকোয়েস্ট!\n👤 " + user.name + " (" + user.phone + ")\n💳 " + method + " - " + amount + " Tk\n📱 প্রেরক: " + senderNo + "\n🔑 TrxID: " + trxId;
             sendTelegramMessage(message, "ডিপোজিট রিকোয়েস্ট সফলভাবে অ্যাডমিনের কাছে পাঠানো হয়েছে!");
-            notifyAdmin("Deposit Request", { "Method": method, "Amount": amount + " Tk", "Sender": senderNo, "TrxID": trxId });
             event.target.reset();
             switchProfileSubTab('main');
         }
@@ -1108,7 +1178,7 @@ nav{top:0!important;position:sticky!important}
             let method = document.getElementById("wd-method").value;
             let amount = parseFloat(document.getElementById("wd-amount").value);
             let targetPhone = document.getElementById("wd-target-phone").value.trim();
-            let note = "";
+            let note = document.getElementById("wd-trxid").value.trim();
             let user = JSON.parse(localStorage.getItem("registeredUser")) || {};
 
             if (amount < 100) { alert("⚠️ সর্বনিম্ন ১০০ টাকা উইথড্র করতে হবে।"); return; }
@@ -1124,7 +1194,6 @@ nav{top:0!important;position:sticky!important}
 
             let message = "💳 নতুন টাকা উইথড্র রিকোয়েস্ট!\n👤 " + user.name + " (" + user.phone + ")\n💳 " + method + " - " + amount + " Tk\n📱 নম্বর: " + targetPhone + "\n🔑 নোট: " + note;
             sendTelegramMessage(message, "উইথড্র রিকোয়েস্ট সফলভাবে সাবমিট হয়েছে!");
-            notifyAdmin("Withdrawal Request", { "Method": method, "Amount": amount + " Tk", "Receiver": targetPhone });
             event.target.reset();
             switchProfileSubTab('main');
         }
@@ -1235,7 +1304,6 @@ nav{top:0!important;position:sticky!important}
                 loadPvpMatchesList();
                 event.target.reset();
                 alert("সফলভাবে PvP রুম তৈরি হয়েছে!");
-                notifyAdmin("PvP Room Created", { "Bet": betAmount + " Tk", "Match Type": matchType, "In-game Name": pvpName, "In-game ID": pvpId, "Room Code": roomCode });
             });
         }
 
@@ -1261,7 +1329,6 @@ nav{top:0!important;position:sticky!important}
                 joinedCount: 2
             }).then(() => {
                 alert("সফলভাবে ম্যাচে জয়েন করেছেন!");
-                notifyAdmin("PvP Match Joined", { "Bet": betAmount + " Tk", "Match ID": matchId, "In-game Name": joinerName, "In-game ID": joinerId });
                 loadPvpMatchesList();
             });
         }
@@ -1276,7 +1343,6 @@ nav{top:0!important;position:sticky!important}
             loadUserData();
 
             db.collection("matches").doc(matchId).delete().then(() => loadPvpMatchesList());
-            notifyAdmin("PvP Room Cancelled", { "Bet Refunded": betAmount + " Tk", "Match ID": matchId });
         }
 
         function loadMatchesList() {
@@ -1383,6 +1449,17 @@ nav{top:0!important;position:sticky!important}
 .market-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.market-form-grid .form-group{margin-bottom:2px}.market-form-grid label{font-size:9px!important;color:#a9b8c7!important;font-weight:800}.market-form-grid input{margin-top:5px!important}
 .market-confirm-row{display:flex;justify-content:space-between;gap:10px;padding:9px 10px;border-radius:10px;background:rgba(94,231,255,.035);border:1px solid rgba(94,231,255,.08);margin:12px 0;font-size:8px;color:#8498aa}.market-confirm-row span:first-child{color:#b7ff19}.market-pro-submit{background:linear-gradient(100deg,#19a7ff,#b7ff19)!important;color:#061018!important;box-shadow:0 10px 28px rgba(25,167,255,.16)}
 @media(max-width:600px){.id-sell-pro-card{padding:12px}.id-sell-hero h4{font-size:17px!important}.market-form-grid{grid-template-columns:1fr}.market-confirm-row{flex-direction:column}.market-upload-zone{min-height:135px}}
+</style>
+<style>
+/* ===== Marketplace v3 ===== */
+.market-loading,.market-empty,.market-error{padding:18px;text-align:center;border:1px solid rgba(148,163,184,.1);border-radius:13px;background:#0b1423;color:#91a4b7;font-size:11px;line-height:1.7}
+.market-empty small{color:#63778b}.market-error{color:#ff9b9b}
+.market-post-card{background:linear-gradient(145deg,#0a1626,#0d1a2c);border:1px solid rgba(94,231,255,.12);border-radius:17px;padding:13px;margin-bottom:13px;box-shadow:0 12px 35px rgba(0,0,0,.22);overflow:hidden}.market-post-card.market-sold{opacity:.88}
+.market-post-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.market-post-tag{display:inline-block;padding:4px 7px;border-radius:999px;background:rgba(183,255,25,.08);border:1px solid rgba(183,255,25,.16);color:#b7ff19;font-size:7px;font-weight:900;letter-spacing:1px}.market-sold .market-post-tag{color:#ff7777;background:rgba(255,77,77,.07);border-color:rgba(255,77,77,.17)}.market-post-top h5{font-size:13px;margin:5px 0 0;color:#edf6fc}.market-price{font-size:16px;font-weight:1000;color:#b7ff19;white-space:nowrap}
+.market-seller{display:flex;align-items:center;gap:9px;padding:8px 9px;margin:11px 0;border:1px solid rgba(148,163,184,.08);border-radius:11px;background:rgba(1,8,17,.42);cursor:pointer}.market-avatar{width:31px;height:31px;border-radius:50%;overflow:hidden;background:linear-gradient(135deg,#19a7ff,#b7ff19);display:grid;place-items:center;font-size:11px;font-weight:1000;color:#031018;flex:none}.market-avatar img{width:100%;height:100%;object-fit:cover}.market-seller>div:nth-child(2){display:flex;flex-direction:column;flex:1}.market-seller b{font-size:10px;color:#dbe8f2}.market-seller small{font-size:7px;color:#70859a;margin-top:2px}.market-seller>span{font-size:20px;color:#5d748a}
+.market-image-wrap{position:relative;border-radius:12px;overflow:hidden;border:1px solid rgba(94,231,255,.12);background:#020811}.market-image-wrap img{display:block;width:100%;max-height:330px;object-fit:contain}.market-image-error{height:140px;display:grid;place-items:center;color:#72869a;font-size:10px}.sold-ribbon{position:absolute;top:10px;right:-35px;transform:rotate(35deg);background:#ef4444;color:#fff;padding:5px 35px;font-size:8px;font-weight:1000;letter-spacing:1px}
+.market-safe-row{display:flex;justify-content:space-between;gap:8px;margin:9px 0;padding:7px 9px;border-radius:8px;background:rgba(94,231,255,.035);font-size:7px;color:#73899c}.market-safe-row span:first-child{color:#b7ff19}.market-buy-btn{width:100%;border:0;border-radius:11px;padding:11px;background:linear-gradient(100deg,#19a7ff,#b7ff19);color:#031018;font-size:11px;font-weight:1000;cursor:pointer}.market-buy-btn.disabled{background:#263445;color:#74869a;cursor:not-allowed}.market-sold-box{text-align:center;padding:9px;margin-bottom:7px;border-radius:9px;background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.13);color:#ff8888;font-size:10px}.market-sold-box small{font-size:8px;color:#788b9e}
+.market-modal{position:fixed;inset:0;z-index:10050;background:rgba(0,0,0,.82);display:flex;align-items:center;justify-content:center;padding:15px}.market-modal-box{width:100%;max-width:390px;background:linear-gradient(145deg,#0a1728,#111e31);border:1px solid rgba(183,255,25,.24);border-radius:19px;padding:20px;text-align:center;box-shadow:0 25px 70px rgba(0,0,0,.5)}.purchase-check{width:55px;height:55px;border-radius:50%;display:grid;place-items:center;margin:0 auto 10px;background:rgba(183,255,25,.1);border:1px solid rgba(183,255,25,.35);color:#b7ff19;font-size:28px;font-weight:1000}.market-modal-box h3{color:#b7ff19;font-size:18px;margin-bottom:5px}.market-modal-box>p{font-size:10px;color:#a1b2c2}.purchase-info{margin:13px 0;padding:12px;border-radius:11px;background:#07101d;border:1px solid rgba(148,163,184,.1);display:flex;flex-direction:column;gap:3px}.purchase-info span{font-size:8px;color:#7f93a6}.purchase-info strong{font-size:12px;color:#b7ff19}.purchase-info small{font-size:8px;color:#6d8195}.credential-warning{padding:9px;border-radius:9px;background:rgba(255,184,0,.06);border:1px solid rgba(255,184,0,.15);color:#c9b77a;font-size:8px;line-height:1.6;text-align:left}.market-modal-box button{width:100%;margin-top:12px;border:0;border-radius:10px;padding:10px;background:#19a7ff;color:#04101a;font-weight:900;cursor:pointer}
 </style>
 </head>
 <body>
