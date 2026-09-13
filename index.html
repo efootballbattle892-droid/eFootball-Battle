@@ -1192,27 +1192,23 @@ async function handleSellPostSubmitPro(event) {
             "https://www.facebook.com/share/g/1BZn6wnpct/?mibextid=wwXIfr"
         ];
 
-        function openFreeTask(type, index = 0) {
-            let url = "";
-            if (type === "telegram") {
-                url = FREE_TELEGRAM_LINK;
-            } else if (type === "facebook") {
-                url = FREE_FB_GROUPS[index];
-            }
+        const FREE_PROMO_CAPTION = `⚽🔥 eFootball Arena Store — Your Trusted eFootball Platform! 🔥⚽\n\n🎮 eFootball Tournament\n🏆 Free & Paid Tournament\n⚔️ PvP Online Match\n🛒 Safe eFootball ID Buy & Sell\n💰 Fast Wallet Deposit & Withdraw\n📢 Tournament Updates, Results & Notices\n\n🌐 Official Website:\nhttps://efootballbattle892-droid.github.io/eFootball-Battle/\n\n📲 Telegram Channel:\nhttps://t.me/eFootballArenaStore\n\n🔥 Play • Trade • Compete • Win 🏆`;
 
+        async function openFreeTask(type, index = 0) {
+            let url = type === "telegram" ? FREE_TELEGRAM_LINK : (type === "facebook" ? FREE_FB_GROUPS[index] : "");
             if (!url) return;
-            window.open(url, "_blank");
 
-            // Browser থেকে Facebook group membership বা Telegram subscription
-            // সরাসরি verify করা যায় না। তাই user link খুলে আসার পর confirmation দেন।
-            if (type === "telegram") {
-                telegramJoined = true;
-                alert("📢 Telegram Channel খুলে দেওয়া হয়েছে।\n\nChannel-এ Subscribe/Join করে এখানে ফিরে এসে OK দিন।");
-            } else {
+            if (type === "facebook") {
+                try { await navigator.clipboard.writeText(FREE_PROMO_CAPTION); } catch (e) {}
+                window.open(url, "_blank");
                 if (index === 0) facebookGroup1Joined = true;
                 if (index === 1) facebookGroup2Joined = true;
                 if (index === 2) facebookGroup3Joined = true;
-                alert("✅ Facebook Group খুলে দেওয়া হয়েছে।\n\nGroup-এ Join/Share সম্পন্ন করে এখানে ফিরে আসুন।");
+                alert("📘 Facebook Group খুলে দেওয়া হয়েছে।\n\n📋 Promotional caption copy করা হয়েছে। Group-এ Post/Create Post চাপুন এবং Paste করে Post করুন।\n\n⚠️ Facebook-এর permission/API restriction-এর কারণে website সরাসরি আপনার হয়ে Group-এ Post করতে পারে না।");
+            } else {
+                window.open(url, "_blank");
+                telegramJoined = true;
+                alert("📢 Telegram Channel খুলে দেওয়া হয়েছে।\n\nChannel-এ Join/Subscribe করে এখানে ফিরে আসুন।");
             }
             updateFreeTaskUI();
         }
