@@ -1266,44 +1266,146 @@ async function handleSellPostSubmitPro(event) {
 
         function handleSignup(event) {
             event.preventDefault();
-            let submitBtn = document.getElementById("su-btn");
-            let name = document.getElementById("su-name").value.trim();
-            let rawPhone = document.getElementById("su-phone").value.trim().replace(/\s|-/g, "");
-            let countryCode = document.getElementById("su-country-code").value;
-            let pass = document.getElementById("su-pass").value.trim();
 
-            if (!/^\d{7,15}$/.test(rawPhone.replace(/^\+/, ""))) {
+            const submitBtn = document.getElementById("su-btn");
+            const name = document.getElementById("su-name").value.trim();
+            const rawPhoneInput = document.getElementById("su-phone").value.trim().replace(/\s|-/g, "");
+            const countryCode = document.getElementById("su-country-code").value;
+            const pass = document.getElementById("su-pass").value.trim();
+
+            // Name validation
+            if (!name) {
+                alert("⚠️ আপনার নাম দিন।");
+                return;
+            }
+
+            // Phone validation
+            const digitsOnly = rawPhoneInput.replace(/^\+/, "");
+            if (!/^\d{7,15}$/.test(digitsOnly)) {
                 alert("⚠️ সঠিক মোবাইল নম্বর দিন।");
                 return;
             }
-            let phone = countryCode + rawPhone.replace(/^\+/, "");
-            if (countryCode === "+880") phone = "+880" + rawPhone.replace(/^0+/, "");
+
+            // Password validation
+            if (!pass || pass.length < 4) {
+                alert("⚠️ Password কমপক্ষে ৪ অক্ষরের হতে হবে।");
+                return;
+            }
+
+            // Normalize phone number
+            let phone = countryCode + digitsOnly;
+
+            // Bangladesh: 01XXXXXXXXX / +8801XXXXXXXXX সব একই Account হিসেবে ধরা হবে
+            let legacyPhone = null;
+            if (countryCode === "+880") {
+                const bdNumber = digitsOnly.replace(/^0+/, "");
+                phone = "+880" + bdNumber;
+                legacyPhone = "0" + bdNumber;
+            }
 
             submitBtn.disabled = true;
-            submitBtn.innerText = "যাচাই করা হচ্ছে...";
+            submitBtn.innerText = "নম্বর যাচাই হচ্ছে...";
 
-            db.collection("users").doc(phone).get().then((doc) => {
-                if (doc.exists) {
-                    alert("⚠️ এই মোবাইল নম্বর দিয়ে ইতিমধ্যে অ্যাকাউন্ট রয়েছে!");
+            const userRef = db.collection("users").doc(String(phone));
+            const legacyRef = legacyPhone
+                ? db.collection("users").doc(String(legacyPhone))
+                : null;
+
+            const userData = {
+                name: name,
+                phone: phone,
+                pass: pass,
+                balance: 0,
+                pvpCount: 0,
+                paidCount: 0,
+                profileImg: "",
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            /*
+             * IMPORTANT:
+             * get() করে তারপর set() করলে একই সময়ে ২টি signup হলে
+             * দুটো request-ই "account নেই" দেখতে পারে।
+             *
+             * তাই Firestore Transaction ব্যবহার করা হয়েছে।
+             * Transaction একই phone document একবারই create করতে দেবে।
+             */
+            db.runTransaction(async (transaction) => {
+
+                // নতুন normalized phone document check
+                const existingDoc = await transaction.get(userRef);
+
+                if (existingDoc.exists) {
+                    throw new Error("PHONE_EXISTS");
+                }
+
+                // পুরোনো Bangladesh format (01XXXXXXXXX) check
+                if (legacyRef) {
+                    const legacyDoc = await transaction.get(legacyRef);
+
+                    if (legacyDoc.exists) {
+                        throw new Error("PHONE_EXISTS");
+                    }
+                }
+
+                // Account একবারই create হবে
+                transaction.set(userRef, userData);
+            })
+            .then(() => {
+
+                // Local storage-এ timestamp বাদ দিয়ে রাখা হচ্ছে
+                const localUserData = {
+                    name: name,
+                    phone: phone,
+                    pass: pass,
+                    balance: 0,
+                    pvpCount: 0,
+                    paidCount: 0,
+                    profileImg: ""
+                };
+
+                localStorage.setItem(
+                    "registeredUser",
+                    JSON.stringify(localUserData)
+                );
+
+                localStorage.setItem("isLoggedIn", "true");
+
+                alert(
+                    "✅ Sign Up সফল হয়েছে!\n\n" +
+                    "এই মোবাইল নম্বর দিয়ে আর দ্বিতীয় Account খোলা যাবে না।"
+                );
+
+                submitBtn.disabled = false;
+                submitBtn.innerText = "সাইন আপ করুন";
+
+                checkAuth();
+            })
+            .catch((error) => {
+
+                console.error("Signup Error:", error);
+
+                if (error.message === "PHONE_EXISTS") {
+                    alert(
+                        "⚠️ এই মোবাইল নম্বর দিয়ে ইতিমধ্যে একটি Account খোলা আছে!\n\n" +
+                        "একটি মোবাইল নম্বর দিয়ে দ্বিতীয়বার Sign Up করা যাবে না।\n\n" +
+                        "দয়া করে Login করুন।"
+                    );
+
                     submitBtn.disabled = false;
                     submitBtn.innerText = "সাইন আপ করুন";
+
                     switchToLogin();
-                } else {
-                    let userData = { 
-                        name: name, phone: phone, pass: pass, 
-                        balance: 0, pvpCount: 0, paidCount: 0, profileImg: "" 
-                    };
-                    db.collection("users").doc(phone).set(userData).then(() => {
-                        localStorage.setItem("registeredUser", JSON.stringify(userData));
-                        localStorage.setItem("isLoggedIn", "true");
-                        alert("সাইন আপ সফল হয়েছে!");
-                        checkAuth();
-                    }).catch((error) => {
-                        alert("ত্রুটি: " + error.message);
-                        submitBtn.disabled = false;
-                        submitBtn.innerText = "সাইন আপ করুন";
-                    });
+                    return;
                 }
+
+                alert(
+                    "❌ Sign Up করা যায়নি!\n\n" +
+                    (error.message || "Firebase error")
+                );
+
+                submitBtn.disabled = false;
+                submitBtn.innerText = "সাইন আপ করুন";
             });
         }
 
