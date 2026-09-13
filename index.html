@@ -357,6 +357,8 @@ nav{top:0!important;position:sticky!important}
         let adTimerInterval = null;
         let adSecondsLeft = 30;
         let isWatchingAd = false;
+        let freeTournamentLockedUntil = null;
+        let freeTournamentChecking = false;
 
         const countriesList = [
             "Argentina", "Brazil", "France", "Portugal", "England", 
@@ -370,6 +372,7 @@ nav{top:0!important;position:sticky!important}
             loadAdminNotice();
             loadMarketplaceList();
             updateFreeTaskUI();
+            checkFreeTournamentEligibility();
             calculateCoinPrice();
         });
 
@@ -1218,11 +1221,66 @@ async function handleSellPostSubmitPro(event) {
             return telegramJoined && facebookGroup1Joined && facebookGroup2Joined && facebookGroup3Joined;
         }
 
+        // Free Tournament: একজন User ৩০ দিন পর আবার Apply করতে পারবে
+        function getCurrentUserForFreeTournament() {
+            return JSON.parse(localStorage.getItem("registeredUser")) || {};
+        }
+
+        function getFreeTournamentLockInfo(data) {
+            if (!data || !data.freeTournamentLastAppliedAt) return null;
+
+            let appliedAt = data.freeTournamentLastAppliedAt;
+            if (appliedAt && typeof appliedAt.toDate === "function") {
+                appliedAt = appliedAt.toDate();
+            } else if (appliedAt && appliedAt.seconds) {
+                appliedAt = new Date(appliedAt.seconds * 1000);
+            } else {
+                appliedAt = new Date(appliedAt);
+            }
+
+            if (isNaN(appliedAt.getTime())) return null;
+
+            const unlockTime = new Date(appliedAt.getTime() + (30 * 24 * 60 * 60 * 1000));
+            if (Date.now() < unlockTime.getTime()) {
+                return { appliedAt, unlockTime };
+            }
+            return null;
+        }
+
+        function formatRemainingTime(ms) {
+            let totalMinutes = Math.ceil(ms / 60000);
+            let days = Math.floor(totalMinutes / 1440);
+            let hours = Math.floor((totalMinutes % 1440) / 60);
+            let minutes = totalMinutes % 60;
+            return days + " দিন " + hours + " ঘণ্টা " + minutes + " মিনিট";
+        }
+
+        async function checkFreeTournamentEligibility() {
+            let user = getCurrentUserForFreeTournament();
+            let phone = user.phone;
+            if (!phone || typeof db === "undefined") return;
+
+            try {
+                freeTournamentChecking = true;
+                let doc = await db.collection("users").doc(String(phone)).get();
+                let lockInfo = getFreeTournamentLockInfo(doc.exists ? doc.data() : null);
+                freeTournamentLockedUntil = lockInfo ? lockInfo.unlockTime : null;
+                freeTournamentChecking = false;
+                updateFreeTaskUI();
+            } catch (error) {
+                freeTournamentChecking = false;
+                console.error("Free Tournament eligibility error:", error);
+                updateFreeTaskUI();
+            }
+        }
+
         function updateFreeTaskUI() {
             let adStatusEl = document.getElementById("free-ad-status");
             let socialStatusEl = document.getElementById("free-social-status");
             let formFields = document.getElementById("free-form-fields");
             let submitBtn = document.getElementById("free-submit-btn");
+            let watchBtn = document.getElementById("watch-ad-btn");
+            let taskBox = document.getElementById("free-task-box");
 
             if (adStatusEl) adStatusEl.innerText = watchedAdsCount + "/10";
 
@@ -1233,6 +1291,49 @@ async function handleSellPostSubmitPro(event) {
             if (facebookGroup3Joined) socialDone++;
             if (socialStatusEl) socialStatusEl.innerText = socialDone + "/4";
 
+            // ৩০ দিনের Lock
+            if (freeTournamentLockedUntil && Date.now() < freeTournamentLockedUntil.getTime()) {
+                if (formFields) formFields.style.display = "none";
+                if (watchBtn) watchBtn.disabled = true;
+                if (taskBox) {
+                    let lockNotice = document.getElementById("free-month-lock-notice");
+                    if (!lockNotice) {
+                        lockNotice = document.createElement("div");
+                        lockNotice.id = "free-month-lock-notice";
+                        lockNotice.style.cssText = "background:#451a03;border:1px solid #f59e0b;color:#fde68a;padding:12px;border-radius:8px;margin-bottom:12px;font-size:12px;text-align:center;font-weight:bold;";
+                        taskBox.parentNode.insertBefore(lockNotice, taskBox);
+                    }
+                    lockNotice.innerHTML = "⏳ আপনি ইতিমধ্যে Free Tournament-এ Apply করেছেন।<br>🔒 আবার Apply করতে ৩০ দিন অপেক্ষা করতে হবে।<br><span id='free-lock-countdown' style='color:#fff;'>সময় হিসাব করা হচ্ছে...</span>";
+                }
+
+                let countdownEl = document.getElementById("free-lock-countdown");
+                if (countdownEl) countdownEl.innerText = "আর বাকি: " + formatRemainingTime(freeTournamentLockedUntil.getTime() - Date.now());
+
+                if (!window.freeLockCountdownTimer) {
+                    window.freeLockCountdownTimer = setInterval(() => {
+                        if (!freeTournamentLockedUntil) return;
+                        if (Date.now() >= freeTournamentLockedUntil.getTime()) {
+                            freeTournamentLockedUntil = null;
+                            clearInterval(window.freeLockCountdownTimer);
+                            window.freeLockCountdownTimer = null;
+                            let notice = document.getElementById("free-month-lock-notice");
+                            if (notice) notice.remove();
+                            if (watchBtn) watchBtn.disabled = false;
+                            updateFreeTaskUI();
+                            checkFreeTournamentEligibility();
+                            return;
+                        }
+                        let el = document.getElementById("free-lock-countdown");
+                        if (el) el.innerText = "আর বাকি: " + formatRemainingTime(freeTournamentLockedUntil.getTime() - Date.now());
+                    }, 60000);
+                }
+                return;
+            }
+
+            let oldNotice = document.getElementById("free-month-lock-notice");
+            if (oldNotice) oldNotice.remove();
+            if (watchBtn) watchBtn.disabled = false;
+
             if (watchedAdsCount >= 10 && allFreeSocialTasksDone()) {
                 if (formFields) formFields.style.display = "block";
                 if (submitBtn) submitBtn.disabled = false;
@@ -1242,15 +1343,27 @@ async function handleSellPostSubmitPro(event) {
             }
         }
 
-        function applyFreeTournament(event) {
+        async function applyFreeTournament(event) {
             event.preventDefault();
+
+            if (freeTournamentLockedUntil && Date.now() < freeTournamentLockedUntil.getTime()) {
+                alert("⏳ আপনি ইতিমধ্যে Free Tournament-এ Apply করেছেন।\n\n৩০ দিন পূর্ণ হলে আবার Apply করতে পারবেন।");
+                updateFreeTaskUI();
+                return;
+            }
 
             if (watchedAdsCount < 10 || !allFreeSocialTasksDone()) {
                 alert("⚠️ আবেদন করার আগে ১০টি অ্যাড দেখা এবং Telegram Channel + ৩টি Facebook Group-এর কাজ সম্পন্ন করতে হবে।");
                 return;
             }
 
-            let user = JSON.parse(localStorage.getItem("registeredUser")) || {};
+            let user = getCurrentUserForFreeTournament();
+            let phone = String(user.phone || "").trim();
+            if (!phone) {
+                alert("❌ আপনার Account তথ্য পাওয়া যায়নি। আগে Login করুন।");
+                return;
+            }
+
             let freeName = document.getElementById("free-p-name").value.trim();
             let freeId = document.getElementById("free-p-id").value.trim();
             let freeCountry = document.getElementById("free-country-select").value;
@@ -1269,43 +1382,86 @@ async function handleSellPostSubmitPro(event) {
             let submitBtn = document.getElementById("free-submit-btn");
             if (submitBtn) {
                 submitBtn.disabled = true;
-                submitBtn.innerText = "আবেদন যাচাইয়ের জন্য পাঠানো হচ্ছে...";
+                submitBtn.innerText = "আবেদন যাচাই করা হচ্ছে...";
             }
 
-            let message =
-                "🎁 ফ্রি টুর্নামেন্ট আবেদন জমা হয়েছে!\n" +
-                "👤 একাউন্ট: " + (user.name || "N/A") + " (" + (user.phone || "N/A") + ")\n" +
-                "🎮 ইন-গেম নাম: " + freeName + "\n" +
-                "🆔 ইন-গেম আইডি: " + freeId + "\n" +
-                "🌍 দেশ: " + freeCountry + "\n" +
-                "📱 WhatsApp: " + freeWhatsapp + "\n\n" +
-                "📢 ১০টি অ্যাড: সম্পন্ন\n" +
-                "📲 Telegram Channel: সম্পন্ন\n" +
-                "📘 Facebook Group 1: সম্পন্ন\n" +
-                "📘 Facebook Group 2: সম্পন্ন\n" +
-                "📘 Facebook Group 3: সম্পন্ন\n\n" +
-                "⏳ Status: ADMIN REVIEW PENDING\n" +
-                "⚠️ Admin যাচাই করার পরই Tournament-এ নেওয়া হবে। ভুল তথ্য দিলে আবেদন Approve করা হবে না।";
+            const userRef = db.collection("users").doc(phone);
+            const now = new Date();
+            const unlockTime = new Date(now.getTime() + (30 * 24 * 60 * 60 * 1000));
 
-            sendTelegramMessage(message, "✅ ফ্রি টুর্নামেন্ট আবেদন Admin যাচাইয়ের জন্য পাঠানো হয়েছে!");
+            try {
+                // একই User যেন একসাথে দুইবার Apply করতে না পারে—Transaction দিয়ে lock করা হচ্ছে।
+                await db.runTransaction(async (transaction) => {
+                    const snap = await transaction.get(userRef);
+                    const data = snap.exists ? snap.data() : {};
+                    const existingLock = getFreeTournamentLockInfo(data);
 
-            alert(
-                "✅ আবেদন সফলভাবে জমা হয়েছে!\n\n" +
-                "⏳ Admin আপনার তথ্য যাচাই করবেন।\n" +
-                "সঠিক তথ্য হলে Tournament-এ নেওয়া হবে।\n\n" +
-                "⚠️ ভুল তথ্য বা ভুল In-game তথ্য দিলে Admin আবেদন Approve করবেন না।"
-            );
+                    if (existingLock) {
+                        const err = new Error("FREE_TOURNAMENT_LOCKED");
+                        err.unlockTime = existingLock.unlockTime;
+                        throw err;
+                    }
 
-            event.target.reset();
-            watchedAdsCount = 0;
-            completedSharesCount = 0;
-            telegramJoined = false;
-            facebookGroup1Joined = false;
-            facebookGroup2Joined = false;
-            facebookGroup3Joined = false;
-            updateFreeTaskUI();
+                    transaction.set(userRef, {
+                        freeTournamentLastAppliedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        freeTournamentNextApplyAt: firebase.firestore.Timestamp.fromDate(unlockTime)
+                    }, { merge: true });
+                });
 
-            if (submitBtn) submitBtn.innerText = "আবেদন করুন";
+                freeTournamentLockedUntil = unlockTime;
+
+                let message =
+                    "🎁 ফ্রি টুর্নামেন্ট আবেদন জমা হয়েছে!\n" +
+                    "👤 একাউন্ট: " + (user.name || "N/A") + " (" + phone + ")\n" +
+                    "🎮 ইন-গেম নাম: " + freeName + "\n" +
+                    "🆔 ইন-গেম আইডি: " + freeId + "\n" +
+                    "🌍 দেশ: " + freeCountry + "\n" +
+                    "📱 WhatsApp: " + freeWhatsapp + "\n\n" +
+                    "📢 ১০টি অ্যাড: সম্পন্ন\n" +
+                    "📲 Telegram Channel: সম্পন্ন\n" +
+                    "📘 Facebook Group 1: সম্পন্ন\n" +
+                    "📘 Facebook Group 2: সম্পন্ন\n" +
+                    "📘 Facebook Group 3: সম্পন্ন\n\n" +
+                    "⏳ Status: ADMIN REVIEW PENDING\n" +
+                    "🔒 Next Free Tournament Apply: ৩০ দিন পর\n" +
+                    "⚠️ Admin যাচাই করার পরই Tournament-এ নেওয়া হবে। ভুল তথ্য দিলে আবেদন Approve করা হবে না।";
+
+                sendTelegramMessage(message, "✅ ফ্রি টুর্নামেন্ট আবেদন Admin যাচাইয়ের জন্য পাঠানো হয়েছে!");
+
+                alert(
+                    "✅ আবেদন সফলভাবে জমা হয়েছে!\n\n" +
+                    "⏳ Admin আপনার তথ্য যাচাই করবেন।\n" +
+                    "সঠিক তথ্য হলে Tournament-এ নেওয়া হবে।\n\n" +
+                    "🔒 একই User আবার Free Tournament-এ Apply করতে পারবেন ৩০ দিন পর।\n\n" +
+                    "⚠️ ভুল তথ্য বা ভুল In-game তথ্য দিলে Admin আবেদন Approve করবেন না।"
+                );
+
+                event.target.reset();
+                watchedAdsCount = 0;
+                completedSharesCount = 0;
+                telegramJoined = false;
+                facebookGroup1Joined = false;
+                facebookGroup2Joined = false;
+                facebookGroup3Joined = false;
+                updateFreeTaskUI();
+
+                if (submitBtn) submitBtn.innerText = "আবেদন করুন";
+            } catch (error) {
+                console.error("Free Tournament Apply Error:", error);
+
+                if (error && error.message === "FREE_TOURNAMENT_LOCKED") {
+                    freeTournamentLockedUntil = error.unlockTime || null;
+                    updateFreeTaskUI();
+                    alert("⏳ আপনি ইতিমধ্যে এই Free Tournament-এ Apply করেছেন।\n\n৩০ দিন পূর্ণ হলে আবার Apply করতে পারবেন।");
+                } else {
+                    alert("❌ আবেদন জমা দেওয়া যায়নি। আবার চেষ্টা করুন।");
+                }
+
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = "আবেদন করুন";
+                }
+            }
         }
 
         function loadAdminNotice() {
