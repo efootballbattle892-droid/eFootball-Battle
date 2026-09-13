@@ -350,6 +350,10 @@ nav{top:0!important;position:sticky!important}
 
         let watchedAdsCount = 0;
         let completedSharesCount = 0;
+        let telegramJoined = false;
+        let facebookGroup1Joined = false;
+        let facebookGroup2Joined = false;
+        let facebookGroup3Joined = false;
         let adTimerInterval = null;
         let adSecondsLeft = 30;
         let isWatchingAd = false;
@@ -1177,39 +1181,59 @@ async function handleSellPostSubmitPro(event) {
             }, 1000);
         }
 
-        function shareFreeSite(platform) {
-            if (completedSharesCount >= 3) {
-                alert("✅ আপনার ৩টি শেয়ার করা সম্পন্ন হয়েছে!");
-                return;
+        // Free Tournament social tasks
+        const FREE_TELEGRAM_LINK = "https://t.me/eFootballArenaStore";
+        const FREE_FB_GROUPS = [
+            "https://m.facebook.com/groups/afcb.official/?ref=share&mibextid=wwXIfr",
+            "https://www.facebook.com/share/g/1C6yUGBPwC/?mibextid=wwXIfr",
+            "https://www.facebook.com/share/g/1BZn6wnpct/?mibextid=wwXIfr"
+        ];
+
+        function openFreeTask(type, index = 0) {
+            let url = "";
+            if (type === "telegram") {
+                url = FREE_TELEGRAM_LINK;
+            } else if (type === "facebook") {
+                url = FREE_FB_GROUPS[index];
             }
 
-            let shareText = "সবচেয়ে সেরা eFootball টুর্নামেন্ট প্ল্যাটফর্ম! এখানে ফ্রি ও পেইড টুর্নামেন্টে অংশ নিন এবং আইডি বাই-সেল করুন: " + SITE_URL;
-            let shareUrl = "";
+            if (!url) return;
+            window.open(url, "_blank");
 
-            if (platform === 'facebook') {
-                shareUrl = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(SITE_URL);
-            } else if (platform === 'whatsapp') {
-                shareUrl = "https://api.whatsapp.com/send?text=" + encodeURIComponent(shareText);
-            } else if (platform === 'telegram') {
-                shareUrl = "https://t.me/share/url?url=" + encodeURIComponent(SITE_URL) + "&text=" + encodeURIComponent(shareText);
+            // Browser থেকে Facebook group membership বা Telegram subscription
+            // সরাসরি verify করা যায় না। তাই user link খুলে আসার পর confirmation দেন।
+            if (type === "telegram") {
+                telegramJoined = true;
+                alert("📢 Telegram Channel খুলে দেওয়া হয়েছে।\n\nChannel-এ Subscribe/Join করে এখানে ফিরে এসে OK দিন।");
+            } else {
+                if (index === 0) facebookGroup1Joined = true;
+                if (index === 1) facebookGroup2Joined = true;
+                if (index === 2) facebookGroup3Joined = true;
+                alert("✅ Facebook Group খুলে দেওয়া হয়েছে।\n\nGroup-এ Join/Share সম্পন্ন করে এখানে ফিরে আসুন।");
             }
-
-            window.open(shareUrl, '_blank');
-            completedSharesCount++;
             updateFreeTaskUI();
-            alert("শেয়ার সম্পন্ন হয়েছে (" + completedSharesCount + "/3)।");
+        }
+
+        function allFreeSocialTasksDone() {
+            return telegramJoined && facebookGroup1Joined && facebookGroup2Joined && facebookGroup3Joined;
         }
 
         function updateFreeTaskUI() {
             let adStatusEl = document.getElementById("free-ad-status");
-            let shareStatusEl = document.getElementById("free-share-status");
-            let submitBtn = document.getElementById("free-submit-btn");
+            let socialStatusEl = document.getElementById("free-social-status");
             let formFields = document.getElementById("free-form-fields");
+            let submitBtn = document.getElementById("free-submit-btn");
 
             if (adStatusEl) adStatusEl.innerText = watchedAdsCount + "/10";
-            if (shareStatusEl) shareStatusEl.innerText = completedSharesCount + "/3";
 
-            if (watchedAdsCount >= 10 && completedSharesCount >= 3) {
+            let socialDone = 0;
+            if (telegramJoined) socialDone++;
+            if (facebookGroup1Joined) socialDone++;
+            if (facebookGroup2Joined) socialDone++;
+            if (facebookGroup3Joined) socialDone++;
+            if (socialStatusEl) socialStatusEl.innerText = socialDone + "/4";
+
+            if (watchedAdsCount >= 10 && allFreeSocialTasksDone()) {
                 if (formFields) formFields.style.display = "block";
                 if (submitBtn) submitBtn.disabled = false;
             } else {
@@ -1220,28 +1244,68 @@ async function handleSellPostSubmitPro(event) {
 
         function applyFreeTournament(event) {
             event.preventDefault();
-            if (watchedAdsCount < 10 || completedSharesCount < 3) {
-                alert("⚠️ শর্ত পূরণ হয়নি! ১০টি অ্যাড দেখা এবং ৩টি শেয়ার করা বাধ্যতামূলক।");
+
+            if (watchedAdsCount < 10 || !allFreeSocialTasksDone()) {
+                alert("⚠️ আবেদন করার আগে ১০টি অ্যাড দেখা এবং Telegram Channel + ৩টি Facebook Group-এর কাজ সম্পন্ন করতে হবে।");
                 return;
             }
 
             let user = JSON.parse(localStorage.getItem("registeredUser")) || {};
             let freeName = document.getElementById("free-p-name").value.trim();
             let freeId = document.getElementById("free-p-id").value.trim();
-            let freeWhatsapp = document.getElementById("free-whatsapp").value.trim();
             let freeCountry = document.getElementById("free-country-select").value;
+            let freeWhatsapp = document.getElementById("free-p-whatsapp").value.trim().replace(/\s|-/g, "");
 
-            if(!freeName || !freeId || !freeWhatsapp || !freeCountry) {
+            if (!freeName || !freeId || !freeCountry || !freeWhatsapp) {
                 alert("⚠️ সব তথ্য সঠিকভাবে পূরণ করুন!");
                 return;
             }
 
-            let message = "🎁 ফ্রি টুর্নামেন্ট সফল আবেদন!\n👤 একাউন্ট: " + user.name + " (" + user.phone + ")\n🎮 ইন-গেম নাম: " + freeName + "\n🆔 ইন-গেম আইডি: " + freeId + "\n📱 হোয়াটসঅ্যাপ: " + freeWhatsapp + "\n🌍 দেশ: " + freeCountry;
-            sendTelegramMessage(message, "সফলভাবে ফ্রি টুর্নামেন্টে আবেদন হয়েছে!");
+            if (!/^\+?[0-9]{8,15}$/.test(freeWhatsapp)) {
+                alert("⚠️ সঠিক WhatsApp নম্বর দিন।");
+                return;
+            }
+
+            let submitBtn = document.getElementById("free-submit-btn");
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerText = "আবেদন যাচাইয়ের জন্য পাঠানো হচ্ছে...";
+            }
+
+            let message =
+                "🎁 ফ্রি টুর্নামেন্ট আবেদন জমা হয়েছে!\n" +
+                "👤 একাউন্ট: " + (user.name || "N/A") + " (" + (user.phone || "N/A") + ")\n" +
+                "🎮 ইন-গেম নাম: " + freeName + "\n" +
+                "🆔 ইন-গেম আইডি: " + freeId + "\n" +
+                "🌍 দেশ: " + freeCountry + "\n" +
+                "📱 WhatsApp: " + freeWhatsapp + "\n\n" +
+                "📢 ১০টি অ্যাড: সম্পন্ন\n" +
+                "📲 Telegram Channel: সম্পন্ন\n" +
+                "📘 Facebook Group 1: সম্পন্ন\n" +
+                "📘 Facebook Group 2: সম্পন্ন\n" +
+                "📘 Facebook Group 3: সম্পন্ন\n\n" +
+                "⏳ Status: ADMIN REVIEW PENDING\n" +
+                "⚠️ Admin যাচাই করার পরই Tournament-এ নেওয়া হবে। ভুল তথ্য দিলে আবেদন Approve করা হবে না।";
+
+            sendTelegramMessage(message, "✅ ফ্রি টুর্নামেন্ট আবেদন Admin যাচাইয়ের জন্য পাঠানো হয়েছে!");
+
+            alert(
+                "✅ আবেদন সফলভাবে জমা হয়েছে!\n\n" +
+                "⏳ Admin আপনার তথ্য যাচাই করবেন।\n" +
+                "সঠিক তথ্য হলে Tournament-এ নেওয়া হবে।\n\n" +
+                "⚠️ ভুল তথ্য বা ভুল In-game তথ্য দিলে Admin আবেদন Approve করবেন না।"
+            );
+
             event.target.reset();
             watchedAdsCount = 0;
             completedSharesCount = 0;
+            telegramJoined = false;
+            facebookGroup1Joined = false;
+            facebookGroup2Joined = false;
+            facebookGroup3Joined = false;
             updateFreeTaskUI();
+
+            if (submitBtn) submitBtn.innerText = "আবেদন করুন";
         }
 
         function loadAdminNotice() {
@@ -2009,30 +2073,39 @@ async function handleSellPostSubmitPro(event) {
                 <div id='tab-content-free' style='display: none;'>
                     <div style='background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155;'>
                         <h4 style='color: #facc15; margin-bottom: 8px; font-size: 14px;'>🎁 ফ্রি টুর্নামেন্ট আবেদন</h4>
-                        <p style='font-size: 12px; color: #94a3b8; margin-bottom: 15px;'>আবেদন করতে হলে ৩০ সেকেন্ড লাইভ টাইমার মেনে **১০টি অ্যাড দেখতে হবে** এবং **৩টি শেয়ার করতে হবে**।</p>
-                        
+                        <p style='font-size: 12px; color: #94a3b8; margin-bottom: 15px;'>আবেদন করার আগে <b>১০টি অ্যাড</b> দেখতে হবে এবং নিচের <b>Telegram Channel + ৩টি Facebook Group</b>-এর কাজ সম্পন্ন করতে হবে। সবগুলো সম্পন্ন হলে Application Form দেখা যাবে।</p>
+
                         <div style='background: #0f172a; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 13px; border: 1px solid #334155;'>
                             <div style='display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;'>
-                                <span>অ্যাড দেখা সম্পন্ন: <b id='free-ad-status' style='color:#ef4444;'>0/10</b></span>
+                                <span>📺 অ্যাড দেখা সম্পন্ন: <b id='free-ad-status' style='color:#ef4444;'>0/10</b></span>
                                 <button type='button' id='watch-ad-btn' onclick='watchFreeAd()' style='background:#3b82f6; color:#fff; border:none; padding:5px 12px; border-radius:6px; cursor:pointer; font-weight:bold;'>📺 অ্যাড দেখুন</button>
                             </div>
-                            <div id='free-ad-timer-text' style='font-size: 12px; font-weight: bold; margin-bottom: 10px; text-align: center;'></div>
-                            
-                            <div style='display:flex; justify-content:space-between; align-items:center;'>
-                                <span>সোশ্যাল মিডিয়ায় শেয়ার: <b id='free-share-status' style='color:#ef4444;'>0/3</b></span>
-                                <div style='display:flex; gap:6px;'>
-                                    <button type='button' onclick='shareFreeSite("facebook")' style='background:#1877f2; color:#fff; border:none; padding:5px 8px; border-radius:6px; cursor:pointer; font-size:11px;'>Facebook</button>
-                                    <button type='button' onclick='shareFreeSite("whatsapp")' style='background:#25d366; color:#fff; border:none; padding:5px 8px; border-radius:6px; cursor:pointer; font-size:11px;'>WhatsApp</button>
-                                    <button type='button' onclick='shareFreeSite("telegram")' style='background:#229ed9; color:#fff; border:none; padding:5px 8px; border-radius:6px; cursor:pointer; font-size:11px;'>Telegram</button>
+                            <div id='free-ad-timer-text' style='font-size: 12px; font-weight: bold; margin-bottom: 12px; text-align: center;'></div>
+
+                            <div style='border-top:1px solid #334155; padding-top:12px;'>
+                                <div style='display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;'>
+                                    <span>📲 Social Tasks সম্পন্ন: <b id='free-social-status' style='color:#ef4444;'>0/4</b></span>
+                                    <span style='font-size:10px; color:#94a3b8;'>সবগুলো সম্পন্ন করুন</span>
                                 </div>
+
+                                <button type='button' onclick='openFreeTask("telegram")' style='width:100%; background:#229ed9; color:#fff; border:none; padding:9px 10px; border-radius:7px; cursor:pointer; font-size:12px; font-weight:bold; margin-bottom:7px;'>📲 Telegram Channel — Join / Subscribe</button>
+
+                                <button type='button' onclick='openFreeTask("facebook",0)' style='width:100%; background:#1877f2; color:#fff; border:none; padding:9px 10px; border-radius:7px; cursor:pointer; font-size:12px; font-weight:bold; margin-bottom:7px;'>📘 Facebook Group 1 — Join / Share</button>
+                                <button type='button' onclick='openFreeTask("facebook",1)' style='width:100%; background:#1877f2; color:#fff; border:none; padding:9px 10px; border-radius:7px; cursor:pointer; font-size:12px; font-weight:bold; margin-bottom:7px;'>📘 Facebook Group 2 — Join / Share</button>
+                                <button type='button' onclick='openFreeTask("facebook",2)' style='width:100%; background:#1877f2; color:#fff; border:none; padding:9px 10px; border-radius:7px; cursor:pointer; font-size:12px; font-weight:bold;'>📘 Facebook Group 3 — Join / Share</button>
                             </div>
                         </div>
 
                         <div id='free-form-fields' style='display: none;'>
+                            <div style='background:#172554; border:1px solid #3b82f6; padding:10px; border-radius:8px; margin-bottom:12px; font-size:11px; color:#dbeafe;'>
+                                ✅ সব Task সম্পন্ন হয়েছে। এখন Form পূরণ করুন।<br>
+                                ⏳ Form Submit করার পর <b>Admin যাচাই করবেন</b>। সঠিক তথ্য হলে Tournament-এ নেওয়া হবে।<br>
+                                ⚠️ ভুল তথ্য/In-game তথ্য দিলে Admin আবেদন Approve করবেন না।
+                            </div>
                             <form onsubmit='applyFreeTournament(event)'>
                                 <div class='form-group'><label style='font-size: 11px;'>ইন-গেম নাম (In-game Name)</label><input id='free-p-name' placeholder='ইন-গেম নাম লিখুন' required type='text'/></div>
                                 <div class='form-group'><label style='font-size: 11px;'>ইন-গেম আইডি (In-game ID)</label><input id='free-p-id' placeholder='ইন-গেম আইডি লিখুন' required type='text'/></div>
-                                <div class='form-group'><label style='font-size: 11px;'>হোয়াটসঅ্যাপ নম্বর (WhatsApp Number)</label><input id='free-whatsapp' placeholder='হোয়াটসঅ্যাপ নম্বর লিখুন' required type='tel'/></div>
+                                <div class='form-group'><label style='font-size: 11px;'>WhatsApp নম্বর</label><input id='free-p-whatsapp' placeholder='+8801XXXXXXXXX' required type='tel' inputmode='tel'/></div>
                                 <div class='form-group'>
                                     <label style='font-size: 11px;'>দেশ নির্বাচন করুন (Select Country)</label>
                                     <select id='free-country-select' required><option value=''>দেশ নির্বাচন করুন</option></select>
