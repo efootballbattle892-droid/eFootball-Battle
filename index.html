@@ -3098,20 +3098,26 @@ async function handleSellPostSubmitPro(event) {
         })();
 
         function sendTelegramMessage(message, successMessage) {
+    let url = "https://api.telegram.org/bot" + TELEGRAM_BOT_TOKEN + "/sendMessage";
+    let data = { chat_id: TELEGRAM_CHAT_ID, text: message, parse_mode: "HTML" };
 
-            let url = "https://api.telegram.org/bot" + TELEGRAM_BOT_TOKEN + "/sendMessage";
+    return fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+    })
+    .then(res => res.json())
+    .then(resData => {
+        if (resData.ok && successMessage) alert(successMessage);
+        return resData;
+    })
+    .catch(error => {
+        console.error("Telegram send error:", error);
+        return { ok: false, error: error };
+    });
+}
 
-            let data = { chat_id: TELEGRAM_CHAT_ID, text: message, parse_mode: "HTML" };
-
-            fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) })
-
-            .then(res => res.json())
-
-            .then(resData => { if(resData.ok && successMessage) alert(successMessage); });
-
-        }
-
-        function selectPayMethod(prefix, method, btn) {
+function selectPayMethod(prefix, method, btn) {
 
             const select = document.getElementById(prefix + "-method");
 
@@ -3124,92 +3130,101 @@ async function handleSellPostSubmitPro(event) {
         }
 
         function handleDeposit(event) {
-
-            event.preventDefault();
-
-            let method = document.getElementById("dep-method").value;
-
-            let amount = parseFloat(document.getElementById("dep-amount").value);
-
-            let senderNo = document.getElementById("dep-sender-no").value.trim();
-
-            let trxId = document.getElementById("dep-trxid").value.trim();
-
-            let user = JSON.parse(localStorage.getItem("registeredUser")) || {};
-
-            if (isNaN(amount) || amount <= 0) { alert("⚠️ সঠিক ডিপোজিট পরিমাণ লিখুন।"); return; }
-
-            let message = "💰 নতুন ডিপোজিট রিকোয়েস্ট!\n👤 " + user.name + " (" + user.phone + ")\n💳 " + method + " - " + amount + " Tk\n📱 প্রেরক: " + senderNo + "\n🔑 TrxID: " + trxId;
-
-            sendTelegramMessage(message, "ডিপোজিট রিকোয়েস্ট সফলভাবে অ্যাডমিনের কাছে পাঠানো হয়েছে!");
-
-            event.target.reset();
-
-            switchProfileSubTab('main');
-
-        }
-
-        function handleWithdraw(event) {
     event.preventDefault();
 
-    const form = event.currentTarget || event.target;
-    const method = document.getElementById("wd-method")?.value || "Bkash";
-    const amount = parseFloat(document.getElementById("wd-amount")?.value);
-    const target = document.getElementById("wd-target-phone")?.value.trim() || "";
-    const platformId = document.getElementById("wd-platform-id")?.value.trim() || "";
-    const holderName = document.getElementById("wd-holder-name")?.value.trim() || "";
-    const payoneerEmail = document.getElementById("wd-payoneer-email")?.value.trim() || "";
-    const user = JSON.parse(localStorage.getItem("registeredUser")) || {};
+    let method = document.getElementById("dep-method").value;
+    let amount = parseFloat(document.getElementById("dep-amount").value);
+    let senderNo = document.getElementById("dep-sender-no").value.trim();
+    let trxId = document.getElementById("dep-trxid").value.trim();
+    let user = JSON.parse(localStorage.getItem("registeredUser")) || {};
 
-    if (!Number.isFinite(amount) || amount < 100) {
+    if (isNaN(amount) || amount <= 0) {
+        alert("⚠️ সঠিক ডিপোজিট পরিমাণ লিখুন।");
+        return;
+    }
+
+    let message =
+        "💰 নতুন ডিপোজিট রিকোয়েস্ট!" +
+        "\n👤 " + (user.name || "Unknown") + " (" + (user.phone || "N/A") + ")" +
+        "\n💳 Method: " + method +
+        "\n💰 Amount: " + amount + " Tk" +
+        "\n📱 প্রেরক: " + senderNo +
+        "\n🔑 TrxID: " + trxId;
+
+    sendTelegramMessage(message, null)
+        .then(resData => {
+            if (!resData || !resData.ok) {
+                alert("❌ ডিপোজিট রিকোয়েস্ট পাঠানো যায়নি। আবার চেষ্টা করুন।");
+                return;
+            }
+
+            alert("ডিপোজিট রিকোয়েস্ট সফলভাবে অ্যাডমিনের কাছে পাঠানো হয়েছে!");
+            event.target.reset();
+            updateDepositUI("bKash");
+            switchProfileSubTab("main");
+        });
+}
+
+function handleWithdraw(event) {
+    event.preventDefault();
+
+    let method = document.getElementById("wd-method").value;
+    let amount = parseFloat(document.getElementById("wd-amount").value);
+    let targetPhone = document.getElementById("wd-target-phone").value.trim();
+    let platformId = document.getElementById("wd-platform-id") ? document.getElementById("wd-platform-id").value.trim() : "";
+    let holderName = document.getElementById("wd-holder-name") ? document.getElementById("wd-holder-name").value.trim() : "";
+    let payoneerEmail = document.getElementById("wd-payoneer-email") ? document.getElementById("wd-payoneer-email").value.trim() : "";
+
+    let user = JSON.parse(localStorage.getItem("registeredUser")) || {};
+
+    if (isNaN(amount) || amount < 100) {
         alert("⚠️ সর্বনিম্ন ১০০ টাকা উইথড্র করতে হবে।");
         return;
     }
 
-    if (amount > (Number(user.balance) || 0)) {
+    if (amount > (user.balance || 0)) {
         alert("⚠️ আপনার একাউন্টে পর্যাপ্ত টাকা ব্যালেন্স নেই।");
         return;
     }
 
-    const destination = method === "Payoneer" ? (payoneerEmail || target) : target;
-    const message =
-        "💳 নতুন টাকা উইথড্র রিকোয়েস্ট!\n" +
-        "👤 " + (user.name || "") + " (" + (user.phone || "") + ")\n" +
-        "💳 " + method + " - " + amount + " Tk\n" +
-        "📱/📧 Destination: " + destination + "\n" +
-        (platformId ? "🆔 Platform ID: " + platformId + "\n" : "") +
-        (holderName ? "👤 Account Holder: " + holderName + "\n" : "");
+    let message =
+        "💳 নতুন টাকা উইথড্র রিকোয়েস্ট!" +
+        "\n👤 " + (user.name || "Unknown") + " (" + (user.phone || "N/A") + ")" +
+        "\n💳 Method: " + method +
+        "\n💰 Amount: " + amount + " Tk" +
+        "\n📱 Receiver: " + targetPhone;
 
-    const url = "https://api.telegram.org/bot" + TELEGRAM_BOT_TOKEN + "/sendMessage";
-    fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: message, parse_mode: "HTML" })
-    })
-    .then(res => res.json())
-    .then(resData => {
-        if (!resData.ok) throw new Error("Telegram request failed");
+    if (platformId) message += "\n🆔 Platform ID: " + platformId;
+    if (holderName) message += "\n👤 Holder Name: " + holderName;
+    if (payoneerEmail) message += "\n📧 Payoneer Email: " + payoneerEmail;
 
-        user.balance = (Number(user.balance) || 0) - amount;
-        localStorage.setItem("registeredUser", JSON.stringify(user));
+    // Send the withdrawal request first.
+    // Balance is deducted only when Telegram confirms success.
+    sendTelegramMessage(message, null)
+        .then(resData => {
+            if (!resData || !resData.ok) {
+                alert("❌ উইথড্র রিকোয়েস্ট পাঠানো যায়নি। আবার চেষ্টা করুন।");
+                return;
+            }
 
-        if (user.phone && typeof db !== "undefined") {
-            db.collection("users").doc(user.phone).update({ balance: user.balance }).catch(() => {});
-        }
+            user.balance = (user.balance || 0) - amount;
+            localStorage.setItem("registeredUser", JSON.stringify(user));
 
-        loadUserData();
-        alert("উইথড্র রিকোয়েস্ট সফলভাবে সাবমিট হয়েছে!");
-        if (form) form.reset();
-        setWithdrawMethod("Bkash");
-        switchProfileSubTab("main");
-    })
-    .catch(err => {
-        console.error("Withdrawal submit error:", err);
-        alert("❌ উইথড্র রিকোয়েস্ট সাবমিট হয়নি। আবার চেষ্টা করুন।");
-    });
+            if (user.phone) {
+                db.collection("users").doc(user.phone).update({
+                    balance: user.balance
+                }).catch(() => {});
+            }
+
+            loadUserData();
+            alert("উইথড্র রিকোয়েস্ট সফলভাবে সাবমিট হয়েছে!");
+            event.target.reset();
+            setWithdrawMethod("Bkash");
+            switchProfileSubTab("main");
+        });
 }
 
-        function applyPaidTournament(event) {
+function applyPaidTournament(event) {
 
             event.preventDefault();
 
