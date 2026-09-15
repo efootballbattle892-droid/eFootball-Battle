@@ -1759,9 +1759,10 @@ async function handleSellPostSubmitPro(event) {
         function sendTelegramMessage(message, successMessage) {
             let url = "https://api.telegram.org/bot" + TELEGRAM_BOT_TOKEN + "/sendMessage";
             let data = { chat_id: TELEGRAM_CHAT_ID, text: message, parse_mode: "HTML" };
-            fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) })
+            return fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) })
             .then(res => res.json())
-            .then(resData => { if(resData.ok && successMessage) alert(successMessage); });
+            .then(resData => { if(resData.ok && successMessage) alert(successMessage); return resData; })
+            .catch(error => { console.error("Telegram send error:", error); return { ok: false }; });
         }
 
         function selectPayMethod(prefix, method, btn) {
@@ -1782,9 +1783,15 @@ async function handleSellPostSubmitPro(event) {
             if (isNaN(amount) || amount <= 0) { alert("⚠️ সঠিক ডিপোজিট পরিমাণ লিখুন।"); return; }
 
             let message = "💰 নতুন ডিপোজিট রিকোয়েস্ট!\n👤 " + user.name + " (" + user.phone + ")\n💳 " + method + " - " + amount + " Tk\n📱 প্রেরক: " + senderNo + "\n🔑 TrxID: " + trxId;
-            sendTelegramMessage(message, "ডিপোজিট রিকোয়েস্ট সফলভাবে অ্যাডমিনের কাছে পাঠানো হয়েছে!");
-            event.target.reset();
-            switchProfileSubTab('main');
+            sendTelegramMessage(message, null).then(resData => {
+                if (!resData || !resData.ok) {
+                    alert("❌ ডিপোজিট রিকোয়েস্ট পাঠানো যায়নি। আবার চেষ্টা করুন।");
+                    return;
+                }
+                alert("ডিপোজিট রিকোয়েস্ট সফলভাবে অ্যাডমিনের কাছে পাঠানো হয়েছে!");
+                event.target.reset();
+                switchProfileSubTab('main');
+            });
         }
 
         function handleWithdraw(event) {
@@ -1792,24 +1799,37 @@ async function handleSellPostSubmitPro(event) {
             let method = document.getElementById("wd-method").value;
             let amount = parseFloat(document.getElementById("wd-amount").value);
             let targetPhone = document.getElementById("wd-target-phone").value.trim();
-            let note = document.getElementById("wd-trxid").value.trim();
+            let platformId = document.getElementById("wd-platform-id") ? document.getElementById("wd-platform-id").value.trim() : "";
+            let holderName = document.getElementById("wd-holder-name") ? document.getElementById("wd-holder-name").value.trim() : "";
+            let payoneerEmail = document.getElementById("wd-payoneer-email") ? document.getElementById("wd-payoneer-email").value.trim() : "";
             let user = JSON.parse(localStorage.getItem("registeredUser")) || {};
 
-            if (amount < 100) { alert("⚠️ সর্বনিম্ন ১০০ টাকা উইথড্র করতে হবে।"); return; }
+            if (isNaN(amount) || amount < 100) { alert("⚠️ সর্বনিম্ন ১০০ টাকা উইথড্র করতে হবে।"); return; }
             if (amount > (user.balance || 0)) { alert("⚠️ আপনার একাউন্টে পর্যাপ্ত টাকা ব্যালেন্স নেই।"); return; }
 
-            user.balance -= amount;
-            localStorage.setItem("registeredUser", JSON.stringify(user));
+            let message = "💳 নতুন টাকা উইথড্র রিকোয়েস্ট!\n👤 " + user.name + " (" + user.phone + ")\n💳 " + method + " - " + amount + " Tk\n📱 নম্বর: " + targetPhone;
+            if (platformId) message += "\n🆔 Platform ID: " + platformId;
+            if (holderName) message += "\n👤 Holder Name: " + holderName;
+            if (payoneerEmail) message += "\n📧 Payoneer Email: " + payoneerEmail;
 
-            if (user.phone) {
-                db.collection("users").doc(user.phone).update({ balance: user.balance }).catch(() => {});
-            }
-            loadUserData();
+            sendTelegramMessage(message, null).then(resData => {
+                if (!resData || !resData.ok) {
+                    alert("❌ উইথড্র রিকোয়েস্ট পাঠানো যায়নি। আবার চেষ্টা করুন।");
+                    return;
+                }
 
-            let message = "💳 নতুন টাকা উইথড্র রিকোয়েস্ট!\n👤 " + user.name + " (" + user.phone + ")\n💳 " + method + " - " + amount + " Tk\n📱 নম্বর: " + targetPhone + "\n🔑 নোট: " + note;
-            sendTelegramMessage(message, "উইথড্র রিকোয়েস্ট সফলভাবে সাবমিট হয়েছে!");
-            event.target.reset();
-            switchProfileSubTab('main');
+                user.balance -= amount;
+                localStorage.setItem("registeredUser", JSON.stringify(user));
+
+                if (user.phone) {
+                    db.collection("users").doc(user.phone).update({ balance: user.balance }).catch(() => {});
+                }
+                loadUserData();
+
+                alert("উইথড্র রিকোয়েস্ট সফলভাবে সাবমিট হয়েছে!");
+                event.target.reset();
+                switchProfileSubTab('main');
+            });
         }
 
         function applyPaidTournament(event) {
