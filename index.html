@@ -366,6 +366,21 @@ nav{top:0!important;position:sticky!important}
             "Croatia", "Japan", "South Korea", "Morocco", "Uruguay", "Colombia"
         ];
 
+        // Free Tournament 64 Slot — 64 unique countries
+        const free64CountriesList = [
+            "Argentina", "Brazil", "France", "Portugal", "England", "Germany", "Spain", "Italy",
+            "Netherlands", "Belgium", "Croatia", "Japan", "South Korea", "Morocco", "Uruguay", "Colombia",
+            "Mexico", "USA", "Canada", "Chile", "Peru", "Ecuador", "Paraguay", "Bolivia",
+            "Venezuela", "Costa Rica", "Panama", "Honduras", "Jamaica", "Nigeria", "Ghana", "Senegal",
+            "Cameroon", "Egypt", "Algeria", "Tunisia", "South Africa", "Ivory Coast", "Mali", "Burkina Faso",
+            "Guinea", "DR Congo", "Austria", "Switzerland", "Denmark", "Sweden", "Norway", "Finland",
+            "Poland", "Czech Republic", "Serbia", "Greece", "Turkey", "Romania", "Ukraine", "Scotland",
+            "Wales", "Ireland", "Russia", "Australia", "China", "Saudi Arabia", "UAE", "Qatar"
+        ];
+
+        let free64TournamentLockedUntil = null;
+        let free64TournamentChecking = false;
+
         window.addEventListener('DOMContentLoaded', () => {
             checkAuth();
             populateCountriesDropdown();
@@ -373,6 +388,8 @@ nav{top:0!important;position:sticky!important}
             loadMarketplaceList();
             updateFreeTaskUI();
             checkFreeTournamentEligibility();
+            checkFree64TournamentEligibility();
+            loadFree64TournamentList();
             calculateCoinPrice();
         });
 
@@ -1279,6 +1296,11 @@ async function handleSellPostSubmitPro(event) {
             let taskBox = document.getElementById("free-task-box");
 
             if (adStatusEl) adStatusEl.innerText = watchedAdsCount + "/10";
+            let ad64StatusEl = document.getElementById("free64-ad-status");
+            let social64StatusEl = document.getElementById("free64-social-status");
+            let form64Fields = document.getElementById("free64-form-fields");
+            let submit64Btn = document.getElementById("free64-submit-btn");
+            if (ad64StatusEl) ad64StatusEl.innerText = watchedAdsCount + "/10";
 
             let socialDone = 0;
             if (telegramJoined) socialDone++;
@@ -1286,6 +1308,52 @@ async function handleSellPostSubmitPro(event) {
             if (facebookGroup2Joined) socialDone++;
             if (facebookGroup3Joined) socialDone++;
             if (socialStatusEl) socialStatusEl.innerText = socialDone + "/4";
+            if (social64StatusEl) social64StatusEl.innerText = socialDone + "/4";
+
+            // Free 64 Tournament ৩০ দিনের Lock
+            if (free64TournamentLockedUntil && Date.now() < free64TournamentLockedUntil.getTime()) {
+                if (form64Fields) form64Fields.style.display = "none";
+                if (submit64Btn) submit64Btn.disabled = true;
+                let lock64Notice = document.getElementById("free64-month-lock-notice");
+                if (!lock64Notice && form64Fields) {
+                    lock64Notice = document.createElement("div");
+                    lock64Notice.id = "free64-month-lock-notice";
+                    lock64Notice.style.cssText = "background:#451a03;border:1px solid #f59e0b;color:#fde68a;padding:12px;border-radius:8px;margin-bottom:12px;font-size:12px;text-align:center;font-weight:bold;";
+                    form64Fields.parentNode.insertBefore(lock64Notice, form64Fields);
+                }
+                if (lock64Notice) {
+                    lock64Notice.innerHTML = "⏳ আপনি ইতিমধ্যে Free Tournament 64 Slot-এ Apply করেছেন।<br>🔒 আবার Apply করতে ৩০ দিন অপেক্ষা করতে হবে।<br><span id='free64-lock-countdown' style='color:#fff;'>সময় হিসাব করা হচ্ছে...</span>";
+                }
+                let countdown64 = document.getElementById("free64-lock-countdown");
+                if (countdown64) countdown64.innerText = "আর বাকি: " + formatRemainingTime(free64TournamentLockedUntil.getTime() - Date.now());
+                if (!window.free64LockCountdownTimer) {
+                    window.free64LockCountdownTimer = setInterval(() => {
+                        if (!free64TournamentLockedUntil) return;
+                        if (Date.now() >= free64TournamentLockedUntil.getTime()) {
+                            free64TournamentLockedUntil = null;
+                            clearInterval(window.free64LockCountdownTimer);
+                            window.free64LockCountdownTimer = null;
+                            let n = document.getElementById("free64-month-lock-notice");
+                            if (n) n.remove();
+                            updateFreeTaskUI();
+                            checkFree64TournamentEligibility();
+                            return;
+                        }
+                        let el = document.getElementById("free64-lock-countdown");
+                        if (el) el.innerText = "আর বাকি: " + formatRemainingTime(free64TournamentLockedUntil.getTime() - Date.now());
+                    }, 60000);
+                }
+            } else {
+                let old64Notice = document.getElementById("free64-month-lock-notice");
+                if (old64Notice) old64Notice.remove();
+                if (watchedAdsCount >= 10 && allFreeSocialTasksDone()) {
+                    if (form64Fields) form64Fields.style.display = "block";
+                    if (submit64Btn) submit64Btn.disabled = false;
+                } else {
+                    if (form64Fields) form64Fields.style.display = "none";
+                    if (submit64Btn) submit64Btn.disabled = true;
+                }
+            }
 
             // ৩০ দিনের Lock
             if (freeTournamentLockedUntil && Date.now() < freeTournamentLockedUntil.getTime()) {
@@ -1336,6 +1404,247 @@ async function handleSellPostSubmitPro(event) {
             } else {
                 if (formFields) formFields.style.display = "none";
                 if (submitBtn) submitBtn.disabled = true;
+            }
+        }
+
+        function getFree64TournamentLockInfo(data) {
+            if (!data || !data.free64TournamentLastAppliedAt) return null;
+            let appliedAt = data.free64TournamentLastAppliedAt;
+            if (appliedAt && typeof appliedAt.toDate === "function") appliedAt = appliedAt.toDate();
+            else if (appliedAt && appliedAt.seconds) appliedAt = new Date(appliedAt.seconds * 1000);
+            else appliedAt = new Date(appliedAt);
+            if (isNaN(appliedAt.getTime())) return null;
+            const unlockTime = new Date(appliedAt.getTime() + (30 * 24 * 60 * 60 * 1000));
+            return Date.now() < unlockTime.getTime() ? { appliedAt, unlockTime } : null;
+        }
+
+        async function checkFree64TournamentEligibility() {
+            let user = getCurrentUserForFreeTournament();
+            let phone = user.phone;
+            if (!phone || typeof db === "undefined") return;
+            try {
+                free64TournamentChecking = true;
+                let doc = await db.collection("users").doc(String(phone)).get();
+                let lockInfo = getFree64TournamentLockInfo(doc.exists ? doc.data() : null);
+                free64TournamentLockedUntil = lockInfo ? lockInfo.unlockTime : null;
+                free64TournamentChecking = false;
+                updateFreeTaskUI();
+            } catch (error) {
+                free64TournamentChecking = false;
+                console.error("Free 64 Tournament eligibility error:", error);
+                updateFreeTaskUI();
+            }
+        }
+
+        function free64CountryDocId(country) {
+            return "free64_" + String(country).toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+        }
+
+        function loadFree64TournamentList() {
+            let container = document.getElementById("free64-matches-container");
+            let countrySelect = document.getElementById("free64-country-select");
+            if (!container) return;
+
+            db.collection("matches").where("type", "==", "Free Tournament 64 Slot").get().then((snapshot) => {
+                container.innerHTML = "";
+                let registeredPlayers = [];
+                let takenCountries = [];
+
+                snapshot.forEach(doc => {
+                    let d = doc.data();
+                    if (d.playerName && d.country) {
+                        registeredPlayers.push({ id: doc.id, ...d });
+                        takenCountries.push(d.country);
+                    }
+                });
+
+                if (countrySelect) {
+                    countrySelect.innerHTML = "<option value=''>দেশ নির্বাচন করুন</option>";
+                    free64CountriesList.forEach(country => {
+                        if (!takenCountries.includes(country)) {
+                            let opt = document.createElement("option");
+                            opt.value = country;
+                            opt.innerText = country;
+                            countrySelect.appendChild(opt);
+                        }
+                    });
+                }
+
+                let headerInfo = document.createElement("div");
+                headerInfo.style.cssText = "margin-bottom:12px;font-size:13px;color:#facc15;font-weight:bold;background:#1e293b;padding:10px;border-radius:8px;border:1px solid #334155;";
+                headerInfo.innerHTML = "🎁 Free Tournament 64 Slot | স্লট: <b style='color:#25d366;'>" + registeredPlayers.length + "/64</b> | দেশ: <b style='color:#fff;'>64টি</b>";
+                container.appendChild(headerInfo);
+
+                let gridDiv = document.createElement("div");
+                gridDiv.className = "slots-grid";
+                for (let i = 1; i <= 64; i++) {
+                    let player = registeredPlayers[i - 1];
+                    let slotBox = document.createElement("div");
+                    if (player) {
+                        slotBox.className = "slot-item booked";
+                        slotBox.innerHTML = "<div><span class='slot-no'>#স্লট " + i + "</span><br/><b style='color:#fff;'>" + player.playerName + "</b></div><div style='text-align:right;'><span style='font-size:11px;color:#38bdf8;'>🌍 " + player.country + "</span></div>";
+                    } else {
+                        slotBox.className = "slot-item";
+                        slotBox.innerHTML = "<div><span class='slot-no'>#স্লট " + i + "</span><br/><span style='color:#64748b;'>খালি আছে</span></div>";
+                    }
+                    gridDiv.appendChild(slotBox);
+                }
+                container.appendChild(gridDiv);
+            }).catch(err => {
+                console.error("Free 64 Tournament list error:", err);
+                container.innerHTML = "<div style='color:#f87171;padding:10px;'>❌ Tournament list লোড করা যায়নি।</div>";
+            });
+        }
+
+        async function applyFree64Tournament(event) {
+            event.preventDefault();
+
+            if (free64TournamentLockedUntil && Date.now() < free64TournamentLockedUntil.getTime()) {
+                alert("⏳ আপনি ইতিমধ্যে Free Tournament 64 Slot-এ Apply করেছেন।\n\n৩০ দিন পূর্ণ হলে আবার Apply করতে পারবেন।");
+                updateFreeTaskUI();
+                return;
+            }
+
+            if (watchedAdsCount < 10 || !allFreeSocialTasksDone()) {
+                alert("⚠️ আবেদন করার আগে ১০টি অ্যাড দেখা এবং Telegram Channel + ৩টি Facebook Group-এর কাজ সম্পন্ন করতে হবে।");
+                return;
+            }
+
+            let user = getCurrentUserForFreeTournament();
+            let phone = String(user.phone || "").trim();
+            if (!phone) {
+                alert("❌ আপনার Account তথ্য পাওয়া যায়নি। আগে Login করুন।");
+                return;
+            }
+
+            let freeName = document.getElementById("free64-p-name").value.trim();
+            let freeId = document.getElementById("free64-p-id").value.trim();
+            let freeCountry = document.getElementById("free64-country-select").value;
+            let freeWhatsapp = document.getElementById("free64-p-whatsapp").value.trim().replace(/\s|-/g, "");
+
+            if (!freeName || !freeId || !freeCountry || !freeWhatsapp) {
+                alert("⚠️ সব তথ্য সঠিকভাবে পূরণ করুন!");
+                return;
+            }
+            if (!free64CountriesList.includes(freeCountry)) {
+                alert("⚠️ সঠিক দেশ নির্বাচন করুন!");
+                return;
+            }
+            if (!/^\+?[0-9]{8,15}$/.test(freeWhatsapp)) {
+                alert("⚠️ সঠিক WhatsApp নম্বর দিন।");
+                return;
+            }
+
+            let submitBtn = document.getElementById("free64-submit-btn");
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerText = "আবেদন যাচাই করা হচ্ছে...";
+            }
+
+            const userRef = db.collection("users").doc(phone);
+            const countryRef = db.collection("matches").doc(free64CountryDocId(freeCountry));
+            const now = new Date();
+            const unlockTime = new Date(now.getTime() + (30 * 24 * 60 * 60 * 1000));
+
+            try {
+                // Transaction: একই দেশ/একই user/64-slot limit একসাথে যাচাই করা হচ্ছে।
+                await db.runTransaction(async (transaction) => {
+                    const userSnap = await transaction.get(userRef);
+                    const countrySnap = await transaction.get(countryRef);
+                    const userData = userSnap.exists ? userSnap.data() : {};
+                    const existingLock = getFree64TournamentLockInfo(userData);
+                    if (existingLock) {
+                        const err = new Error("FREE64_TOURNAMENT_LOCKED");
+                        err.unlockTime = existingLock.unlockTime;
+                        throw err;
+                    }
+                    if (countrySnap.exists) {
+                        throw new Error("FREE64_COUNTRY_TAKEN");
+                    }
+
+                    const allMatchesSnap = await transaction.get(
+                        db.collection("matches").where("type", "==", "Free Tournament 64 Slot")
+                    );
+                    let count = 0;
+                    let alreadyJoined = false;
+                    allMatchesSnap.forEach(doc => {
+                        const d = doc.data();
+                        if (d.playerName && d.country) count++;
+                        if (d.userPhone === phone) alreadyJoined = true;
+                    });
+                    if (count >= 64) throw new Error("FREE64_FULL");
+                    if (alreadyJoined) throw new Error("FREE64_ALREADY_JOINED");
+
+                    transaction.set(countryRef, {
+                        type: "Free Tournament 64 Slot",
+                        slot: count + 1,
+                        playerName: freeName,
+                        playerId: freeId,
+                        country: freeCountry,
+                        userPhone: phone,
+                        whatsapp: freeWhatsapp,
+                        status: "Pending Admin Review",
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    transaction.set(userRef, {
+                        free64TournamentLastAppliedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        free64TournamentNextApplyAt: firebase.firestore.Timestamp.fromDate(unlockTime)
+                    }, { merge: true });
+                });
+
+                free64TournamentLockedUntil = unlockTime;
+
+                let message =
+                    "🎁 Free Tournament 64 Slot আবেদন জমা হয়েছে!\n" +
+                    "👤 একাউন্ট: " + (user.name || "N/A") + " (" + phone + ")\n" +
+                    "🎮 ইন-গেম নাম: " + freeName + "\n" +
+                    "🆔 ইন-গেম আইডি: " + freeId + "\n" +
+                    "🌍 দেশ: " + freeCountry + "\n" +
+                    "📱 WhatsApp: " + freeWhatsapp + "\n\n" +
+                    "📢 ১০টি অ্যাড: সম্পন্ন\n" +
+                    "📲 Telegram Channel: সম্পন্ন\n" +
+                    "📘 Facebook Group 1: সম্পন্ন\n" +
+                    "📘 Facebook Group 2: সম্পন্ন\n" +
+                    "📘 Facebook Group 3: সম্পন্ন\n\n" +
+                    "👥 Tournament Size: 64 Slot\n" +
+                    "🌍 Country Rule: 64টি আলাদা দেশ, প্রতি দেশে ১ জন\n" +
+                    "⏳ Status: ADMIN REVIEW PENDING\n" +
+                    "🔒 Next Free 64 Slot Apply: ৩০ দিন পর";
+                sendTelegramMessage(message, "✅ Free Tournament 64 Slot আবেদন Admin যাচাইয়ের জন্য পাঠানো হয়েছে!");
+
+                alert("✅ Free Tournament 64 Slot-এ আবেদন সফলভাবে জমা হয়েছে!\n\n⏳ Admin তথ্য যাচাই করবেন।\n🌍 নির্বাচিত দেশটি এই Tournament-এ আর কেউ নিতে পারবে না।\n🔒 একই User আবার এই Tournament-এ Apply করতে পারবেন ৩০ দিন পর।");
+
+                event.target.reset();
+                watchedAdsCount = 0;
+                completedSharesCount = 0;
+                telegramJoined = false;
+                facebookGroup1Joined = false;
+                facebookGroup2Joined = false;
+                facebookGroup3Joined = false;
+                updateFreeTaskUI();
+                loadFree64TournamentList();
+                if (submitBtn) submitBtn.innerText = "আবেদন করুন";
+            } catch (error) {
+                console.error("Free 64 Tournament Apply Error:", error);
+                if (error && error.message === "FREE64_TOURNAMENT_LOCKED") {
+                    free64TournamentLockedUntil = error.unlockTime || null;
+                    updateFreeTaskUI();
+                    alert("⏳ আপনি ইতিমধ্যে এই Free Tournament 64 Slot-এ Apply করেছেন।\n\n৩০ দিন পূর্ণ হলে আবার Apply করতে পারবেন।");
+                } else if (error && error.message === "FREE64_COUNTRY_TAKEN") {
+                    loadFree64TournamentList();
+                    alert("⚠️ এই দেশটি ইতিমধ্যে অন্য একজন Player নিয়েছে। অন্য দেশ নির্বাচন করুন।");
+                } else if (error && error.message === "FREE64_FULL") {
+                    loadFree64TournamentList();
+                    alert("⚠️ Free Tournament 64 Slot ইতিমধ্যে ৬৪ জনে পূর্ণ হয়ে গেছে!");
+                } else if (error && error.message === "FREE64_ALREADY_JOINED") {
+                    alert("⚠️ আপনি এই Free Tournament 64 Slot-এ ইতিমধ্যে আবেদন করেছেন!");
+                } else {
+                    alert("❌ আবেদন জমা দেওয়া যায়নি। আবার চেষ্টা করুন।");
+                }
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = "আবেদন করুন";
+                }
             }
         }
 
@@ -1683,16 +1992,19 @@ async function handleSellPostSubmitPro(event) {
             document.getElementById("tab-content-paid").style.display = (tabName === 'paid') ? 'block' : 'none';
             document.getElementById("tab-content-slot").style.display = (tabName === 'slot') ? 'block' : 'none';
             document.getElementById("tab-content-free").style.display = (tabName === 'free') ? 'block' : 'none';
+            document.getElementById("tab-content-free64").style.display = (tabName === 'free64') ? 'block' : 'none';
             document.getElementById("tab-content-market").style.display = (tabName === 'market') ? 'block' : 'none';
             document.getElementById("tab-content-coin").style.display = (tabName === 'coin') ? 'block' : 'none';
             
             document.getElementById("main-tab-paid").className = (tabName === 'paid') ? 'tab-btn active' : 'tab-btn';
             document.getElementById("main-tab-slot").className = (tabName === 'slot') ? 'tab-btn active' : 'tab-btn';
             document.getElementById("main-tab-free").className = (tabName === 'free') ? 'tab-btn active' : 'tab-btn';
+            document.getElementById("main-tab-free64").className = (tabName === 'free64') ? 'tab-btn active' : 'tab-btn';
             document.getElementById("main-tab-market").className = (tabName === 'market') ? 'tab-btn active' : 'tab-btn';
             document.getElementById("main-tab-coin").className = (tabName === 'coin') ? 'tab-btn active' : 'tab-btn';
 
             if(tabName === 'market') loadMarketplaceList();
+            if(tabName === 'free64') loadFree64TournamentList();
         }
 
         function switchProfileSubTab(tabName) {
@@ -2177,6 +2489,7 @@ async function handleSellPostSubmitPro(event) {
                     <button class='tab-btn' id='main-tab-market' onclick='switchMainTab("market")'>🛒 ID Sell</button>
                     <button class='tab-btn' id='main-tab-slot' onclick='switchMainTab("slot")'>🎮 PvP</button>
                     <button class='tab-btn' id='main-tab-free' onclick='switchMainTab("free")'>🎁 Free</button>
+                    <button class='tab-btn' id='main-tab-free64' onclick='switchMainTab("free64")'>🎁 Free 64</button>
                     <button class='tab-btn active' id='main-tab-paid' onclick='switchMainTab("paid")'>🏆 Paid</button>
                     <button class='tab-btn' id='main-tab-coin' onclick='switchMainTab("coin")'>🪙 Coin Buy</button>
                 </div>
@@ -2288,7 +2601,55 @@ async function handleSellPostSubmitPro(event) {
                     </div>
                 </div>
 
-                <!-- 4. eFootball ID Sell Tab -->
+                <!-- 4. Free Tournament 64 Slot Tab -->
+                <div id='tab-content-free64' style='display: none;'>
+                    <div style='background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155;'>
+                        <h4 style='color: #facc15; margin-bottom: 8px; font-size: 14px;'>🎁 Free Tournament — 64 Slot</h4>
+                        <p style='font-size: 12px; color: #94a3b8; margin-bottom: 15px;'>এই Tournament-এ মোট <b>64টি Slot</b> এবং <b>64টি আলাদা দেশ</b> থাকবে। আগের Free Tournament-এর মতোই <b>১০টি অ্যাড + Telegram + ৩টি Facebook Group</b> Task সম্পন্ন করতে হবে। প্রতি দেশ থেকে মাত্র <b>১ জন</b> Player নেওয়া হবে এবং একই User <b>৩০ দিন</b> পর আবার Apply করতে পারবেন।</p>
+
+                        <div style='background: #0f172a; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 13px; border: 1px solid #334155;'>
+                            <div style='display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;'>
+                                <span>📺 অ্যাড দেখা সম্পন্ন: <b id='free64-ad-status' style='color:#ef4444;'>0/10</b></span>
+                                <button type='button' id='watch-ad64-btn' onclick='watchFreeAd()' style='background:#3b82f6; color:#fff; border:none; padding:5px 12px; border-radius:6px; cursor:pointer; font-weight:bold;'>📺 অ্যাড দেখুন</button>
+                            </div>
+                            <div style='font-size: 12px; font-weight: bold; margin-bottom: 12px; text-align: center;'>উপরের অ্যাড বাটন ব্যবহার করে ১০টি অ্যাড সম্পন্ন করুন</div>
+                            <div style='border-top:1px solid #334155; padding-top:12px;'>
+                                <div style='display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;'>
+                                    <span>📲 Social Tasks সম্পন্ন: <b id='free64-social-status' style='color:#ef4444;'>0/4</b></span>
+                                    <span style='font-size:10px; color:#94a3b8;'>সবগুলো সম্পন্ন করুন</span>
+                                </div>
+                                <button type='button' onclick='openFreeTask("telegram")' style='width:100%; background:#229ed9; color:#fff; border:none; padding:9px 10px; border-radius:7px; cursor:pointer; font-size:12px; font-weight:bold; margin-bottom:7px;'>📲 Telegram Channel — Join / Subscribe</button>
+                                <button type='button' onclick='openFreeTask("facebook",0)' style='width:100%; background:#1877f2; color:#fff; border:none; padding:9px 10px; border-radius:7px; cursor:pointer; font-size:12px; font-weight:bold; margin-bottom:7px;'>📘 Facebook Group 1 — Join / Share</button>
+                                <button type='button' onclick='openFreeTask("facebook",1)' style='width:100%; background:#1877f2; color:#fff; border:none; padding:9px 10px; border-radius:7px; cursor:pointer; font-size:12px; font-weight:bold; margin-bottom:7px;'>📘 Facebook Group 2 — Join / Share</button>
+                                <button type='button' onclick='openFreeTask("facebook",2)' style='width:100%; background:#1877f2; color:#fff; border:none; padding:9px 10px; border-radius:7px; cursor:pointer; font-size:12px; font-weight:bold;'>📘 Facebook Group 3 — Join / Share</button>
+                            </div>
+                        </div>
+
+                        <div id='free64-form-fields' style='display: none;'>
+                            <div style='background:#172554; border:1px solid #3b82f6; padding:10px; border-radius:8px; margin-bottom:12px; font-size:11px; color:#dbeafe;'>
+                                ✅ সব Task সম্পন্ন হয়েছে। এখন Form পূরণ করুন।<br>
+                                👥 মোট Slot: <b>64</b> | 🌍 মোট দেশ: <b>64</b> | প্রতি দেশ থেকে <b>১ জন</b><br>
+                                ⏳ Form Submit করার পর <b>Admin যাচাই করবেন</b>।
+                            </div>
+                            <form onsubmit='applyFree64Tournament(event)'>
+                                <div class='form-group'><label style='font-size: 11px;'>ইন-গেম নাম (In-game Name)</label><input id='free64-p-name' placeholder='ইন-গেম নাম লিখুন' required type='text'/></div>
+                                <div class='form-group'><label style='font-size: 11px;'>ইন-গেম আইডি (In-game ID)</label><input id='free64-p-id' placeholder='ইন-গেম আইডি লিখুন' required type='text'/></div>
+                                <div class='form-group'><label style='font-size: 11px;'>WhatsApp নম্বর</label><input id='free64-p-whatsapp' placeholder='+8801XXXXXXXXX' required type='tel' inputmode='tel'/></div>
+                                <div class='form-group'>
+                                    <label style='font-size: 11px;'>দেশ নির্বাচন করুন (Select Country)</label>
+                                    <select id='free64-country-select' required><option value=''>দেশ নির্বাচন করুন</option></select>
+                                </div>
+                                <button class='btn-submit' id='free64-submit-btn' type='submit' disabled>আবেদন করুন</button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class='box' style='background: #171f2d; margin-top: 15px;'>
+                        <h4 style='color: #25d366; margin-bottom: 10px; font-size: 14px;'>🏆 Free 64 Slot List</h4>
+                        <div id='free64-matches-container'>লোড হচ্ছে...</div>
+                    </div>
+                </div>
+
+                <!-- 5. eFootball ID Sell Tab -->
                 <div id='tab-content-market' style='display: none;'>
                     <div class='id-sell-pro-card'>
                         <div class='id-sell-hero'>
