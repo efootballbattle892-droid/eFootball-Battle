@@ -3160,7 +3160,7 @@ function selectPayMethod(prefix, method, btn) {
 
             alert("ডিপোজিট রিকোয়েস্ট সফলভাবে অ্যাডমিনের কাছে পাঠানো হয়েছে!");
             event.target.reset();
-            updateDepositUI("bKash");
+            if (typeof updateDepositUI === "function") updateDepositUI("bKash");
             switchProfileSubTab("main");
         });
 }
@@ -3198,8 +3198,6 @@ function handleWithdraw(event) {
     if (holderName) message += "\n👤 Holder Name: " + holderName;
     if (payoneerEmail) message += "\n📧 Payoneer Email: " + payoneerEmail;
 
-    // Send the withdrawal request first.
-    // Balance is deducted only when Telegram confirms success.
     sendTelegramMessage(message, null)
         .then(resData => {
             if (!resData || !resData.ok) {
@@ -3219,7 +3217,7 @@ function handleWithdraw(event) {
             loadUserData();
             alert("উইথড্র রিকোয়েস্ট সফলভাবে সাবমিট হয়েছে!");
             event.target.reset();
-            setWithdrawMethod("Bkash");
+            if (typeof setWithdrawMethod === "function") setWithdrawMethod("Bkash");
             switchProfileSubTab("main");
         });
 }
