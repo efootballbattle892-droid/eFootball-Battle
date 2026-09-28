@@ -101,6 +101,12 @@ input:focus,select:focus{border-color:#315bea;box-shadow:0 0 0 3px rgba(49,91,23
         </div>
       </div>
 
+      <div class="section-head"><h2>Payment & Support</h2><span>Official contact</span></div>
+      <div class="card">
+        <div class="split-row"><div class="split-left"><span class="split-icon">💳</span>bKash / Nagad</div><div class="percent" style="font-size:15px">01622842102</div></div>
+        <a class="primary" href="https://t.me/WorkHub2027" target="_blank" rel="noopener noreferrer" style="display:block;text-align:center;text-decoration:none">💬 Telegram Support</a>
+      </div>
+
       <div class="section-head"><h2>Profit Split</h2><span>Dynamic percentage</span></div>
       <div class="card">
         <div class="split-row"><div class="split-left"><span class="split-icon">🎨</span>Worker</div><div class="percent">60%</div></div>
@@ -244,7 +250,7 @@ function openPayment(){
   if(!amount||amount<50)return alert("কমপক্ষে ৳50 Budget দিন।");
   openModal(`
     <div class="sheet-top"><h2>Client Payment</h2><button class="close" type="button" onclick="closeModal()">×</button></div>
-    <div class="success">Project: <b>${state.service}</b><br>Budget: <b>${money(amount)}</b></div>
+    <div class="success">Project: <b>${state.service}</b><br>Budget: <b>${money(amount)}</b></div><div class="notice"><b>bKash / Nagad Send Money:</b> 01622842102<br>টাকা পাঠানোর পর TrxID ও payment number দিন।</div>
     <label class="label">Payment Method<select id="payMethod"><option>bKash</option><option>Nagad</option></select></label>
     <label class="label">Payment Number<input id="payNumber" inputmode="numeric" maxlength="11" placeholder="01XXXXXXXXX"></label>
     <label class="label">Transaction ID (TrxID)<input id="trx" placeholder="আপনার TrxID"></label>
@@ -264,7 +270,7 @@ function submitPayment(amount){
 function openWithdraw(){
   openModal(`
     <div class="sheet-top"><h2>Withdraw Request</h2><button class="close" type="button" onclick="closeModal()">×</button></div>
-    <div class="success">Available balance: <b>${money(state.balance)}</b></div>
+    <div class="success">Available balance: <b>${money(state.balance)}</b></div><div class="notice"><b>Payment/Support Number:</b> 01622842102<br>bKash / Nagad</div>
     <label class="label">Method<select id="wMethod"><option>bKash</option><option>Nagad</option></select></label>
     <label class="label">Account Number<input id="wNumber" inputmode="numeric" maxlength="11" placeholder="01XXXXXXXXX"></label>
     <label class="label">Amount<input id="wAmount" type="number" min="1000" placeholder="Minimum 1000"></label>
