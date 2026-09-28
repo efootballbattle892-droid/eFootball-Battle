@@ -2,216 +2,313 @@
 <html lang="bn">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>WorkHub — Dynamic Budget</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-src 'none'; object-src 'none';">
+<title>WorkHub — Professional</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#f4f7fb;color:#172033;font-family:system-ui,-apple-system,sans-serif}
-.app{max-width:520px;margin:auto;min-height:100vh;padding-bottom:78px}.top{padding:20px 16px;background:linear-gradient(135deg,#111827,#2563eb);color:#fff;border-radius:0 0 26px 26px}
-.row{display:flex;justify-content:space-between;align-items:center}.brand{font-size:23px;font-weight:900}.avatar{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:#ffffff22}
-.balance{margin-top:18px;padding:17px;border:1px solid #ffffff22;border-radius:18px;background:#ffffff15}.amount{font-size:32px;font-weight:900;margin:4px 0 10px}.wb{background:white;color:#1d4ed8;padding:10px 14px;border-radius:11px;font-weight:800}
-.content{padding:15px}.card{background:white;border:1px solid #e7ebf2;border-radius:18px;padding:16px;margin-bottom:13px;box-shadow:0 5px 20px #00000008}
-h3{margin:0 0 11px}.muted{color:#64748b;font-size:13px}.roles{display:flex;gap:8px;flex-wrap:wrap}.role{padding:8px 11px;border-radius:99px;background:#dcfce7;color:#166534;font-size:13px;font-weight:800}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.stat{background:#f8fafc;padding:13px;border-radius:13px}.stat b{display:block;font-size:20px;margin-top:3px}
-.job{display:flex;justify-content:space-between;gap:10px;padding:13px 0;border-bottom:1px solid #edf0f4}.job:last-child{border:0}.tag{padding:5px 8px;background:#eff6ff;color:#1d4ed8;border-radius:8px;font-size:11px;font-weight:800}
-button{font:inherit;border:0;cursor:pointer}.primary,.secondary{width:100%;padding:13px;border-radius:12px;font-weight:800}.primary{background:#2563eb;color:white}.secondary{background:#eef2ff;color:#1d4ed8;margin-top:9px}
-input,select,textarea{width:100%;padding:13px;border:1px solid #d9e0ea;border-radius:11px;margin-top:6px;background:white;outline:none}.label{display:block;font-size:13px;font-weight:700;margin-top:10px}.notice{padding:11px;background:#fff7ed;color:#9a3412;border-radius:11px;font-size:13px;margin:10px 0}
-.split{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px}.split input{margin-top:4px}.split small{font-size:11px;color:#64748b}
-.priceBtns{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}.priceBtns button{padding:10px;border-radius:10px;background:#eef2ff;color:#1d4ed8;font-weight:800}.priceBtns button.active{background:#2563eb;color:#fff}
-.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(520px,100%);height:70px;background:white;border-top:1px solid #e5e7eb;display:grid;grid-template-columns:repeat(4,1fr);z-index:10}.nav button{background:white;color:#64748b;font-size:11px;font-weight:800}.nav button.active{color:#2563eb}.nav span{display:block;font-size:20px;margin-bottom:2px}
-.hidden{display:none}.modal{position:fixed;inset:0;background:#0008;display:grid;align-items:end;z-index:20}.sheet{background:white;border-radius:23px 23px 0 0;padding:20px;width:min(520px,100%);max-height:92vh;overflow:auto}.close{float:right;border-radius:50%;width:34px;height:34px;background:#f1f5f9}
-.good{color:#166534;background:#dcfce7;padding:9px;border-radius:10px;font-size:13px}.danger{color:#991b1b;background:#fee2e2;padding:9px;border-radius:10px;font-size:13px}
+:root{
+  --bg:#f5f7fb;--card:#fff;--ink:#0f172a;--muted:#64748b;
+  --line:#e8edf4;--navy:#101a3a;--blue:#315bea;--cyan:#18b7c9;
+  --green:#12a86b;--soft:#eef4ff;--shadow:0 12px 35px rgba(15,23,42,.08);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+body{min-height:100vh}
+button,input,select{font:inherit}
+button{border:0;cursor:pointer}
+.app{width:min(100%,560px);margin:auto;min-height:100vh;padding-bottom:96px}
+.hero{padding:24px 18px 22px;background:linear-gradient(145deg,#0b1330 0%,#172b67 58%,#2456c8 100%);color:#fff;border-radius:0 0 30px 30px}
+.topbar{display:flex;align-items:center;justify-content:space-between}
+.logo{font-size:25px;font-weight:900;letter-spacing:-.7px}
+.logo span{color:#65e5ef}
+.profile-btn{width:44px;height:44px;border-radius:15px;background:rgba(255,255,255,.12);color:#fff;font-weight:900}
+.hero-sub{margin:7px 0 20px;color:#c8d4f5;font-size:13px}
+.balance-card{padding:18px;border:1px solid rgba(255,255,255,.13);background:rgba(255,255,255,.08);border-radius:22px;backdrop-filter:blur(8px)}
+.balance-label{color:#b9c8ea;font-size:12px}
+.balance{font-size:37px;font-weight:900;margin:5px 0 15px;letter-spacing:-1px}
+.hero-actions{display:flex;gap:9px}
+.hero-actions button{flex:1;padding:12px;border-radius:13px;font-weight:850}
+.withdraw-btn{background:#fff;color:#17398c}.outline-btn{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.18)}
+main{padding:16px}
+.section-head{display:flex;justify-content:space-between;align-items:end;margin:3px 2px 10px}
+.section-head h2{font-size:18px;margin:0}.section-head span{font-size:12px;color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:21px;padding:16px;margin-bottom:14px;box-shadow:var(--shadow)}
+.role-row{display:flex;gap:8px;flex-wrap:wrap}
+.role{display:inline-flex;align-items:center;gap:6px;padding:9px 12px;border-radius:999px;background:#eaf8f2;color:#08754d;font-size:12px;font-weight:850}
+.add-role{width:100%;margin-top:12px;padding:13px;border-radius:13px;background:var(--soft);color:#2851c8;font-weight:850}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{padding:14px;border-radius:16px;background:#f8fafc}.stat small{color:var(--muted);font-size:12px}.stat b{display:block;font-size:21px;margin-top:4px}
+.split-row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;padding:13px 0;border-bottom:1px solid var(--line)}
+.split-row:last-child{border-bottom:0}.split-left{display:flex;align-items:center;gap:9px;font-weight:750}.split-icon{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;background:#f1f5ff}
+.percent{font-size:18px;font-weight:900;color:#234bb7}
+.service-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.service{padding:15px;border:1px solid var(--line);border-radius:17px;background:#fbfcff;text-align:left}
+.service.active{border-color:#315bea;background:#eef4ff}
+.service-icon{font-size:24px}.service b{display:block;margin-top:7px}.service small{color:var(--muted)}
+.label{display:block;margin-top:13px;font-size:12px;font-weight:800}
+input,select{width:100%;margin-top:6px;padding:13px 14px;border:1px solid #dbe2eb;border-radius:13px;background:#fff;outline:none}
+input:focus,select:focus{border-color:#315bea;box-shadow:0 0 0 3px rgba(49,91,234,.10)}
+.price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:7px}
+.price{padding:11px 6px;border-radius:12px;background:#f1f5ff;color:#2851c8;font-weight:850}.price.active{background:#315bea;color:#fff}
+.primary{width:100%;padding:14px;border-radius:14px;background:linear-gradient(135deg,#315bea,#2447c7);color:#fff;font-weight:900;margin-top:14px}
+.job{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 0;border-bottom:1px solid var(--line)}
+.job:last-child{border-bottom:0}.job-main{display:flex;gap:10px;align-items:center}.job-icon{width:42px;height:42px;border-radius:13px;background:#eef4ff;display:grid;place-items:center;font-size:21px}
+.job b{font-size:14px}.job small{display:block;color:var(--muted);margin-top:3px}.status{padding:6px 9px;border-radius:999px;background:#fff7e8;color:#9a6400;font-size:10px;font-weight:850}
+.bottom-nav{position:fixed;left:50%;bottom:12px;transform:translateX(-50%);width:min(calc(100% - 22px),520px);height:68px;background:rgba(255,255,255,.96);border:1px solid #e2e8f0;border-radius:22px;display:grid;grid-template-columns:repeat(4,1fr);box-shadow:0 15px 40px rgba(15,23,42,.15);z-index:50;backdrop-filter:blur(12px)}
+.bottom-nav button{background:transparent;color:#7a8799;font-size:10px;font-weight:850}.bottom-nav button.active{color:#315bea}.bottom-nav i{font-style:normal;font-size:21px;display:block;margin-bottom:3px}
+.hidden{display:none!important}
+.modal{position:fixed;inset:0;background:rgba(5,12,30,.62);display:flex;align-items:flex-end;justify-content:center;z-index:100;padding:0}
+.sheet{width:min(100%,560px);max-height:88vh;overflow:auto;background:#fff;border-radius:26px 26px 0 0;padding:20px 17px 28px;box-shadow:0 -15px 50px rgba(0,0,0,.18)}
+.sheet-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:13px}.sheet-top h2{margin:0;font-size:20px}.close{width:38px;height:38px;border-radius:12px;background:#f1f5f9;color:#334155;font-size:24px}
+.mini-card{padding:14px;border:1px solid var(--line);border-radius:16px;margin-top:10px}.mini-card h3{margin:0 0 5px;font-size:15px}.muted{color:var(--muted);font-size:12px;line-height:1.55}
+.notice{padding:12px;border-radius:13px;background:#fff7e8;color:#8a5a00;font-size:12px;margin-top:10px}
+.success{padding:12px;border-radius:13px;background:#eaf8f2;color:#08754d;font-size:12px;margin-top:10px}
+@media(max-width:380px){.hero{padding-left:14px;padding-right:14px}main{padding:13px}.service-grid{grid-template-columns:1fr}.bottom-nav{bottom:8px}}
 </style>
 </head>
 <body>
-<div class="app">
-<header class="top">
-<div class="row"><div class="brand">WorkHub</div><div class="avatar">U</div></div>
-<div class="balance"><small>বর্তমান ব্যালেন্স</small><div class="amount" id="balance">৳0</div><button class="wb" onclick="openWithdraw()">Withdraw</button></div>
-</header>
 
-<main class="content">
-<section id="home">
-<div class="card"><h3>Active Roles</h3><div class="roles" id="roles"></div><button class="secondary" onclick="openRoles()">＋ Role Active করুন</button></div>
-<div class="card"><h3>Overview</h3><div class="grid"><div class="stat"><span class="muted">মোট কাজ</span><b id="jobsDone">0</b></div><div class="stat"><span class="muted">মোট আয়</span><b id="earned">৳0</b></div></div></div>
-<div class="card"><h3>Dynamic Profit Split</h3><div class="job"><span>🎨 Worker</span><b>60%</b></div><div class="job"><span>🤝 Client Bringer</span><b>20%</b></div><div class="job"><span>👑 Owner</span><b>20%</b></div><p class="muted">উদাহরণ: ৳1,000 project হলে Worker ৳600, Client Bringer ৳200, Owner ৳200।</p></div>
-</section>
+<div class="app" id="workhubApp">
+  <header class="hero">
+    <div class="topbar">
+      <div class="logo">Work<span>Hub</span></div>
+      <button class="profile-btn" type="button" onclick="openProfile()">U</button>
+    </div>
+    <p class="hero-sub">Creative work • Clients • Earnings — সব এক জায়গায়</p>
+    <div class="balance-card">
+      <div class="balance-label">বর্তমান ব্যালেন্স</div>
+      <div class="balance" id="balance">৳0</div>
+      <div class="hero-actions">
+        <button class="withdraw-btn" type="button" onclick="openWithdraw()">Withdraw</button>
+        <button class="outline-btn" type="button" onclick="openRoles()">+ Role</button>
+      </div>
+    </div>
+  </header>
 
-<section id="jobsPage" class="hidden">
-<div class="card"><h3>Client কাজের অর্ডার</h3>
-<label class="label">Service<select id="service"><option>Canva Design</option><option>CapCut Editing</option></select></label>
-<label class="label">Budget</label>
-<div class="priceBtns"><button onclick="setPrice(500,this)">Normal</button><button onclick="setPrice(1000,this)">High</button><button onclick="setPrice(2000,this)">Pro</button></div>
-<input id="budget" type="number" min="50" placeholder="নিজের Budget লিখুন">
-<p class="muted">Client নিজের ইচ্ছামতো যেকোনো Budget দিতে পারবেন। Payment approve হওয়ার পর কাজ Processing-এ যাবে।</p>
-<button class="primary" onclick="openPayment()">💳 Payment দিয়ে Order করুন</button>
+  <main>
+    <section id="homePage">
+      <div class="section-head"><h2>আপনার Roles</h2><span>Multiple roles supported</span></div>
+      <div class="card">
+        <div class="role-row" id="roles"></div>
+        <button class="add-role" type="button" onclick="openRoles()">＋ নতুন Role Active করুন</button>
+      </div>
+
+      <div class="section-head"><h2>Overview</h2></div>
+      <div class="card">
+        <div class="stats">
+          <div class="stat"><small>মোট কাজ</small><b id="jobsDone">0</b></div>
+          <div class="stat"><small>মোট আয়</small><b id="earned">৳0</b></div>
+        </div>
+      </div>
+
+      <div class="section-head"><h2>Profit Split</h2><span>Dynamic percentage</span></div>
+      <div class="card">
+        <div class="split-row"><div class="split-left"><span class="split-icon">🎨</span>Worker</div><div class="percent">60%</div></div>
+        <div class="split-row"><div class="split-left"><span class="split-icon">🤝</span>Client Bringer</div><div class="percent">20%</div></div>
+        <div class="split-row"><div class="split-left"><span class="split-icon">👑</span>Owner</div><div class="percent">20%</div></div>
+        <p class="muted">উদাহরণ: ৳1,000 approved project হলে Worker ৳600, Client Bringer ৳200 এবং Owner ৳200।</p>
+      </div>
+    </section>
+
+    <section id="jobsPage" class="hidden">
+      <div class="section-head"><h2>নতুন Project</h2><span>Client order</span></div>
+      <div class="card">
+        <div class="service-grid">
+          <button class="service active" type="button" id="canvaBtn" onclick="chooseService('Canva Design')"><span class="service-icon">🎨</span><b>Canva Design</b><small>Post • Banner • Design</small></button>
+          <button class="service" type="button" id="capcutBtn" onclick="chooseService('CapCut Editing')"><span class="service-icon">✂️</span><b>CapCut Editing</b><small>Reels • Shorts • Video</small></button>
+        </div>
+
+        <label class="label">Project Budget</label>
+        <div class="price-grid">
+          <button class="price" type="button" onclick="setPrice(500,this)">Normal<br>৳500</button>
+          <button class="price" type="button" onclick="setPrice(1000,this)">High<br>৳1,000</button>
+          <button class="price" type="button" onclick="setPrice(2000,this)">Pro<br>৳2,000</button>
+        </div>
+        <input id="budget" type="number" min="50" placeholder="অথবা নিজের Budget লিখুন">
+
+        <div class="notice">Payment Owner approve করার পরেই project Processing status পাবে।</div>
+        <button class="primary" type="button" onclick="openPayment()">💳 Payment & Order</button>
+      </div>
+
+      <div class="section-head"><h2>Available Work</h2></div>
+      <div class="card">
+        <div class="job"><div class="job-main"><div class="job-icon">🎨</div><div><b>Canva Design</b><small>Social post / banner</small></div></div><span class="status">Worker 60%</span></div>
+        <div class="job"><div class="job-main"><div class="job-icon">✂️</div><div><b>CapCut Editing</b><small>Short video / reels</small></div></div><span class="status">Worker 60%</span></div>
+      </div>
+    </section>
+
+    <section id="supportPage" class="hidden">
+      <div class="section-head"><h2>Support</h2><span>We're here to help</span></div>
+      <div class="card">
+        <h3 style="margin-top:0">Need help?</h3>
+        <p class="muted">Role, project payment, work delivery বা withdrawal সংক্রান্ত সাহায্যের জন্য Owner/Admin Support-এ যোগাযোগ করুন।</p>
+        <button class="primary" type="button" onclick="alert('আপনার Telegram/WhatsApp Support link এখানে বসাতে পারবেন।')">💬 Contact Support</button>
+      </div>
+    </section>
+
+    <section id="withdrawPage" class="hidden">
+      <div class="section-head"><h2>Withdraw</h2><span>bKash / Nagad</span></div>
+      <div class="card">
+        <div class="success">Minimum withdrawal: ৳1,000</div>
+        <button class="primary" type="button" onclick="openWithdraw()">💸 Withdraw Request</button>
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav" id="bottomNav">
+    <button class="active" type="button" onclick="showPage('homePage',this)"><i>⌂</i>Home</button>
+    <button type="button" onclick="showPage('jobsPage',this)"><i>▣</i>কাজ</button>
+    <button type="button" onclick="showPage('supportPage',this)"><i>◉</i>Support</button>
+    <button type="button" onclick="showPage('withdrawPage',this)"><i>৳</i>Withdraw</button>
+  </nav>
 </div>
-<div class="card"><h3>কাজের তালিকা</h3>
-<div class="job"><div><b>Canva Design</b><div class="muted">Social post / banner</div></div><span class="tag">60%</span></div>
-<div class="job"><div><b>CapCut Editing</b><div class="muted">Short video / reels</div></div><span class="tag">60%</span></div>
+
+<div class="modal hidden" id="modal">
+  <div class="sheet" role="dialog" aria-modal="true">
+    <div id="modalBody"></div>
+  </div>
 </div>
-</section>
-
-<section id="supportPage" class="hidden"><div class="card"><h3>Support</h3><p class="muted">কাজ, Payment, Role বা Withdraw নিয়ে Admin Support-এ যোগাযোগ করুন।</p><button class="primary" onclick="alert('এখানে আপনার Telegram/WhatsApp Support link বসানো যাবে।')">💬 Support</button></div></section>
-
-<section id="withdrawPage" class="hidden"><div class="card"><h3>Withdraw</h3><p class="muted">bKash/Nagad • Minimum ৳1000</p><button class="primary" onclick="openWithdraw()">💸 Withdraw Request</button></div></section>
-</main>
-
-<nav class="nav">
-<button class="active" onclick="page('home',this)"><span>⌂</span>Home</button>
-<button onclick="page('jobsPage',this)"><span>▣</span>কাজ</button>
-<button onclick="page('supportPage',this)"><span>◉</span>Support</button>
-<button onclick="page('withdrawPage',this)"><span>৳</span>Withdraw</button>
-</nav>
-</div>
-
-<div id="modal" class="modal hidden"><div class="sheet"><button class="close" onclick="closeModal()">×</button><div id="modalBody"></div></div></div>
 
 <script>
-const state={balance:0,earned:0,jobs:0,roles:["Worker"],orders:[],payments:[],withdrawals:[]};
+const state={
+  balance:0, earned:0, jobs:0,
+  roles:["Worker"], service:"Canva Design",
+  orders:[], payments:[], withdrawals:[]
+};
+const $=id=>document.getElementById(id);
 const money=n=>"৳"+Number(n||0).toLocaleString("en-BD");
-const el=id=>document.getElementById(id);
 
 function render(){
-  el("balance").textContent=money(state.balance);
-  el("earned").textContent=money(state.earned);
-  el("jobsDone").textContent=state.jobs;
-  el("roles").innerHTML=state.roles.map(r=>'<span class="role">'+(r==="Worker"?"🎨 Worker":r==="Client Bringer"?"🤝 Client Bringer":"👑 Owner")+"</span>").join("");
+  $("balance").textContent=money(state.balance);
+  $("earned").textContent=money(state.earned);
+  $("jobsDone").textContent=state.jobs;
+  $("roles").innerHTML=state.roles.map(r=>{
+    const icon=r==="Worker"?"🎨":r==="Client Bringer"?"🤝":"👑";
+    return '<span class="role">'+icon+" "+r+"</span>";
+  }).join("");
 }
-function page(id,btn){
-  document.querySelectorAll("main section").forEach(x=>x.classList.add("hidden"));
-  el(id).classList.remove("hidden");
-  document.querySelectorAll(".nav button").forEach(x=>x.classList.remove("active"));
+function showPage(id,btn){
+  ["homePage","jobsPage","supportPage","withdrawPage"].forEach(x=>$(x).classList.add("hidden"));
+  $(id).classList.remove("hidden");
+  document.querySelectorAll("#bottomNav button").forEach(x=>x.classList.remove("active"));
   btn.classList.add("active");
+  window.scrollTo({top:0,behavior:"smooth"});
 }
-function setPrice(value,btn){
-  el("budget").value=value;
-  document.querySelectorAll(".priceBtns button").forEach(x=>x.classList.remove("active"));
-  btn.classList.add("active");
+function openModal(content){
+  $("modalBody").innerHTML=content;
+  $("modal").classList.remove("hidden");
+  document.body.style.overflow="hidden";
+}
+function closeModal(){
+  $("modal").classList.add("hidden");
+  $("modalBody").innerHTML="";
+  document.body.style.overflow="";
+}
+$("modal").addEventListener("click",e=>{if(e.target===$("modal"))closeModal()});
+
+function openProfile(){
+  openModal(`
+    <div class="sheet-top"><h2>Profile</h2><button class="close" type="button" onclick="closeModal()">×</button></div>
+    <div class="mini-card"><h3>WorkHub User</h3><p class="muted">Account dashboard ready.</p></div>
+    <div class="mini-card"><h3>Active Roles</h3><p class="muted">${state.roles.join(" • ")}</p></div>
+  `);
 }
 function openRoles(){
-  el("modalBody").innerHTML=`
-  <h2>Role Activation</h2><p class="muted">এক account-এ একাধিক Role রাখা যাবে।</p>
-  <div class="card"><h3>🎨 Worker</h3><p class="muted">Canva / CapCut editing কাজ করবেন।</p><button class="primary" onclick="activateWorker()">Worker Active করুন</button></div>
-  <div class="card"><h3>🤝 Client Bringer</h3><p class="muted">Client বা নতুন কাজ নিয়ে আসবেন।</p><div class="notice">এই Role Active করতে একবারের জন্য ৳100 fee।</div><button class="primary" onclick="activateClient()">৳100 দিয়ে Active করুন</button></div>`;
-  el("modal").classList.remove("hidden");
+  openModal(`
+    <div class="sheet-top"><h2>Role Activation</h2><button class="close" type="button" onclick="closeModal()">×</button></div>
+    <div class="mini-card"><h3>🎨 Worker</h3><p class="muted">Canva ও CapCut editing কাজ করবেন।</p><button class="primary" onclick="activateWorker()">Worker Active করুন</button></div>
+    <div class="mini-card"><h3>🤝 Client Bringer</h3><p class="muted">Client বা নতুন project নিয়ে আসবেন।</p><div class="notice">একবারের activation fee: ৳100</div><button class="primary" onclick="activateClient()">৳100 দিয়ে Active করুন</button></div>
+  `);
 }
 function activateWorker(){
   if(!state.roles.includes("Worker"))state.roles.push("Worker");
-  render();closeModal();alert("Worker Role Active হয়েছে।");
+  render();closeModal();
 }
 function activateClient(){
   if(state.roles.includes("Client Bringer"))return alert("Client Bringer ইতিমধ্যে Active।");
-  if(state.balance<100)return alert("Client Bringer Active করতে ৳100 প্রয়োজন।");
-  state.balance-=100;state.roles.push("Client Bringer");render();closeModal();alert("Client Bringer Role Active হয়েছে।");
+  if(state.balance<100)return alert("Client Bringer Active করতে ৳100 balance প্রয়োজন।");
+  state.balance-=100;state.roles.push("Client Bringer");render();closeModal();
+}
+function chooseService(name){
+  state.service=name;
+  $("canvaBtn").classList.toggle("active",name==="Canva Design");
+  $("capcutBtn").classList.toggle("active",name==="CapCut Editing");
+}
+function setPrice(value,btn){
+  $("budget").value=value;
+  document.querySelectorAll(".price").forEach(x=>x.classList.remove("active"));
+  btn.classList.add("active");
 }
 function openPayment(){
-  const amount=Number(el("budget").value);
+  const amount=Number($("budget").value);
   if(!amount||amount<50)return alert("কমপক্ষে ৳50 Budget দিন।");
-  el("modalBody").innerHTML=`
-  <h2>Client Payment</h2>
-  <div class="good">Order Budget: <b>${money(amount)}</b></div>
-  <label class="label">Payment Method<select id="payMethod"><option>bKash</option><option>Nagad</option></select></label>
-  <p class="muted">Admin-এর নির্ধারিত bKash/Nagad নম্বরে টাকা পাঠিয়ে নিচের তথ্য দিন।</p>
-  <label class="label">Payment Number<input id="payNumber" inputmode="numeric" placeholder="01XXXXXXXXX"></label>
-  <label class="label">TrxID<input id="trx" placeholder="যেমন: 9A7B123XYZ"></label>
-  <button class="primary" style="margin-top:14px" onclick="submitPayment(${amount})">Payment Submit করুন</button>`;
-  el("modal").classList.remove("hidden");
+  openModal(`
+    <div class="sheet-top"><h2>Client Payment</h2><button class="close" type="button" onclick="closeModal()">×</button></div>
+    <div class="success">Project: <b>${state.service}</b><br>Budget: <b>${money(amount)}</b></div>
+    <label class="label">Payment Method<select id="payMethod"><option>bKash</option><option>Nagad</option></select></label>
+    <label class="label">Payment Number<input id="payNumber" inputmode="numeric" maxlength="11" placeholder="01XXXXXXXXX"></label>
+    <label class="label">Transaction ID (TrxID)<input id="trx" placeholder="আপনার TrxID"></label>
+    <div class="notice">Owner payment verify করে approve করলে project Processing-এ যাবে।</div>
+    <button class="primary" onclick="submitPayment(${amount})">Submit Payment</button>
+  `);
 }
 function submitPayment(amount){
-  const number=el("payNumber").value.trim(),trx=el("trx").value.trim();
-  if(!/^01\d{9}$/.test(number))return alert("সঠিক bKash/Nagad payment number দিন।");
+  const number=$("payNumber").value.trim(),trx=$("trx").value.trim();
+  if(!/^01\d{9}$/.test(number))return alert("সঠিক ১১ ডিজিটের payment number দিন।");
   if(trx.length<5)return alert("সঠিক TrxID দিন।");
-  state.payments.push({amount,number,trx,status:"pending",createdAt:new Date().toISOString()});
-  state.orders.push({service:el("service").value,budget:amount,paymentStatus:"pending",processing:false});
+  state.payments.push({amount,number,trx,status:"pending"});
+  state.orders.push({service:state.service,budget:amount,paymentStatus:"pending"});
   closeModal();
-  alert("Payment তথ্য Pending হয়েছে। Owner/Admin approve করার পর কাজ Processing-এ যাবে।");
+  alert("Payment submitted — এখন Owner verification pending।");
 }
 function openWithdraw(){
-  el("modalBody").innerHTML=`
-  <h2>Withdraw Request</h2><p class="muted">Minimum withdrawal ৳1000</p>
-  <label class="label">Method<select id="wMethod"><option>bKash</option><option>Nagad</option></select></label>
-  <label class="label">Number<input id="wNumber" inputmode="numeric" placeholder="01XXXXXXXXX"></label>
-  <label class="label">Amount<input id="wAmount" type="number" min="1000" placeholder="1000"></label>
-  <button class="primary" style="margin-top:14px" onclick="withdraw()">Withdraw Request পাঠান</button>`;
-  el("modal").classList.remove("hidden");
+  openModal(`
+    <div class="sheet-top"><h2>Withdraw Request</h2><button class="close" type="button" onclick="closeModal()">×</button></div>
+    <div class="success">Available balance: <b>${money(state.balance)}</b></div>
+    <label class="label">Method<select id="wMethod"><option>bKash</option><option>Nagad</option></select></label>
+    <label class="label">Account Number<input id="wNumber" inputmode="numeric" maxlength="11" placeholder="01XXXXXXXXX"></label>
+    <label class="label">Amount<input id="wAmount" type="number" min="1000" placeholder="Minimum 1000"></label>
+    <button class="primary" onclick="withdraw()">Send Withdraw Request</button>
+  `);
 }
 function withdraw(){
-  const amount=Number(el("wAmount").value),number=el("wNumber").value.trim();
+  const amount=Number($("wAmount").value),number=$("wNumber").value.trim();
   if(amount<1000)return alert("Minimum withdrawal ৳1000।");
-  if(amount>state.balance)return alert("ব্যালেন্স যথেষ্ট নয়।");
-  if(!/^01\d{9}$/.test(number))return alert("সঠিক bKash/Nagad নম্বর দিন।");
-  state.withdrawals.push({amount,number,status:"pending",createdAt:new Date().toISOString()});
-  closeModal();alert("Withdrawal request Pending হয়েছে। Owner/Admin verification-এর পর payment হবে।");
+  if(amount>state.balance)return alert("আপনার balance যথেষ্ট নয়।");
+  if(!/^01\d{9}$/.test(number))return alert("সঠিক bKash/Nagad number দিন।");
+  state.withdrawals.push({amount,number,status:"pending"});
+  closeModal();
+  alert("Withdraw request Pending হয়েছে। Owner verification-এর পর payment হবে।");
 }
-function closeModal(){el("modal").classList.add("hidden")}
 render();
-</script>
 
-<script>
-/* WorkHub: remove only unexpected blank bottom overlays/popups.
-   Keeps WorkHub's own modal when it contains real content. */
-(function () {
-  const isVisible = el => {
-    const s = getComputedStyle(el);
-    const r = el.getBoundingClientRect();
-    return s.display !== "none" && s.visibility !== "hidden" &&
-           r.width > 0 && r.height > 0;
-  };
+/*
+  IMPORTANT:
+  This page contains no ad script, no iframe, no external popup library
+  and no third-party popup code.
+  The guard below only removes an unexpected fixed bottom element
+  injected from outside this WorkHub UI. It never touches WorkHub's
+  own .bottom-nav or #modal.
+*/
+(function(){
+  const allowed=el =>
+    el.closest("#workhubApp") ||
+    el.closest("#modal");
 
-  function cleanBlankOverlay() {
-    document.querySelectorAll("body *").forEach(el => {
-      if (!isVisible(el)) return;
-
-      const s = getComputedStyle(el);
-      const r = el.getBoundingClientRect();
-
-      if (s.position !== "fixed") return;
-      if (r.bottom < window.innerHeight - 8) return;
-      if (r.width < window.innerWidth * 0.82) return;
-      if (r.height < 100) return;
-
-      /* Never remove WorkHub bottom navigation. */
-      if (el.classList.contains("nav") || el.closest(".nav")) return;
-
-      /* Never remove a real WorkHub modal with content. */
-      if (el.id === "modal" || el.closest("#modal")) {
-        const body = document.getElementById("modalBody");
-        if (body && body.textContent.trim()) return;
-      }
-
-      const text = (el.innerText || "").trim();
-      const meaningful = el.querySelector(
-        "input,select,textarea,form,iframe,img,video,a[href],h1,h2,h3,h4,p"
-      );
-
-      /* Remove a blank white/near-white fixed overlay. */
-      const bg = s.backgroundColor;
-      const whiteBg =
-        bg === "rgb(255, 255, 255)" ||
-        bg === "rgba(255, 255, 255, 1)" ||
-        bg === "rgb(248, 250, 252)" ||
-        bg === "rgb(249, 250, 251)";
-
-      if (!text && !meaningful && whiteBg) {
-        el.remove();
-      }
+  function cleanExternalOverlay(){
+    document.querySelectorAll("body *").forEach(el=>{
+      if(allowed(el)) return;
+      const s=getComputedStyle(el),r=el.getBoundingClientRect();
+      if(s.position!=="fixed") return;
+      if(r.width<window.innerWidth*.75) return;
+      if(r.bottom<window.innerHeight-8) return;
+      if(r.height<80) return;
+      try{el.remove()}catch(e){}
     });
   }
-
-  cleanBlankOverlay();
-
-  const observer = new MutationObserver(() => {
-    cleanBlankOverlay();
-  });
-
-  observer.observe(document.body, {
-    childList: true,
-    subtree: true
-  });
-
-  window.addEventListener("resize", cleanBlankOverlay);
+  cleanExternalOverlay();
+  new MutationObserver(cleanExternalOverlay).observe(document.body,{childList:true,subtree:true});
 })();
 </script>
-
 </body>
 </html>
